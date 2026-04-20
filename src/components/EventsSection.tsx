@@ -1,0 +1,116 @@
+import {
+  events,
+  getMandirCalendarEmbedSrc,
+  getMandirCalendarIcalUrl,
+  getMandirCalendarWebcalUrl,
+  mandirCalendar,
+} from "@/content/site";
+
+export function EventsSection() {
+  const hasCards = events.items.length > 0;
+  const embedSrc = getMandirCalendarEmbedSrc();
+
+  return (
+    <section id="events" className="border-t border-gold/15 bg-parchment py-16 sm:py-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <header className="mb-10 max-w-3xl">
+          <div className="flex flex-wrap items-baseline gap-3 gap-y-2">
+            <h2 className="font-display text-3xl font-semibold text-deep sm:text-4xl">
+              {events.sectionTitle}
+            </h2>
+            {!hasCards ? (
+              <span className="inline-flex items-center rounded-full border border-gold/35 bg-gold/15 px-3 py-1 font-display text-xs font-semibold uppercase tracking-wide text-gold-dim">
+                {events.comingSoonLabel}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-4 text-lg text-earth">{events.intro}</p>
+        </header>
+
+        {!hasCards ? (
+          <p className="mb-10 max-w-3xl text-lg leading-relaxed text-earth">{events.comingSoonBody}</p>
+        ) : null}
+
+        {hasCards ? (
+          <ul className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {events.items.map((ev) => (
+              <li key={ev.href}>
+                <article className="flex h-full flex-col rounded-2xl border border-gold/20 bg-white/60 p-5 shadow-sm transition hover:border-gold/40 hover:shadow-md">
+                  <p className="font-display text-sm font-semibold text-gold-dim">
+                    {ev.dateLabel}
+                  </p>
+                  <h3 className="mt-2 font-display text-lg font-semibold text-deep">
+                    {ev.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-earth/80">{ev.meta}</p>
+                  <div className="mt-auto pt-4">
+                    <a
+                      href={ev.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex text-sm font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
+                    >
+                      {ev.cta}
+                    </a>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        <div className="border-t border-gold/15 pt-10">
+          <h3 className="font-display text-xl font-semibold text-deep sm:text-2xl">Mandir calendar</h3>
+          <p className="mt-2 max-w-3xl text-base leading-relaxed text-earth sm:text-lg">
+            {mandirCalendar.embedIntro}
+          </p>
+
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <a
+              href={mandirCalendar.openUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center rounded-full bg-gold px-5 py-3 text-sm font-semibold text-deep shadow-sm transition hover:bg-saffron sm:w-auto sm:py-2.5"
+            >
+              {mandirCalendar.openLabel}
+            </a>
+            <a
+              href={mandirCalendar.subscribeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center rounded-full border-2 border-gold/50 bg-white/80 px-5 py-3 text-sm font-semibold text-gold-dim transition hover:border-gold hover:bg-white hover:text-deep sm:w-auto sm:py-2.5"
+            >
+              {mandirCalendar.subscribeGoogleLabel}
+            </a>
+            <a
+              href={getMandirCalendarIcalUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center rounded-full border-2 border-gold/50 bg-white/80 px-5 py-3 text-sm font-semibold text-gold-dim transition hover:border-gold hover:bg-white hover:text-deep sm:w-auto sm:py-2.5"
+            >
+              {mandirCalendar.icalSubscribeLabel}
+            </a>
+            <a
+              href={getMandirCalendarWebcalUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center rounded-full border-2 border-gold/35 bg-parchment-muted/80 px-5 py-3 text-sm font-semibold text-earth transition hover:border-gold hover:text-deep sm:w-auto sm:py-2.5"
+            >
+              {mandirCalendar.webcalAppleLabel}
+            </a>
+          </div>
+
+          <div className="mt-6 overflow-hidden rounded-xl border border-gold/20 bg-white/60 shadow-sm">
+            <iframe
+              title={mandirCalendar.embedTitle}
+              src={embedSrc}
+              className="h-[min(36rem,70vh)] w-full min-h-[20rem] border-0 sm:h-[32rem] lg:h-[36rem]"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
