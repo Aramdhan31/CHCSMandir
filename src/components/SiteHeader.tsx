@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   queueScrollToElement,
   scrollBehaviorPreference,
@@ -30,13 +31,17 @@ export function SiteHeader() {
   const pathname = usePathname();
   const navName = splitNameForNav(site.nameFull);
   const [open, setOpen] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
 
-  return (
-    <>
-      <header
-        id="site-header"
-        className="fixed top-0 left-0 right-0 z-50 w-full border-b border-gold/25 bg-deep/95 text-parchment shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)] backdrop-blur-md"
-      >
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  const headerBar = (
+    <header
+      id="site-header"
+      className="fixed inset-x-0 top-0 z-[5000] w-full max-w-[100vw] border-b border-gold/25 bg-deep text-parchment shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)]"
+    >
         <div className="mx-auto flex max-w-6xl flex-nowrap items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6">
           <Link
             href="/#home"
@@ -62,11 +67,11 @@ export function SiteHeader() {
                 className="navbar-logo block h-14 w-auto max-h-14 max-w-[min(72vw,15rem)] object-contain object-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)] sm:h-16 sm:max-h-16 sm:max-w-[17rem] md:h-[4.5rem] md:max-h-[4.5rem]"
               />
             </span>
-            <span className="font-display flex min-w-0 flex-1 flex-col justify-center text-sm font-semibold leading-snug tracking-tight text-gold sm:text-base md:text-lg md:leading-tight">
+            <span className="font-display flex min-w-0 flex-1 flex-col items-start justify-center text-sm font-semibold leading-snug tracking-tight text-gold sm:text-base md:text-lg md:leading-tight">
               {navName ? (
-                <span className="inline-flex max-w-full flex-col">
+                <span className="inline-flex max-w-full flex-col self-start">
                   <span className="text-left">{navName.line1}</span>
-                  <span className="w-full text-center md:text-left">{navName.line2}</span>
+                  <span className="w-full text-center">{navName.line2}</span>
                 </span>
               ) : (
                 site.nameFull
@@ -124,7 +129,12 @@ export function SiteHeader() {
             </ul>
           </nav>
         </div>
-      </header>
+    </header>
+  );
+
+  return (
+    <>
+      {portalReady ? createPortal(headerBar, document.body) : headerBar}
       {/* Fixed header is out of flow — reserve one row so content does not sit underneath */}
       <div className="h-20 shrink-0 sm:h-[5.5rem] md:h-24" aria-hidden />
     </>

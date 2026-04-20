@@ -15,8 +15,10 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100%;
   /*
-    Sticky header + two-line wordmark + logo is taller than it looks — pad enough
+    Fixed header + two-line wordmark + logo is taller than it looks — pad enough
     so #visit / #events etc. sit fully below the bar (was clipping on “Visit”).
   */
   scroll-padding-top: max(9rem, env(safe-area-inset-top, 0px));
@@ -55,7 +57,9 @@ html {
 
 body {
   @apply bg-parchment text-ink font-body antialiased;
-  overflow-x: clip;
+  /* `overflow-x: clip` on body can break `position: fixed` for the site header in some engines */
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 /* Logo is object-cover inside a circular clip; keep decode clean */
