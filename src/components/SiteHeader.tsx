@@ -62,12 +62,12 @@ export function SiteHeader() {
                 className="navbar-logo block h-14 w-auto max-h-14 max-w-[min(72vw,15rem)] object-contain object-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)] sm:h-16 sm:max-h-16 sm:max-w-[17rem] md:h-[4.5rem] md:max-h-[4.5rem]"
               />
             </span>
-            <span className="font-display flex min-w-0 flex-1 flex-col text-sm font-semibold leading-snug tracking-tight text-gold sm:text-base md:text-lg md:leading-tight">
+            <span className="font-display flex min-w-0 flex-1 flex-col justify-center text-sm font-semibold leading-snug tracking-tight text-gold sm:text-base md:text-lg md:leading-tight">
               {navName ? (
-                <>
+                <span className="inline-flex max-w-full flex-col">
                   <span className="text-left">{navName.line1}</span>
-                  <span className="text-center">{navName.line2}</span>
-                </>
+                  <span className="w-full text-center md:text-left">{navName.line2}</span>
+                </span>
               ) : (
                 site.nameFull
               )}

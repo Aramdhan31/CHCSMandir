@@ -19,24 +19,22 @@ export function HeroSection() {
         aria-hidden
       />
       <div className="relative mx-auto max-w-6xl px-4 pt-8 pb-14 sm:px-6 sm:pt-10 sm:pb-20 lg:pt-12 lg:pb-24">
-        <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-2 lg:items-stretch lg:gap-14">
-          <div className="flex max-w-2xl flex-col text-left lg:max-w-3xl lg:min-h-0 lg:justify-center">
-            <div className="flex w-fit max-w-full flex-col">
-              <p
-                className={`${omDisplay.className} mt-6 mb-3 self-center select-none text-7xl leading-none tracking-tight text-gold [text-shadow:0_0_48px_rgba(212,160,23,0.4),0_4px_24px_rgba(0,0,0,0.35)] sm:mt-8 sm:mb-4 sm:text-8xl sm:leading-none md:mt-10 md:text-[7.25rem] md:leading-[0.95] lg:text-[8.25rem] lg:leading-[0.92] xl:text-[9.25rem]`}
-                role="img"
-                aria-label="Om"
-              >
-                ॐ
+        <p
+          className={`${omDisplay.className} mx-auto mb-6 mt-2 max-w-full select-none text-center text-7xl leading-none tracking-tight text-gold [text-shadow:0_0_48px_rgba(212,160,23,0.4),0_4px_24px_rgba(0,0,0,0.35)] sm:mb-8 sm:mt-3 sm:text-8xl sm:leading-none md:text-[7.25rem] md:leading-[0.95] lg:mb-10 lg:text-[8.25rem] lg:leading-[0.92] xl:text-[9.25rem]`}
+          role="img"
+          aria-label="Om"
+        >
+          ॐ
+        </p>
+        <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-2 lg:items-start lg:gap-14">
+          <div className="max-w-2xl text-left lg:max-w-3xl">
+            <div className="min-w-0 max-w-full text-left">
+              <p className="mb-3 font-display text-sm font-medium uppercase tracking-[0.2em] text-gold">
+                {hero.eyebrow}
               </p>
-              <div className="min-w-0 max-w-full self-start text-left">
-                <p className="mb-3 font-display text-sm font-medium uppercase tracking-[0.2em] text-gold">
-                  {hero.eyebrow}
-                </p>
-                <h1 className="w-fit max-w-full font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
-                  {hero.title}
-                </h1>
-              </div>
+              <h1 className="w-fit max-w-full font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+                {hero.title}
+              </h1>
             </div>
             <p className="mt-4 max-w-2xl text-lg text-parchment-muted sm:text-xl">
               {site.tagline}
@@ -57,18 +55,22 @@ export function HeroSection() {
             </a>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[17.5rem] sm:max-w-md lg:mx-0 lg:flex lg:h-full lg:max-w-none lg:min-h-0 lg:flex-col lg:justify-self-end">
-            <div className="relative h-[min(46dvh,22rem)] w-full min-h-0 flex-1 overflow-hidden rounded-2xl border border-gold/30 bg-deep shadow-[0_24px_60px_-12px_rgba(0,0,0,0.55)] ring-1 ring-parchment/10 sm:h-[min(48dvh,24rem)] lg:h-full lg:min-h-[min(22rem,46dvh)] xl:min-h-[min(26rem,50dvh)]">
+          <div className="relative mx-auto w-full max-w-[17.5rem] sm:max-w-md lg:mx-0 lg:max-w-none lg:justify-self-end">
+            <div
+              className="relative w-full overflow-hidden rounded-2xl border border-gold/30 bg-deep shadow-[0_24px_60px_-12px_rgba(0,0,0,0.55)] ring-1 ring-parchment/10
+                h-[min(46dvh,22rem)] sm:h-[min(48dvh,24rem)]
+                lg:aspect-[4/5] lg:h-auto lg:max-h-[min(32rem,52vh)] lg:max-w-md lg:min-h-0 xl:max-h-[min(36rem,54vh)] xl:max-w-lg"
+            >
               <Image
                 src={hero.homeImageSrc}
                 alt={hero.homeImageAlt}
                 fill
                 priority
-                sizes="(max-width: 1023px) min(100vw, 28rem), (max-width: 1280px) 40vw, 480px"
+                sizes="(max-width: 1023px) min(100vw, 28rem), (max-width: 1280px) 36vw, 448px"
                 className="object-cover object-center"
               />
               <div
-                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-deep/40 via-transparent to-deep/15"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-deep/20 via-transparent to-deep/10"
                 aria-hidden
               />
             </div>
