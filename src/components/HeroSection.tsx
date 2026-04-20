@@ -14,8 +14,13 @@ export function HeroSection() {
       id="home"
       className="relative overflow-hidden bg-deep bg-grain text-parchment"
     >
+      {/* Warm lift at top centre (reference hero) */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(184,134,11,0.35),transparent)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_75%_at_50%_-5%,rgba(72,52,42,0.55)_0%,transparent_58%)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_-18%,rgba(184,134,11,0.32),transparent_52%)]"
         aria-hidden
       />
       <div className="relative mx-auto max-w-6xl px-4 pt-8 pb-14 sm:px-6 sm:pt-10 sm:pb-20 lg:pt-12 lg:pb-24">
@@ -26,17 +31,18 @@ export function HeroSection() {
         >
           ॐ
         </p>
-        <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-2 lg:items-start lg:gap-14">
+        <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
           <div className="max-w-2xl text-left lg:max-w-3xl">
             <div className="min-w-0 max-w-full text-left">
               <p className="mb-3 font-display text-sm font-medium uppercase tracking-[0.2em] text-gold">
                 {hero.eyebrow}
               </p>
-              <h1 className="w-fit max-w-full font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
-                {hero.title}
+              <h1 className="w-fit max-w-full font-display text-3xl font-bold leading-[1.12] tracking-tight sm:text-4xl md:text-5xl">
+                <span className="block">{hero.titleLines[0]}</span>
+                <span className="block">{hero.titleLines[1]}</span>
               </h1>
             </div>
-            <p className="mt-4 max-w-2xl text-lg text-parchment-muted sm:text-xl">
+            <p className="mt-4 max-w-2xl text-lg text-parchment sm:text-xl sm:leading-relaxed">
               {site.tagline}
             </p>
             <blockquote className="mt-10 max-w-2xl border-l-4 border-gold pl-6">
@@ -55,22 +61,21 @@ export function HeroSection() {
             </a>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[17.5rem] sm:max-w-md lg:mx-0 lg:max-w-none lg:justify-self-end">
+          <div className="relative mx-auto w-full max-w-[18rem] sm:max-w-sm lg:mx-0 lg:max-w-none lg:justify-self-end">
             <div
-              className="relative w-full overflow-hidden rounded-2xl border border-gold/30 bg-deep shadow-[0_24px_60px_-12px_rgba(0,0,0,0.55)] ring-1 ring-parchment/10
-                h-[min(46dvh,22rem)] sm:h-[min(48dvh,24rem)]
-                lg:aspect-[4/5] lg:h-auto lg:max-h-[min(32rem,52vh)] lg:max-w-md lg:min-h-0 xl:max-h-[min(36rem,54vh)] xl:max-w-lg"
+              className="relative aspect-square w-full max-w-[18rem] overflow-hidden rounded-2xl border border-gold/30 bg-deep shadow-[0_24px_60px_-12px_rgba(0,0,0,0.55)] ring-1 ring-parchment/10 sm:max-w-sm lg:max-w-[26rem] xl:max-w-[28rem]"
             >
               <Image
                 src={hero.homeImageSrc}
                 alt={hero.homeImageAlt}
                 fill
                 priority
-                sizes="(max-width: 1023px) min(100vw, 28rem), (max-width: 1280px) 36vw, 448px"
+                quality={92}
+                sizes="(max-width: 1023px) 320px, (max-width: 1280px) 384px, 416px"
                 className="object-cover object-center"
               />
               <div
-                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-deep/20 via-transparent to-deep/10"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-deep/10 via-transparent to-transparent"
                 aria-hidden
               />
             </div>

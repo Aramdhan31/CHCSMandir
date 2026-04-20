@@ -40,9 +40,9 @@ export function SiteHeader() {
   const headerBar = (
     <header
       id="site-header"
-      className="fixed inset-x-0 top-0 z-[5000] w-full max-w-[100vw] border-b border-gold/25 bg-deep text-parchment shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)]"
+      className="fixed inset-x-0 top-0 z-[5000] w-full max-w-[100vw] overflow-visible border-b border-gold/25 bg-deep/88 text-parchment shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)] backdrop-blur-md"
     >
-        <div className="mx-auto flex max-w-6xl flex-nowrap items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6">
+        <div className="relative mx-auto flex max-w-6xl flex-nowrap items-center justify-between gap-3 overflow-visible px-4 py-3 sm:gap-4 sm:px-6">
           <Link
             href="/#home"
             className="flex min-w-0 max-w-[calc(100%-3.25rem)] flex-1 items-center gap-2.5 rounded-md outline-none ring-gold/50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-deep sm:max-w-none sm:gap-3 md:flex-initial"
@@ -80,31 +80,38 @@ export function SiteHeader() {
           </Link>
           <button
             type="button"
-            className="relative z-[60] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1.5 rounded-md border border-gold/55 bg-deep text-gold shadow-md ring-1 ring-parchment/15 transition hover:border-gold hover:bg-deep hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-deep md:hidden"
+            className={`relative z-[60] flex h-11 w-11 shrink-0 touch-manipulation flex-col items-center justify-center gap-1.5 rounded-md border shadow-sm backdrop-blur-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-deep md:hidden ${
+              open
+                ? "border-earth/50 bg-parchment-muted/95 ring-1 ring-earth/20 hover:bg-parchment-muted"
+                : "border-parchment/35 bg-parchment/10 hover:border-gold/50 hover:bg-parchment/15"
+            }`}
             aria-expanded={open}
             aria-controls="primary-nav"
             aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen((v) => !v)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen((v) => !v);
+            }}
           >
             <span
-              className={`block h-0.5 w-5 rounded-full bg-gold transition-transform ${open ? "translate-y-2 rotate-45" : ""}`}
+              className={`block h-0.5 w-5 rounded-full bg-earth transition-transform ${open ? "translate-y-2 rotate-45" : ""}`}
             />
-            <span className={`block h-0.5 w-5 rounded-full bg-gold ${open ? "opacity-0" : ""}`} />
+            <span className={`block h-0.5 w-5 rounded-full bg-earth ${open ? "opacity-0" : ""}`} />
             <span
-              className={`block h-0.5 w-5 rounded-full bg-gold transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`}
+              className={`block h-0.5 w-5 rounded-full bg-earth transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`}
             />
           </button>
           <nav
             id="primary-nav"
-            className={`absolute left-0 right-0 top-full z-[55] max-h-[min(70dvh,calc(100dvh-5rem))] overflow-y-auto border-b border-gold/35 bg-deep px-4 py-5 shadow-[0_16px_40px_rgba(0,0,0,0.5)] md:static md:z-auto md:block md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0 md:shadow-none ${open ? "block" : "hidden"}`}
+            className={`fixed inset-x-0 top-20 z-[5040] max-h-[min(70dvh,calc(100dvh-5.5rem))] overflow-y-auto border-b border-gold/30 border-t border-gold/25 bg-parchment-muted px-4 py-5 shadow-[0_12px_40px_rgba(0,0,0,0.35)] sm:top-[5.5rem] md:static md:inset-auto md:top-auto md:z-auto md:block md:max-h-none md:border-0 md:bg-transparent md:p-0 md:shadow-none ${open ? "block" : "hidden"}`}
             aria-label="Primary"
           >
-            <ul className="flex flex-col gap-0.5 md:flex-row md:items-center md:gap-6">
+            <ul className="flex flex-col gap-1 md:flex-row md:items-center md:gap-6">
               {nav.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="block rounded-lg px-3 py-3.5 text-base font-semibold tracking-wide text-parchment transition-colors hover:bg-gold/15 hover:text-gold md:px-2 md:py-1 md:text-sm md:font-medium md:tracking-normal md:text-earth md:hover:bg-transparent md:hover:text-gold-dim"
+                    className="block rounded-md px-2 py-3 text-sm font-medium text-ink transition-colors hover:bg-white/70 hover:text-deep md:py-1 md:text-earth md:hover:bg-transparent md:hover:text-gold-dim"
                     onClick={(e) => {
                       if (item.href.startsWith("/#") && pathname === "/") {
                         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {

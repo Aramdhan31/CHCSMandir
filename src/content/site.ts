@@ -10,7 +10,7 @@ export const site = {
   nameShort: "CHCS",
   nameFull: "Caribbean Hindu Cultural Society",
   tagline:
-    "Hindu temple in Brixton, South London — open to every generation and background.",
+    "Hindu temple in Brixton, South London – open to every generation and background.",
 } as const;
 
 /**
@@ -28,9 +28,11 @@ export const brand = {
 
 export const hero = {
   eyebrow: "Welcome",
+  /** Full line for metadata / accessibility; hero displays `titleLines` on two lines. */
   title: "Welcome to Caribbean Hindu Cultural Society",
+  titleLines: ["Welcome to Caribbean", "Hindu Cultural Society"] as const,
   quote: "Action thy duty, reward not thy concern.",
-  quoteCitation: "Bhagavad Gita 2.47 — Chapter 2, Verse 47",
+  quoteCitation: "Bhagavad Gita 2.47 – Chapter 2, Verse 47",
   primaryCtaLabel: "See upcoming events",
   primaryCtaHash: "#events",
   /** Right column of the welcome row (original single hero image) */
