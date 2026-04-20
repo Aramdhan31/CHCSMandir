@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { supabase, supabaseEnvConfigured } from "@/lib/supabase";
+import { getSupabase, supabaseEnvConfigured } from "@/lib/supabase";
 
 type Item = {
   id: number;
@@ -27,6 +27,8 @@ export default function SupabaseTestPage() {
 
   const loadItems = useCallback(async () => {
     setMessage(null);
+    if (!supabaseEnvConfigured()) return;
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from("items")
       .select("*")
@@ -45,6 +47,7 @@ export default function SupabaseTestPage() {
       return;
     }
 
+    const supabase = getSupabase();
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -62,6 +65,8 @@ export default function SupabaseTestPage() {
 
   async function signUp() {
     setMessage(null);
+    if (!supabaseEnvConfigured()) return;
+    const supabase = getSupabase();
     const { error } = await supabase.auth.signUp({ email, password });
     if (error) setMessage(error.message);
     else setMessage("Check your email to confirm sign-up, or sign in if email confirmation is off.");
@@ -69,12 +74,16 @@ export default function SupabaseTestPage() {
 
   async function signIn() {
     setMessage(null);
+    if (!supabaseEnvConfigured()) return;
+    const supabase = getSupabase();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) setMessage(error.message);
   }
 
   async function signOut() {
     setMessage(null);
+    if (!supabaseEnvConfigured()) return;
+    const supabase = getSupabase();
     await supabase.auth.signOut();
     setItems([]);
   }
@@ -82,6 +91,8 @@ export default function SupabaseTestPage() {
   async function addItem() {
     if (!title.trim()) return;
     setMessage(null);
+    if (!supabaseEnvConfigured()) return;
+    const supabase = getSupabase();
     const { error } = await supabase.from("items").insert({ title: title.trim() });
     if (error) {
       setMessage(error.message);
