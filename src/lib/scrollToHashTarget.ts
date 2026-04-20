@@ -1,4 +1,4 @@
-/** Must match `id` on `SiteHeader`’s `<header>` (used to clear sticky nav). */
+/** Must match `id` on `SiteHeader`’s `<header>` (used to clear fixed nav). */
 export const SITE_HEADER_ID = "site-header";
 
 const GAP_PX = 6;
@@ -17,7 +17,7 @@ export function scrollBehaviorPreference(): ScrollBehavior {
 }
 
 /**
- * Places `el`’s top edge just below the measured sticky site header.
+ * Places `el`’s top edge just below the measured fixed site header.
  * More reliable than `scrollIntoView` + `scroll-padding` when invoked from JS.
  */
 export function scrollDocumentToElement(
