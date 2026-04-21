@@ -80,6 +80,11 @@ export function LeadershipFullPage() {
                   {r.role}
                 </p>
                 <p className="mt-4 font-display text-xl font-semibold text-deep">{r.name}</p>
+                {"subtitle" in r && r.subtitle ? (
+                  <p className="mt-2 text-sm leading-relaxed text-earth/80">
+                    {r.subtitle}
+                  </p>
+                ) : null}
               </div>
             </li>
           ))}

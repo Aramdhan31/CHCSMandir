@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   events,
   getMandirCalendarEmbedSrc,
@@ -5,9 +6,12 @@ import {
   getMandirCalendarWebcalUrl,
   mandirCalendar,
 } from "@/content/site";
+import { fetchPublishedSupabaseEvents } from "@/lib/events/fetchPublished";
 
-export function EventsSection() {
-  const hasCards = events.items.length > 0;
+export async function EventsSection() {
+  const remoteItems = await fetchPublishedSupabaseEvents();
+  const cardItems = [...remoteItems, ...events.items];
+  const hasCards = cardItems.length > 0;
   const embedSrc = getMandirCalendarEmbedSrc();
 
   return (
@@ -33,25 +37,42 @@ export function EventsSection() {
 
         {hasCards ? (
           <ul className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {events.items.map((ev) => (
-              <li key={ev.href}>
-                <article className="flex h-full flex-col rounded-2xl border border-gold/20 bg-white/60 p-5 shadow-sm transition hover:border-gold/40 hover:shadow-md">
+            {cardItems.map((ev) => (
+              <li key={`${ev.title}-${ev.dateLabel}`}>
+                <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gold/20 bg-white/60 shadow-sm transition hover:border-gold/40 hover:shadow-md">
+                  {ev.imageSrc ? (
+                    <div className="relative aspect-[16/9] w-full border-b border-gold/15 bg-parchment-muted/60">
+                      <Image
+                        src={ev.imageSrc}
+                        alt={ev.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover object-center"
+                      />
+                    </div>
+                  ) : null}
+                  <div className="flex h-full flex-col p-5">
                   <p className="font-display text-sm font-semibold text-gold-dim">
                     {ev.dateLabel}
                   </p>
                   <h3 className="mt-2 font-display text-lg font-semibold text-deep">
                     {ev.title}
                   </h3>
-                  <p className="mt-1 text-sm text-earth/80">{ev.meta}</p>
-                  <div className="mt-auto pt-4">
-                    <a
-                      href={ev.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex text-sm font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
-                    >
-                      {ev.cta}
-                    </a>
+                  {ev.summary ? (
+                    <p className="mt-1 text-sm text-earth/80">{ev.summary}</p>
+                  ) : null}
+                  {ev.href && ev.cta ? (
+                    <div className="mt-auto pt-4">
+                      <a
+                        href={ev.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex text-sm font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
+                      >
+                        {ev.cta}
+                      </a>
+                    </div>
+                  ) : null}
                   </div>
                 </article>
               </li>

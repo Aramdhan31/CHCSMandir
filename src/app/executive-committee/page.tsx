@@ -13,12 +13,6 @@ export const metadata: Metadata = {
 export default function ExecutiveCommitteePage() {
   return (
     <>
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-gold focus:px-4 focus:py-2 focus:text-deep focus:shadow-lg"
-      >
-        Skip to content
-      </a>
       <PreviewBanner />
       <SiteHeader />
       <main id="main">

@@ -5,6 +5,7 @@ import type {
   MembershipRecord,
   PaymentMethod,
 } from "./types";
+import { emptyPostalAddress } from "./addressFormat";
 
 const STORAGE_KEY = "chcs.membershipRecords.v1";
 
@@ -26,7 +27,14 @@ function normalizeMembershipRecord(row: unknown): MembershipRecord | null {
   const r = row as Record<string, unknown>;
   if (typeof r.id !== "string") return null;
   if (typeof r.fullName !== "string") return null;
-  if (typeof r.address !== "string") return null;
+  const legacyAddr = typeof r.address === "string" ? r.address : null;
+  const line1 =
+    typeof r.addressLine1 === "string"
+      ? r.addressLine1
+      : legacyAddr !== null
+        ? legacyAddr
+        : null;
+  if (line1 === null) return null;
   if (typeof r.phone !== "string") return null;
   if (typeof r.paidOn !== "string") return null;
   if (typeof r.membershipYear !== "number" || !Number.isFinite(r.membershipYear)) return null;
@@ -57,10 +65,23 @@ function normalizeMembershipRecord(row: unknown): MembershipRecord | null {
         : null;
   if (r.notes != null && r.notes !== "" && typeof r.notes !== "string") return null;
 
+  const memberId =
+    typeof r.memberId === "string" && r.memberId.trim() ? r.memberId.trim() : undefined;
+
+  const blank = emptyPostalAddress();
+  const addressLine1 = typeof r.addressLine1 === "string" ? r.addressLine1 : legacyAddr ?? blank.addressLine1;
+  const addressLine2 = typeof r.addressLine2 === "string" ? r.addressLine2 : blank.addressLine2;
+  const city = typeof r.city === "string" ? r.city : blank.city;
+  const postcode = typeof r.postcode === "string" ? r.postcode : blank.postcode;
+
   return {
     id: r.id,
+    memberId,
     fullName: r.fullName,
-    address: r.address,
+    addressLine1,
+    addressLine2,
+    city,
+    postcode,
     email,
     phone: r.phone,
     paidOn: r.paidOn,

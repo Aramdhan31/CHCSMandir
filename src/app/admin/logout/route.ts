@@ -11,9 +11,8 @@ const clearOpts = {
   secure: process.env.NODE_ENV === "production",
 };
 
-/** Clears all committee cookies (same as `/admin/logout`). */
-export function GET(_request: NextRequest) {
-  const res = NextResponse.redirect(new URL("/admin/login", _request.url));
+export function GET(request: NextRequest) {
+  const res = NextResponse.redirect(new URL("/admin/login", request.url));
   res.cookies.set(EVENTS_ADMIN_COOKIE, "", clearOpts);
   res.cookies.set(MEMBERSHIPS_ADMIN_COOKIE, "", clearOpts);
   return res;

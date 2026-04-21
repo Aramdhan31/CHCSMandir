@@ -3,11 +3,11 @@ import Link from "next/link";
 import { site } from "@/content/site";
 
 export const metadata: Metadata = {
-  title: "Membership admin",
+  title: "Events admin",
   robots: { index: false, follow: false },
 };
 
-export default function AdminMembershipsLayout({
+export default function AdminEventsLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -19,7 +19,7 @@ export default function AdminMembershipsLayout({
               {site.nameShort} — committee
             </p>
             <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">
-              Yearly memberships
+              Events
             </h1>
           </div>
           <div className="flex shrink-0 flex-wrap justify-end gap-2">
@@ -42,3 +42,4 @@ export default function AdminMembershipsLayout({
     </div>
   );
 }
+

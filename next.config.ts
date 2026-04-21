@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
   /** Hero and other `<Image quality={…}>` values must be listed for Next.js 16+. */
   images: {
     qualities: [75, 80, 85, 90, 92],
+    /** Event images from Supabase Storage (`next/image` requires an allowlist). */
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
   },
   /**
    * Dev-only: allow `_next` / HMR when the browser origin is not localhost (e.g. phone on LAN).

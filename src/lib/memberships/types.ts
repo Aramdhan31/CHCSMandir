@@ -8,24 +8,60 @@ export type PaymentMethod = "cash" | "bank_transfer" | "other";
 /** First-time details in the book vs paying for another yearly membership */
 export type MemberEntryKind = "new_member" | "yearly_renewal";
 
-export type MembershipRecord = {
+/** One person in the ledger (contact lives here; payments are separate rows). */
+export type MemberProfile = {
   id: string;
-  /** Member / payer full name */
   fullName: string;
-  address: string;
-  /** Optional — older members may not use email */
+  /** Lowercased for sorting — last word of full name unless you extend the UI later */
+  surname: string;
+  /** Street / building (line 1) */
+  addressLine1: string;
+  /** Flat, unit, district (optional) */
+  addressLine2: string;
+  city: string;
+  postcode: string;
   email: string | null;
   phone: string;
-  /** When the payment was received (in person or when transfer cleared) */
+  /** Notes about the person (not a specific payment) */
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** One yearly payment line, linked to `MemberProfile`. */
+export type MembershipPayment = {
+  id: string;
+  memberId: string;
   paidOn: string;
-  /** Calendar year this yearly membership covers */
   membershipYear: number;
-  /** New person vs returning member paying for this year again (each payment is its own row) */
   memberEntryKind: MemberEntryKind;
   paymentMethod: PaymentMethod;
-  /** Standard yearly fee is £15; allow overrides if policy changes */
   membershipAmountGbp: number;
-  /** Extra voluntary donation, if any */
+  donationAmountGbp: number;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/**
+ * Flat row for CSV import/export (member + one payment).
+ * Legacy imports may omit `memberId` — the importer will match or create a member by phone/name.
+ */
+export type MembershipRecord = {
+  id: string;
+  memberId?: string;
+  fullName: string;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  postcode: string;
+  email: string | null;
+  phone: string;
+  paidOn: string;
+  membershipYear: number;
+  memberEntryKind: MemberEntryKind;
+  paymentMethod: PaymentMethod;
+  membershipAmountGbp: number;
   donationAmountGbp: number;
   notes: string | null;
   createdAt: string;

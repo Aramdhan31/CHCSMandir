@@ -4,12 +4,16 @@ import {
   MEMBERSHIPS_ADMIN_COOKIE,
   parseMembershipsRole,
 } from "@/lib/memberships/adminCookie";
+import { supabaseServiceConfigured } from "@/lib/supabase/service";
 
 export default async function MembershipsAdminPage() {
   const jar = await cookies();
   const raw = jar.get(MEMBERSHIPS_ADMIN_COOKIE)?.value;
   const role = parseMembershipsRole(raw);
   const canEdit = role === "edit";
+  const persistToSupabase = supabaseServiceConfigured();
 
-  return <MembershipRecordsPanel canEdit={canEdit} />;
+  return (
+    <MembershipRecordsPanel canEdit={canEdit} persistToSupabase={persistToSupabase} />
+  );
 }

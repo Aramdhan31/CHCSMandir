@@ -61,5 +61,5 @@ export async function loginMembershipsAdmin(
     maxAge: 60 * 60 * 24 * 7,
   });
 
-  redirect("/admin/memberships");
+  redirect("/admin");
 }

@@ -1,24 +1,36 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  mergeImportedMembershipRecords,
-  parseMembershipCsv,
-  recordsToCsv,
-} from "@/lib/memberships/csv";
+  createMembershipMemberAction,
+  deleteMembershipMemberAction,
+  deleteMembershipPaymentAction,
+  importMembershipFlatRowsAction,
+  listMembershipFlatExportAction,
+  listMembershipMembersAction,
+  listMembershipPaymentsAllAction,
+  upsertMembershipPaymentAction,
+  updateMembershipMemberAction,
+} from "@/app/admin/memberships/membershipDataActions";
+import { parseMembershipCsv, recordsToCsv } from "@/lib/memberships/csv";
 import {
-  loadMembershipRecords,
-  saveMembershipRecords,
-} from "@/lib/memberships/localStorageStore";
+  ledgerToFlatRecords,
+  loadMembershipLedger,
+  mergeFlatImportIntoLedger,
+  saveMembershipLedger,
+} from "@/lib/memberships/ledgerStorage";
 import {
   DEFAULT_MEMBERSHIP_GBP,
   MEMBER_ENTRY_LABELS,
   PAYMENT_METHOD_LABELS,
   type MemberEntryKind,
-  type MembershipRecord,
+  type MemberProfile,
+  type MembershipPayment,
   type PaymentMethod,
 } from "@/lib/memberships/types";
+import { formatPostalAddressLines, postalAddressSearchText } from "@/lib/memberships/addressFormat";
+import { displaySurname, surnameFromFullName } from "@/lib/memberships/surname";
 
 function todayIsoDate() {
   const d = new Date();
@@ -29,9 +41,7 @@ function todayIsoDate() {
 }
 
 function newId() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
   return `id_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
@@ -49,7 +59,7 @@ function formatPaidOn(iso: string) {
   if (Number.isNaN(t)) return iso;
   return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
-    month: "long",
+    month: "short",
     year: "numeric",
   }).format(t);
 }
@@ -61,40 +71,25 @@ function membershipYearChoices() {
   return out;
 }
 
-function digitsOnly(s: string) {
-  return s.replace(/\D/g, "");
-}
-
-/** Live filter while typing: name/address/etc., multi-word (all words), phone digits */
-function recordMatchesQuery(r: MembershipRecord, qRaw: string): boolean {
+function memberMatchesQuery(m: MemberProfile, qRaw: string): boolean {
   const trimmed = qRaw.trim();
   if (!trimmed) return true;
-
   const hay = [
-    r.fullName,
-    r.address,
-    r.email ?? "",
-    r.phone,
-    r.notes ?? "",
-    String(r.membershipYear),
-    PAYMENT_METHOD_LABELS[r.paymentMethod],
-    MEMBER_ENTRY_LABELS[r.memberEntryKind],
+    m.fullName,
+    m.surname,
+    postalAddressSearchText(m),
+    m.email ?? "",
+    m.phone,
+    m.notes ?? "",
   ]
     .join(" ")
     .toLowerCase();
-
   const lower = trimmed.toLowerCase();
   if (hay.includes(lower)) return true;
-
   const words = lower.split(/\s+/).filter(Boolean);
   if (words.length > 1 && words.every((w) => hay.includes(w))) return true;
-
-  const qDigits = digitsOnly(trimmed);
-  if (qDigits.length >= 3) {
-    const phoneDigits = digitsOnly(r.phone);
-    if (phoneDigits.includes(qDigits)) return true;
-  }
-
+  const qDigits = trimmed.replace(/\D/g, "");
+  if (qDigits.length >= 3 && m.phone.replace(/\D/g, "").includes(qDigits)) return true;
   return false;
 }
 
@@ -109,174 +104,124 @@ function downloadText(filename: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
-const emptyForm = {
-  memberEntryKind: "new_member" as MemberEntryKind,
-  fullName: "",
-  address: "",
-  email: "",
-  phone: "",
-  paidOn: todayIsoDate(),
-  membershipYear: new Date().getFullYear(),
-  paymentMethod: "cash" as PaymentMethod,
-  membershipAmountGbp: String(DEFAULT_MEMBERSHIP_GBP),
-  donationAmountGbp: "",
-  notes: "",
-};
-
 const inputClass =
   "mt-2 block w-full min-h-[3rem] rounded-xl border-2 border-earth/25 bg-white px-4 py-3 text-lg text-ink outline-none ring-gold/50 focus:border-gold focus:ring-2";
 const labelClass = "block text-lg font-semibold leading-snug text-deep";
 
-function MemberReadOnlyBlock({ r }: { r: MembershipRecord }) {
-  const total = r.membershipAmountGbp + r.donationAmountGbp;
-  return (
-    <div className="grid gap-4 text-base sm:grid-cols-2">
-      <div>
-        <p className="text-sm font-bold uppercase tracking-wide text-earth">Name</p>
-        <p className="mt-1 font-semibold text-deep">{r.fullName}</p>
-      </div>
-      <div>
-        <p className="text-sm font-bold uppercase tracking-wide text-earth">Phone</p>
-        <p className="mt-1 text-deep">{r.phone}</p>
-      </div>
-      <div className="sm:col-span-2">
-        <p className="text-sm font-bold uppercase tracking-wide text-earth">Address</p>
-        <p className="mt-1 whitespace-pre-wrap text-deep">{r.address}</p>
-      </div>
-      {r.email ? (
-        <div>
-          <p className="text-sm font-bold uppercase tracking-wide text-earth">Email</p>
-          <p className="mt-1 text-deep">{r.email}</p>
-        </div>
-      ) : null}
-      <div>
-        <p className="text-sm font-bold uppercase tracking-wide text-earth">New or renewal</p>
-        <p className="mt-1 text-deep">{MEMBER_ENTRY_LABELS[r.memberEntryKind]}</p>
-      </div>
-      <div>
-        <p className="text-sm font-bold uppercase tracking-wide text-earth">Date paid</p>
-        <p className="mt-1 text-deep">{formatPaidOn(r.paidOn)}</p>
-      </div>
-      <div>
-        <p className="text-sm font-bold uppercase tracking-wide text-earth">Membership year</p>
-        <p className="mt-1 text-deep">{r.membershipYear}</p>
-      </div>
-      <div>
-        <p className="text-sm font-bold uppercase tracking-wide text-earth">How paid</p>
-        <p className="mt-1 text-deep">{PAYMENT_METHOD_LABELS[r.paymentMethod]}</p>
-      </div>
-      <div>
-        <p className="text-sm font-bold uppercase tracking-wide text-earth">Membership</p>
-        <p className="mt-1 text-deep">{formatMoney(r.membershipAmountGbp)}</p>
-      </div>
-      <div>
-        <p className="text-sm font-bold uppercase tracking-wide text-earth">Donation</p>
-        <p className="mt-1 text-deep">
-          {r.donationAmountGbp > 0 ? formatMoney(r.donationAmountGbp) : "—"}
-        </p>
-      </div>
-      <div>
-        <p className="text-sm font-bold uppercase tracking-wide text-earth">Total</p>
-        <p className="mt-1 font-bold text-deep">{formatMoney(total)}</p>
-      </div>
-      {r.notes ? (
-        <div className="sm:col-span-2">
-          <p className="text-sm font-bold uppercase tracking-wide text-earth">Notes</p>
-          <p className="mt-1 whitespace-pre-wrap text-deep">{r.notes}</p>
-        </div>
-      ) : null}
-    </div>
-  );
+function latestPaymentTooltip(payments: MembershipPayment[], memberId: string): string {
+  const mine = payments.filter((p) => p.memberId === memberId).sort((a, b) => b.paidOn.localeCompare(a.paidOn));
+  const p = mine[0];
+  if (!p) return "No membership payments recorded yet.";
+  return `Latest: year ${p.membershipYear} — ${formatMoney(p.membershipAmountGbp + p.donationAmountGbp)} total — paid ${formatPaidOn(p.paidOn)}`;
 }
 
-export function MembershipRecordsPanel({ canEdit }: { canEdit: boolean }) {
-  const [hydrated, setHydrated] = useState(false);
-  const [records, setRecords] = useState<MembershipRecord[]>([]);
+function latestPaymentOneLine(payments: MembershipPayment[], memberId: string): string {
+  const mine = payments.filter((p) => p.memberId === memberId).sort((a, b) => b.paidOn.localeCompare(a.paidOn));
+  const p = mine[0];
+  if (!p) return "No payments yet";
+  return `${p.membershipYear} · ${formatMoney(p.membershipAmountGbp + p.donationAmountGbp)} · ${formatPaidOn(p.paidOn)}`;
+}
+
+export function MembershipRecordsPanel({
+  canEdit,
+  persistToSupabase,
+}: {
+  canEdit: boolean;
+  persistToSupabase: boolean;
+}) {
+  const [members, setMembers] = useState<MemberProfile[]>([]);
+  const [payments, setPayments] = useState<MembershipPayment[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [expandedViewId, setExpandedViewId] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState(emptyForm);
+  const [hydrated, setHydrated] = useState(false);
+  const [remoteError, setRemoteError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [savedNotice, setSavedNotice] = useState(false);
   const [importFeedback, setImportFeedback] = useState<string | null>(null);
+  const [savedNotice, setSavedNotice] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [newMember, setNewMember] = useState({
+    fullName: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    postcode: "",
+    email: "",
+    phone: "",
+    notes: "",
+  });
+
+  const [payOpen, setPayOpen] = useState(false);
+  const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
+  const memberDetailRef = useRef<HTMLDivElement>(null);
+  const [payForm, setPayForm] = useState({
+    memberEntryKind: "yearly_renewal" as MemberEntryKind,
+    paidOn: todayIsoDate(),
+    membershipYear: new Date().getFullYear(),
+    paymentMethod: "cash" as PaymentMethod,
+    membershipAmountGbp: String(DEFAULT_MEMBERSHIP_GBP),
+    donationAmountGbp: "",
+    notes: "",
+  });
+
+  const refreshAll = useCallback(async () => {
+    setRemoteError(null);
+    try {
+      if (persistToSupabase) {
+        const [m, p] = await Promise.all([
+          listMembershipMembersAction(),
+          listMembershipPaymentsAllAction(),
+        ]);
+        setMembers(m);
+        setPayments(p);
+      } else {
+        const L = loadMembershipLedger();
+        setMembers(L.members);
+        setPayments(L.payments);
+      }
+    } catch (e) {
+      setRemoteError(e instanceof Error ? e.message : "Could not load data.");
+    } finally {
+      setHydrated(true);
+    }
+  }, [persistToSupabase]);
 
   useEffect(() => {
-    setRecords(loadMembershipRecords());
-    setHydrated(true);
-  }, []);
+    void refreshAll();
+  }, [refreshAll]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    saveMembershipRecords(records);
-  }, [hydrated, records]);
+    if (!selectedId) return;
+    memberDetailRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [selectedId]);
 
   useEffect(() => {
     if (!savedNotice) return;
-    const t = window.setTimeout(() => setSavedNotice(false), 5000);
+    const t = window.setTimeout(() => setSavedNotice(false), 4000);
     return () => window.clearTimeout(t);
   }, [savedNotice]);
 
-  const yearOptions = useMemo(() => membershipYearChoices(), []);
+  useEffect(() => {
+    if (!hydrated || persistToSupabase) return;
+    saveMembershipLedger({ members, payments });
+  }, [hydrated, persistToSupabase, members, payments]);
 
-  const filtered = useMemo(() => {
-    return records.filter((r) => recordMatchesQuery(r, search));
-  }, [records, search]);
+  const selected = useMemo(
+    () => (selectedId ? members.find((m) => m.id === selectedId) ?? null : null),
+    [members, selectedId],
+  );
 
-  const resetForm = useCallback(() => {
-    setEditingId(null);
-    setFormError(null);
-    setForm({
-      ...emptyForm,
-      paidOn: todayIsoDate(),
-      membershipYear: new Date().getFullYear(),
-    });
-  }, []);
+  const memberPayments = useMemo(() => {
+    if (!selectedId) return [];
+    return payments
+      .filter((p) => p.memberId === selectedId)
+      .sort((a, b) => b.paidOn.localeCompare(a.paidOn));
+  }, [payments, selectedId]);
 
-  const onEdit = useCallback((r: MembershipRecord) => {
-    setExpandedViewId(null);
-    setEditingId(r.id);
-    setFormError(null);
-    setForm({
-      memberEntryKind: r.memberEntryKind,
-      fullName: r.fullName,
-      address: r.address,
-      email: r.email ?? "",
-      phone: r.phone,
-      paidOn: r.paidOn,
-      membershipYear: r.membershipYear,
-      paymentMethod: r.paymentMethod,
-      membershipAmountGbp: String(r.membershipAmountGbp),
-      donationAmountGbp: r.donationAmountGbp ? String(r.donationAmountGbp) : "",
-      notes: r.notes ?? "",
-    });
-  }, []);
-
-  /** New payment line: same person, new year — renewal is pre-selected; no need to tap Step 1 first. */
-  const onRenewFromRow = useCallback((r: MembershipRecord) => {
-    setExpandedViewId(null);
-    setEditingId(null);
-    setFormError(null);
-    const y = new Date().getFullYear();
-    setForm({
-      memberEntryKind: "yearly_renewal",
-      fullName: r.fullName,
-      address: r.address,
-      email: r.email ?? "",
-      phone: r.phone,
-      paidOn: todayIsoDate(),
-      membershipYear: y,
-      paymentMethod: r.paymentMethod,
-      membershipAmountGbp: String(DEFAULT_MEMBERSHIP_GBP),
-      donationAmountGbp: "",
-      notes: "",
-    });
-    requestAnimationFrame(() => {
-      document.getElementById("membership-payment-form")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    });
-  }, []);
+  const filteredMembers = useMemo(() => {
+    return members.filter((m) => memberMatchesQuery(m, search));
+  }, [members, search]);
 
   const parseMoney = (raw: string, fallback: number) => {
     const t = raw.trim();
@@ -285,66 +230,219 @@ export function MembershipRecordsPanel({ canEdit }: { canEdit: boolean }) {
     return Number.isFinite(n) ? n : fallback;
   };
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const openAddPayment = (kind: MemberEntryKind) => {
+    setPayForm({
+      memberEntryKind: kind,
+      paidOn: todayIsoDate(),
+      membershipYear: new Date().getFullYear(),
+      paymentMethod: "cash",
+      membershipAmountGbp: String(DEFAULT_MEMBERSHIP_GBP),
+      donationAmountGbp: "",
+      notes: "",
+    });
+    setEditingPaymentId(null);
+    setPayOpen(true);
     setFormError(null);
+  };
 
-    const membershipAmountGbp = parseMoney(form.membershipAmountGbp, DEFAULT_MEMBERSHIP_GBP);
-    const donationAmountGbp = Math.max(0, parseMoney(form.donationAmountGbp, 0));
-    const emailTrim = form.email.trim();
+  const openEditPayment = (p: MembershipPayment) => {
+    setEditingPaymentId(p.id);
+    setPayForm({
+      memberEntryKind: p.memberEntryKind,
+      paidOn: p.paidOn,
+      membershipYear: p.membershipYear,
+      paymentMethod: p.paymentMethod,
+      membershipAmountGbp: String(p.membershipAmountGbp),
+      donationAmountGbp: p.donationAmountGbp ? String(p.donationAmountGbp) : "",
+      notes: p.notes ?? "",
+    });
+    setPayOpen(true);
+    setFormError(null);
+  };
+
+  const savePayment = async () => {
+    if (!selected || !canEdit) return;
+    const membershipAmountGbp = parseMoney(payForm.membershipAmountGbp, DEFAULT_MEMBERSHIP_GBP);
+    const donationAmountGbp = Math.max(0, parseMoney(payForm.donationAmountGbp, 0));
     const now = new Date().toISOString();
-
-    if (!form.fullName.trim() || !form.address.trim() || !form.phone.trim()) {
-      setFormError("Please fill in their name, address, and phone number.");
-      return;
-    }
-    if (!Number.isFinite(form.membershipYear) || form.membershipYear < 1959 || form.membershipYear > 2100) {
-      setFormError("Please pick which year this membership is for.");
+    if (!Number.isFinite(payForm.membershipYear) || payForm.membershipYear < 1959 || payForm.membershipYear > 2100) {
+      setFormError("Pick a valid membership year.");
       return;
     }
     if (membershipAmountGbp < 0) {
-      setFormError("The membership amount cannot be less than zero.");
+      setFormError("Membership amount cannot be negative.");
       return;
     }
-
-    setRecords((prev) => {
-      const existing = editingId ? prev.find((x) => x.id === editingId) : undefined;
-      const row: MembershipRecord = {
-        id: editingId ?? newId(),
-        fullName: form.fullName.trim(),
-        address: form.address.trim(),
-        email: emailTrim ? emailTrim : null,
-        phone: form.phone.trim(),
-        paidOn: form.paidOn,
-        membershipYear: form.membershipYear,
-        memberEntryKind: form.memberEntryKind,
-        paymentMethod: form.paymentMethod,
-        membershipAmountGbp,
-        donationAmountGbp,
-        notes: form.notes.trim() ? form.notes.trim() : null,
-        createdAt: existing?.createdAt ?? now,
-        updatedAt: now,
-      };
-      const without = prev.filter((x) => x.id !== row.id);
-      return [row, ...without].sort((a, b) => b.paidOn.localeCompare(a.paidOn));
-    });
-    resetForm();
-    setSavedNotice(true);
+    const row: MembershipPayment = {
+      id: editingPaymentId ?? newId(),
+      memberId: selected.id,
+      paidOn: payForm.paidOn,
+      membershipYear: payForm.membershipYear,
+      memberEntryKind: payForm.memberEntryKind,
+      paymentMethod: payForm.paymentMethod,
+      membershipAmountGbp,
+      donationAmountGbp,
+      notes: payForm.notes.trim() ? payForm.notes.trim() : null,
+      createdAt: editingPaymentId ? payments.find((x) => x.id === editingPaymentId)?.createdAt ?? now : now,
+      updatedAt: now,
+    };
+    setBusy(true);
+    setFormError(null);
+    try {
+      if (persistToSupabase) {
+        await upsertMembershipPaymentAction(row);
+        await refreshAll();
+      } else {
+        setPayments((prev) => {
+          const rest = prev.filter((x) => x.id !== row.id);
+          return [row, ...rest].sort((a, b) => b.paidOn.localeCompare(a.paidOn));
+        });
+      }
+      setPayOpen(false);
+      setSavedNotice(true);
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Could not save payment.");
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const onDelete = (id: string, name: string) => {
-    const ok = window.confirm(
-      `Remove the line for "${name}" from this computer only?\n\nOnly press OK if this was a mistake. You cannot undo this here.`,
-    );
-    if (!ok) return;
-    setRecords((prev) => prev.filter((x) => x.id !== id));
-    if (editingId === id) resetForm();
+  const saveMemberContact = async (patch: MemberProfile) => {
+    setBusy(true);
+    setFormError(null);
+    try {
+      if (persistToSupabase) {
+        await updateMembershipMemberAction(patch);
+        await refreshAll();
+      } else {
+        setMembers((prev) => prev.map((m) => (m.id === patch.id ? patch : m)));
+      }
+      setSavedNotice(true);
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Could not save contact.");
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const onExport = () => {
-    const csv = recordsToCsv(records);
-    const stamp = todayIsoDate();
-    downloadText(`chcs-memberships-${stamp}.csv`, csv);
+  const submitNewMember = async () => {
+    if (!newMember.fullName.trim() || !newMember.phone.trim()) {
+      setFormError("Name and phone are required.");
+      return;
+    }
+    if (!newMember.addressLine1.trim() || !newMember.city.trim() || !newMember.postcode.trim()) {
+      setFormError("Street (line 1), city, and postcode are required.");
+      return;
+    }
+    setBusy(true);
+    setFormError(null);
+    try {
+      if (persistToSupabase) {
+        const id = await createMembershipMemberAction({
+          fullName: newMember.fullName,
+          addressLine1: newMember.addressLine1,
+          addressLine2: newMember.addressLine2,
+          city: newMember.city,
+          postcode: newMember.postcode,
+          email: newMember.email.trim() ? newMember.email.trim() : null,
+          phone: newMember.phone,
+          notes: newMember.notes.trim() ? newMember.notes.trim() : null,
+        });
+        await refreshAll();
+        setSelectedId(id);
+      } else {
+        const now = new Date().toISOString();
+        const id = newId();
+        const m: MemberProfile = {
+          id,
+          fullName: newMember.fullName.trim(),
+          surname: surnameFromFullName(newMember.fullName),
+          addressLine1: newMember.addressLine1.trim(),
+          addressLine2: newMember.addressLine2.trim(),
+          city: newMember.city.trim(),
+          postcode: newMember.postcode.trim(),
+          email: newMember.email.trim() ? newMember.email.trim() : null,
+          phone: newMember.phone.trim(),
+          notes: newMember.notes.trim() ? newMember.notes.trim() : null,
+          createdAt: now,
+          updatedAt: now,
+        };
+        setMembers((prev) =>
+          [...prev, m].sort((a, b) => a.surname.localeCompare(b.surname, "en-GB", { sensitivity: "base" })),
+        );
+        setSelectedId(id);
+      }
+      setAddMemberOpen(false);
+      setNewMember({
+        fullName: "",
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        postcode: "",
+        email: "",
+        phone: "",
+        notes: "",
+      });
+      setSavedNotice(true);
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Could not add member.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onDeletePayment = async (id: string) => {
+    if (!canEdit) return;
+    if (!window.confirm("Remove this payment line?")) return;
+    setBusy(true);
+    try {
+      if (persistToSupabase) {
+        await deleteMembershipPaymentAction(id);
+        await refreshAll();
+      } else {
+        setPayments((prev) => prev.filter((p) => p.id !== id));
+      }
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Could not delete.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onDeleteMember = async () => {
+    if (!canEdit || !selected) return;
+    if (!window.confirm(`Remove ${selected.fullName} and all their payment history?`)) return;
+    setBusy(true);
+    try {
+      if (persistToSupabase) {
+        await deleteMembershipMemberAction(selected.id);
+        setSelectedId(null);
+        await refreshAll();
+      } else {
+        setPayments((prev) => prev.filter((p) => p.memberId !== selected.id));
+        setMembers((prev) => prev.filter((m) => m.id !== selected.id));
+        setSelectedId(null);
+      }
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Could not delete member.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onExport = async () => {
+    setBusy(true);
+    try {
+      const flat = persistToSupabase
+        ? await listMembershipFlatExportAction()
+        : ledgerToFlatRecords({ members, payments });
+      const csv = recordsToCsv(flat);
+      downloadText(`chcs-memberships-${todayIsoDate()}.csv`, csv);
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Export failed.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const onImportFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -353,553 +451,663 @@ export function MembershipRecordsPanel({ canEdit }: { canEdit: boolean }) {
     const inputEl = e.currentTarget;
     const reader = new FileReader();
     reader.onload = () => {
-      const text = String(reader.result ?? "");
-      const { records: incoming, errors, skippedRows } = parseMembershipCsv(text);
-      if (incoming.length === 0 && errors.length > 0) {
-        setImportFeedback(
-          `Nothing was imported. ${errors.map((err) => `Line ${err.line}: ${err.message}`).join(" ")}`,
-        );
-        inputEl.value = "";
-        return;
-      }
-      setRecords((prev) => mergeImportedMembershipRecords(prev, incoming));
-      const errMsg =
-        errors.length > 0
-          ? ` Some rows were skipped: ${errors.map((er) => `line ${er.line} (${er.message})`).join("; ")}.`
-          : "";
-      setImportFeedback(
-        `Imported ${incoming.length} line(s).${skippedRows > 0 ? ` ${skippedRows} empty row(s) ignored.` : ""}${errMsg}`,
-      );
-      setSavedNotice(true);
-      inputEl.value = "";
-    };
-    reader.onerror = () => {
-      setImportFeedback("Could not read that file. Try exporting from Excel or Google Sheets as CSV again.");
-      inputEl.value = "";
+      void (async () => {
+        const text = String(reader.result ?? "");
+        const { records: incoming, errors, skippedRows } = parseMembershipCsv(text);
+        if (incoming.length === 0 && errors.length > 0) {
+          setImportFeedback(errors.map((err) => `Line ${err.line}: ${err.message}`).join(" "));
+          inputEl.value = "";
+          return;
+        }
+        setBusy(true);
+        setImportFeedback(null);
+        try {
+          if (persistToSupabase) {
+            await importMembershipFlatRowsAction(incoming);
+            await refreshAll();
+          } else {
+            const L = mergeFlatImportIntoLedger({ members, payments }, incoming);
+            setMembers(L.members);
+            setPayments(L.payments);
+          }
+          setImportFeedback(
+            `Imported ${incoming.length} row(s).${skippedRows > 0 ? ` ${skippedRows} empty row(s) ignored.` : ""}${
+              errors.length ? ` Some rows skipped: ${errors.map((x) => x.message).join("; ")}` : ""
+            }`,
+          );
+        } catch (err) {
+          setImportFeedback(err instanceof Error ? err.message : "Import failed.");
+        } finally {
+          setBusy(false);
+          inputEl.value = "";
+        }
+      })();
     };
     reader.readAsText(file);
   };
 
-  const kindChoice = (kind: MemberEntryKind, title: string, body: string) => {
-    const selected = form.memberEntryKind === kind;
-    return (
-      <button
-        type="button"
-        onClick={() => setForm((f) => ({ ...f, memberEntryKind: kind }))}
-        className={`rounded-2xl border-2 p-5 text-left transition focus:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${
-          selected
-            ? "border-gold bg-amber-50/90 shadow-md ring-2 ring-gold/40"
-            : "border-earth/20 bg-white hover:border-gold/50"
-        }`}
-      >
-        <span className="font-display text-xl font-bold text-deep">{title}</span>
-        <span className="mt-2 block text-base leading-relaxed text-earth">{body}</span>
-      </button>
-    );
-  };
-
   return (
-    <div className="mx-auto max-w-3xl space-y-10 text-lg leading-relaxed text-earth">
+    <div className="mx-auto max-w-3xl space-y-8 text-lg leading-relaxed text-earth">
+      {!persistToSupabase ? (
+        <div
+          className="rounded-2xl border-2 border-amber-800/40 bg-amber-100/90 px-5 py-4 text-base text-amber-950 sm:px-6 sm:text-lg"
+          role="status"
+        >
+          <p className="font-display text-lg font-bold text-deep sm:text-xl">Not saving to Supabase yet</p>
+          <p className="mt-2 leading-relaxed">
+            Members and payments stay in <strong className="text-deep">this browser only</strong> until you set{" "}
+            <code className="text-sm">SUPABASE_SERVICE_ROLE_KEY</code> and restart the dev server.
+          </p>
+        </div>
+      ) : null}
+
       {savedNotice ? (
         <p
           className="rounded-2xl border-2 border-green-800/25 bg-green-50 px-5 py-4 text-lg font-medium text-green-950"
           role="status"
         >
-          Saved. You can add the next person whenever you are ready.
+          Saved.
+        </p>
+      ) : null}
+
+      {remoteError ? (
+        <p className="rounded-2xl border-2 border-red-900/25 bg-red-50 px-5 py-4 font-medium text-red-950" role="alert">
+          {remoteError}
         </p>
       ) : null}
 
       {!canEdit ? (
         <div className="rounded-2xl border-2 border-sky-800/25 bg-sky-50 px-5 py-4 text-lg text-sky-950 sm:px-6">
-          <p className="font-semibold text-deep">View-only access</p>
-          <p className="mt-2">
-            You can search the list and open each line for details. To add a payment, correct a line,
-            or remove a line, sign out and sign in with the <strong className="text-deep">edit PIN</strong>{" "}
-            (not the view PIN).
-          </p>
+          <p className="font-semibold text-deep">View-only</p>
+          <p className="mt-2">Search and open a member to read their details and payment history.</p>
         </div>
       ) : null}
 
-      {canEdit ? (
-        <div className="rounded-2xl border-2 border-amber-900/20 bg-amber-50/90 p-5 sm:p-6">
-          <p className="text-xl font-semibold text-deep">Please read</p>
-          <p className="mt-3">
-            Membership is <strong className="text-deep">once a year</strong>. Each time someone pays
-            (new or returning), add <strong className="text-deep">one line</strong> below. If the
-            same person pays again next year, add another line then too — that keeps a clear history.
-          </p>
-          <p className="mt-3 text-base sm:text-lg">
-            This list is saved on <strong className="text-deep">this computer only</strong> until
-            online storage is connected. Use <strong className="text-deep">Download spreadsheet</strong>{" "}
-            for backups, and <strong className="text-deep">Import spreadsheet</strong> to load a CSV you
-            typed up from old paper records (same columns as the download).
-          </p>
-        </div>
-      ) : (
-        <div className="rounded-2xl border-2 border-amber-900/20 bg-amber-50/90 p-5 sm:p-6">
-          <p className="text-base sm:text-lg">
-            This list is saved on <strong className="text-deep">this computer only</strong> until
-            online storage is connected. Use <strong className="text-deep">Download spreadsheet</strong>{" "}
-            to keep a copy.
-          </p>
-        </div>
-      )}
-
-      {canEdit ? (
-        <div className="rounded-2xl border-2 border-gold/25 bg-white/90 p-5 sm:p-6">
-          <p className="text-xl font-semibold text-deep">Paper books → digital</p>
-          <p className="mt-3 text-lg">
-            Each <strong className="text-deep">row</strong> is one payment for{" "}
-            <strong className="text-deep">one membership year</strong> (2007, 2008, …). If someone paid
-            every year from 2010–2020, that is <strong className="text-deep">eleven rows</strong>, not one.
-          </p>
-          <p className="mt-3 text-base sm:text-lg">
-            In Excel or Google Sheets, use the same column headings as a fresh{" "}
-            <strong className="text-deep">Download spreadsheet</strong> (you can download with an empty list
-            to get the header row). Fill in past years, save as <strong className="text-deep">.csv</strong>,
-            then <strong className="text-deep">Import spreadsheet</strong> below. Dates as{" "}
-            <strong className="text-deep">YYYY-MM-DD</strong> or <strong className="text-deep">DD/MM/YYYY</strong>
-            ; payment as <code className="rounded bg-earth/10 px-1.5 py-0.5 text-deep">cash</code>,{" "}
-            <code className="rounded bg-earth/10 px-1.5 py-0.5 text-deep">bank_transfer</code>, or{" "}
-            <code className="rounded bg-earth/10 px-1.5 py-0.5 text-deep">other</code>.
-          </p>
-        </div>
-      ) : null}
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        {canEdit ? (
+          <button
+            type="button"
+            onClick={() => {
+              setAddMemberOpen(true);
+              setFormError(null);
+            }}
+            className="inline-flex min-h-[3.25rem] items-center justify-center rounded-full bg-gold px-6 text-lg font-bold text-deep transition hover:bg-saffron"
+          >
+            Add member
+          </button>
+        ) : null}
         <button
           type="button"
-          onClick={onExport}
-          className="min-h-[3rem] rounded-full border-2 border-earth/30 bg-white px-6 text-lg font-semibold text-deep transition hover:border-gold sm:min-w-[14rem]"
+          disabled={busy}
+          onClick={() => void onExport()}
+          className="min-h-[3.25rem] rounded-full border-2 border-earth/30 bg-white px-6 text-lg font-semibold text-deep transition hover:border-gold disabled:opacity-50"
         >
           Download spreadsheet
         </button>
         {canEdit ? (
           <>
-            <input
-              id="membership-csv-import"
-              type="file"
-              accept=".csv,text/csv"
-              className="sr-only"
-              onChange={onImportFile}
-            />
+            <span className="sr-only">
+              <input
+                id="membership-csv-import"
+                type="file"
+                accept=".csv,text/csv"
+                aria-label="Choose membership CSV file to import"
+                onChange={onImportFile}
+              />
+            </span>
             <label
               htmlFor="membership-csv-import"
-              className="inline-flex min-h-[3rem] cursor-pointer items-center justify-center rounded-full border-2 border-earth/30 bg-white px-6 text-lg font-semibold text-deep transition hover:border-gold sm:min-w-[14rem]"
+              className="inline-flex min-h-[3.25rem] cursor-pointer items-center justify-center rounded-full border-2 border-earth/30 bg-white px-6 text-lg font-semibold text-deep transition hover:border-gold"
             >
               Import spreadsheet
             </label>
           </>
         ) : null}
         <Link
-          href="/admin/memberships/logout"
-          className="inline-flex min-h-[3rem] items-center justify-center rounded-full border-2 border-earth/30 px-6 text-lg font-semibold text-deep transition hover:border-gold sm:min-w-[14rem]"
+          href="/admin/logout"
+          className="inline-flex min-h-[3.25rem] items-center justify-center rounded-full border-2 border-earth/30 px-6 text-lg font-semibold text-deep transition hover:border-gold"
         >
           Sign out
         </Link>
       </div>
 
       {importFeedback ? (
-        <p
-          className="whitespace-pre-wrap rounded-2xl border-2 border-earth/20 bg-white px-5 py-4 text-base text-deep sm:text-lg"
-          role="status"
-        >
+        <p className="whitespace-pre-wrap rounded-2xl border-2 border-earth/20 bg-white px-5 py-4 text-base text-deep">
           {importFeedback}
         </p>
       ) : null}
 
-      {canEdit ? (
-      <section
-        id="membership-payment-form"
-        className="rounded-2xl border-2 border-gold/30 bg-white/95 p-6 shadow-sm sm:p-8"
-      >
-        <h2 className="font-display text-2xl font-bold text-deep">
-          {editingId ? "Change this line" : "Add a payment"}
-        </h2>
-        {!editingId ? (
-          <p className="mt-3 text-lg">
-            Yearly membership is normally <strong className="text-deep">£{DEFAULT_MEMBERSHIP_GBP}</strong>.
-            If they also gave a donation, put the extra in the donation box (for example £15
-            membership and £5 donation).
+      {addMemberOpen ? (
+        <div className="rounded-2xl border-2 border-gold/30 bg-white/95 p-6 shadow-sm">
+          <h2 className="font-display text-2xl font-bold text-deep">New member — contact only</h2>
+          <p className="mt-2 text-base text-earth">
+            Save their details first. Then open them in the list below to add yearly payments.
           </p>
-        ) : (
-          <p className="mt-3 text-lg">Update the boxes below, then press Save changes.</p>
-        )}
-
-        <form className="mt-8 space-y-10" onSubmit={onSubmit}>
-          <fieldset className="space-y-4 border-0 p-0">
-            <legend className={labelClass}>Step 1 — New member, or renewal?</legend>
-            <p className="text-base leading-relaxed text-earth sm:text-lg">
-              <strong className="text-deep">Renewals:</strong> tap someone in the list below — their
-              details load and <strong className="text-deep">renewal is already chosen</strong> (you do
-              not tap Step 1 first). <strong className="text-deep">Brand-new people:</strong> use Step 1
-              here, or type from scratch above without using the list.
-            </p>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {kindChoice(
-                "yearly_renewal",
-                "Renewal (same person, new year)",
-                "Pick this if you are not using a row tap — e.g. they renewed but you searched instead of tapping.",
-              )}
-              {kindChoice(
-                "new_member",
-                "New member",
-                "They have not been entered on this list before. You are typing their details for the first time.",
-              )}
-            </div>
-          </fieldset>
-
           {formError ? (
-            <p className="rounded-xl border-2 border-red-800/30 bg-red-50 px-4 py-3 text-lg text-red-950" role="alert">
-              {formError}
-            </p>
+            <p className="mt-4 rounded-xl border-2 border-red-800/30 bg-red-50 px-4 py-3 text-red-950">{formError}</p>
           ) : null}
-
-          <div className="space-y-8">
-            <p className="font-display text-xl font-bold text-deep">Step 2 — Their details</p>
-
+          <div className="mt-6 grid gap-4">
             <label className="block">
               <span className={labelClass}>Full name</span>
               <input
-                required
-                value={form.fullName}
-                onChange={(ev) => setForm((f) => ({ ...f, fullName: ev.target.value }))}
                 className={inputClass}
-                autoComplete="name"
+                value={newMember.fullName}
+                onChange={(ev) => setNewMember((n) => ({ ...n, fullName: ev.target.value }))}
               />
             </label>
-
             <label className="block">
-              <span className={labelClass}>Home address</span>
-              <textarea
-                required
-                rows={4}
-                value={form.address}
-                onChange={(ev) => setForm((f) => ({ ...f, address: ev.target.value }))}
-                className={`${inputClass} min-h-[8rem] resize-y`}
-                autoComplete="street-address"
+              <span className={labelClass}>Phone</span>
+              <input
+                type="tel"
+                className={inputClass}
+                value={newMember.phone}
+                onChange={(ev) => setNewMember((n) => ({ ...n, phone: ev.target.value }))}
               />
             </label>
-
-            <div className="grid gap-8 sm:grid-cols-2">
-              <label className="block">
-                <span className={labelClass}>Phone number</span>
-                <input
-                  required
-                  type="tel"
-                  value={form.phone}
-                  onChange={(ev) => setForm((f) => ({ ...f, phone: ev.target.value }))}
-                  className={inputClass}
-                  autoComplete="tel"
-                />
-              </label>
-              <label className="block">
-                <span className={labelClass}>Email (optional)</span>
-                <span className="mt-1 block text-base text-earth">Leave blank if they do not use email</span>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(ev) => setForm((f) => ({ ...f, email: ev.target.value }))}
-                  className={inputClass}
-                  autoComplete="email"
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="space-y-8 border-t-2 border-earth/10 pt-10">
-            <p className="font-display text-xl font-bold text-deep">Step 3 — Payment</p>
-
-            <div className="grid gap-8 sm:grid-cols-2">
-              <label className="block">
-                <span className={labelClass}>Date they paid</span>
-                <span className="mt-1 block text-base text-earth">Today is filled in — change if needed</span>
-                <input
-                  required
-                  type="date"
-                  value={form.paidOn}
-                  onChange={(ev) => setForm((f) => ({ ...f, paidOn: ev.target.value }))}
-                  className={inputClass}
-                />
-              </label>
-              <label className="block">
-                <span className={labelClass}>Which year is this membership for?</span>
-                <span className="mt-1 block text-base text-earth">Pick the year on their receipt or card</span>
-                <select
-                  value={form.membershipYear}
-                  onChange={(ev) =>
-                    setForm((f) => ({ ...f, membershipYear: Number(ev.target.value) }))
-                  }
-                  className={inputClass}
-                >
-                  {yearOptions.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <label className="block sm:max-w-xl">
-              <span className={labelClass}>How did they pay?</span>
-              <select
-                value={form.paymentMethod}
-                onChange={(ev) =>
-                  setForm((f) => ({ ...f, paymentMethod: ev.target.value as PaymentMethod }))
-                }
+            <fieldset className="rounded-xl border border-earth/15 p-4">
+              <legend className="px-1 font-display text-lg font-bold text-deep">Postal address</legend>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                <label className="block sm:col-span-2">
+                  <span className={labelClass}>Street / building (line 1)</span>
+                  <input
+                    className={inputClass}
+                    value={newMember.addressLine1}
+                    onChange={(ev) => setNewMember((n) => ({ ...n, addressLine1: ev.target.value }))}
+                    placeholder="e.g. 16 Ostade Road"
+                  />
+                </label>
+                <label className="block sm:col-span-2">
+                  <span className={labelClass}>Line 2 (optional)</span>
+                  <input
+                    className={inputClass}
+                    value={newMember.addressLine2}
+                    onChange={(ev) => setNewMember((n) => ({ ...n, addressLine2: ev.target.value }))}
+                    placeholder="Flat, unit, or area"
+                  />
+                </label>
+                <label className="block">
+                  <span className={labelClass}>City or town</span>
+                  <input
+                    className={inputClass}
+                    value={newMember.city}
+                    onChange={(ev) => setNewMember((n) => ({ ...n, city: ev.target.value }))}
+                    placeholder="e.g. London"
+                  />
+                </label>
+                <label className="block">
+                  <span className={labelClass}>Postcode</span>
+                  <input
+                    className={inputClass}
+                    value={newMember.postcode}
+                    onChange={(ev) => setNewMember((n) => ({ ...n, postcode: ev.target.value }))}
+                    placeholder="e.g. SW2 2BB"
+                    autoCapitalize="characters"
+                  />
+                </label>
+              </div>
+            </fieldset>
+            <label className="block">
+              <span className={labelClass}>Email (optional)</span>
+              <input
                 className={inputClass}
-              >
-                {(Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[]).map((k) => (
-                  <option key={k} value={k}>
-                    {PAYMENT_METHOD_LABELS[k]}
-                  </option>
-                ))}
-              </select>
+                value={newMember.email}
+                onChange={(ev) => setNewMember((n) => ({ ...n, email: ev.target.value }))}
+              />
             </label>
-
-            <div className="grid gap-8 sm:grid-cols-2">
-              <label className="block">
-                <span className={labelClass}>Membership amount (£)</span>
-                <span className="mt-1 block text-base text-earth">Usually £{DEFAULT_MEMBERSHIP_GBP}</span>
-                <input
-                  required
-                  inputMode="decimal"
-                  value={form.membershipAmountGbp}
-                  onChange={(ev) => setForm((f) => ({ ...f, membershipAmountGbp: ev.target.value }))}
-                  className={inputClass}
-                />
-              </label>
-              <label className="block">
-                <span className={labelClass}>Extra donation (£)</span>
-                <span className="mt-1 block text-base text-earth">Leave at 0 if they only paid membership</span>
-                <input
-                  inputMode="decimal"
-                  placeholder="0"
-                  value={form.donationAmountGbp}
-                  onChange={(ev) => setForm((f) => ({ ...f, donationAmountGbp: ev.target.value }))}
-                  className={inputClass}
-                />
-              </label>
-            </div>
-
             <label className="block">
               <span className={labelClass}>Notes (optional)</span>
               <input
-                value={form.notes}
-                onChange={(ev) => setForm((f) => ({ ...f, notes: ev.target.value }))}
                 className={inputClass}
-                placeholder="Anything helpful for next year…"
+                value={newMember.notes}
+                onChange={(ev) => setNewMember((n) => ({ ...n, notes: ev.target.value }))}
               />
             </label>
           </div>
-
-          <div className="flex flex-col gap-3 border-t-2 border-earth/10 pt-8 sm:flex-row sm:flex-wrap">
+          <div className="mt-6 flex flex-wrap gap-3">
             <button
-              type="submit"
-              className="inline-flex min-h-[3.5rem] min-w-[12rem] items-center justify-center rounded-full bg-gold px-10 text-xl font-bold text-deep shadow-sm transition hover:bg-saffron"
+              type="button"
+              disabled={busy}
+              onClick={() => void submitNewMember()}
+              className="rounded-full bg-gold px-8 py-3 text-lg font-bold text-deep disabled:opacity-50"
             >
-              {editingId ? "Save changes" : "Save this payment"}
+              Save member
             </button>
-            {editingId ? (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="min-h-[3.5rem] rounded-full border-2 border-earth/30 px-8 text-xl font-semibold text-deep transition hover:border-gold"
-              >
-                Cancel — do not save
-              </button>
-            ) : null}
+            <button
+              type="button"
+              onClick={() => {
+                setAddMemberOpen(false);
+                setFormError(null);
+              }}
+              className="rounded-full border-2 border-earth/30 px-8 py-3 text-lg font-semibold"
+            >
+              Cancel
+            </button>
           </div>
-        </form>
-      </section>
+        </div>
       ) : null}
 
-      <section className="rounded-2xl border-2 border-gold/30 bg-white/95 p-6 shadow-sm sm:p-8">
-        <h2 className="font-display text-2xl font-bold text-deep">The list</h2>
-        <p className="mt-3 text-lg text-earth">
-          {canEdit ? (
-            <>
-              The table updates <strong className="text-deep">as you type</strong> in the search box.{" "}
-              <strong className="text-deep">Tap a row</strong> to record their <strong className="text-deep">renewal</strong>{" "}
-              (details fill in; renewal is already selected — go to payment in Step 3). Use{" "}
-              <strong className="text-deep">Correct this line</strong> only to fix a mistake on an old
-              entry, or <strong className="text-deep">Remove line</strong> to delete it.
-            </>
-          ) : (
-            <>
-              Tap a <strong className="text-deep">row</strong> to show full details for that payment.
-              The table updates as you type in the search box.
-            </>
-          )}
+      <section className="rounded-2xl border-2 border-gold/30 bg-white/95 p-5 shadow-sm sm:p-6">
+        <h2 className="font-display text-2xl font-bold text-deep">Members</h2>
+        <p className="mt-2 text-base text-earth sm:text-lg">
+          Sorted A–Z by <strong className="text-deep">surname</strong>. The list only shows name + latest payment —
+          <strong className="text-deep"> phone, postal address, and email</strong> appear after you{" "}
+          <strong className="text-deep">open</strong> someone. You can still search by phone or postcode; those
+          matches won’t show those fields until you tap the row.
         </p>
 
-        <div className="mt-6" role="search">
-          <label className="block" htmlFor="membership-search">
-            <span className={labelClass}>Search the list</span>
-            <span id="membership-search-hint" className="mt-1 block text-base text-earth">
-              Name, address, email, notes, year, or phone digits (e.g. 8674)
-            </span>
+        <div className="mt-5" role="search">
+          <label className={labelClass} htmlFor="mem-search">
+            Search
           </label>
-          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-3">
-            <input
-              id="membership-search"
-              type="search"
-              enterKeyHint="search"
-              autoComplete="off"
-              autoCorrect="off"
-              spellCheck={false}
-              value={search}
-              onChange={(ev) => setSearch(ev.target.value)}
-              placeholder="Start typing…"
-              className={`${inputClass} sm:mt-0 sm:flex-1`}
-              aria-describedby="membership-search-hint membership-search-status"
-            />
-            {search.trim() ? (
+          <input
+            id="mem-search"
+            type="search"
+            value={search}
+            onChange={(ev) => setSearch(ev.target.value)}
+            placeholder="Search by name (list), phone, postcode, or street (hidden until open)…"
+            className={inputClass}
+          />
+        </div>
+
+        <ul className="mt-5 divide-y divide-earth/10 rounded-xl border border-earth/15">
+          {filteredMembers.length === 0 ? (
+            <li className="px-4 py-8 text-center text-earth">No members match.</li>
+          ) : (
+            filteredMembers.map((m) => {
+              const active = selectedId === m.id;
+              return (
+                <li key={m.id}>
+                  <button
+                    type="button"
+                    title={latestPaymentTooltip(payments, m.id)}
+                    onClick={() => setSelectedId(active ? null : m.id)}
+                    className={`w-full px-4 py-4 text-left transition ${
+                      active ? "bg-amber-50/90" : "hover:bg-parchment-muted/50"
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold uppercase tracking-wide text-gold-dim">Surname · A–Z</p>
+                      <p className="truncate font-display text-xl font-semibold text-deep">
+                        {m.surname.trim() ? displaySurname(m.surname) : "—"}
+                      </p>
+                      <p className="truncate text-base text-earth">{m.fullName}</p>
+                      <p className="mt-1 truncate text-xs text-earth/75">{latestPaymentOneLine(payments, m.id)}</p>
+                      <p className="mt-2 text-xs font-medium text-gold-dim">
+                        {active ? "Open — tap again to close" : "Tap for contact & payment history"}
+                      </p>
+                    </div>
+                  </button>
+                </li>
+              );
+            })
+          )}
+        </ul>
+      </section>
+
+      {selected ? (
+        <section
+          ref={memberDetailRef}
+          className="space-y-6 rounded-2xl border-2 border-gold/25 bg-white/95 p-6 shadow-sm"
+          aria-label="Selected member"
+        >
+          {canEdit ? null : (
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <h2 className="font-display text-2xl font-bold text-deep">{selected.fullName}</h2>
+            </div>
+          )}
+
+          <MemberContactBlock
+            key={selected.id}
+            member={selected}
+            canEdit={canEdit}
+            busy={busy}
+            onSave={(patch) => void saveMemberContact(patch)}
+          />
+
+          {canEdit ? (
+            <div className="flex flex-wrap justify-end gap-3 border-t border-earth/10 pt-4">
               <button
                 type="button"
-                onClick={() => setSearch("")}
-                className="min-h-[3rem] shrink-0 rounded-xl border-2 border-earth/25 px-5 text-lg font-semibold text-deep transition hover:border-gold sm:px-6"
+                onClick={() => void onDeleteMember()}
+                className="rounded-full border border-red-900/30 bg-red-50 px-4 py-2 text-sm font-semibold text-red-950"
               >
-                Clear
+                Remove member
               </button>
+            </div>
+          ) : null}
+
+          <div>
+            <h3 className="font-display text-xl font-semibold text-deep">Membership history</h3>
+            {canEdit ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => openAddPayment("new_member")}
+                  className="rounded-full border-2 border-gold/50 px-4 py-2 text-sm font-semibold text-deep"
+                >
+                  Add first / new membership payment
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openAddPayment("yearly_renewal")}
+                  className="rounded-full border-2 border-earth/25 px-4 py-2 text-sm font-semibold text-deep"
+                >
+                  Add renewal payment
+                </button>
+              </div>
             ) : null}
-          </div>
-          <p
-            id="membership-search-status"
-            className="mt-3 text-lg text-deep"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            {records.length === 0 ? (
-              <>No lines saved yet.</>
-            ) : !search.trim() ? (
-              <>
-                Showing all <strong>{records.length}</strong> line{records.length === 1 ? "" : "s"}.
-              </>
+
+            {memberPayments.length === 0 ? (
+              <p className="mt-4 text-earth">No payments yet for this member.</p>
             ) : (
-              <>
-                <strong>{filtered.length}</strong> match{filtered.length === 1 ? "" : "es"} for “
-                <span className="break-words">{search.trim()}</span>” (of {records.length}).
-              </>
-            )}
-          </p>
-        </div>
-
-        <p className="mt-4 text-base text-earth sm:text-lg">
-          On a small screen, slide sideways to see all columns.
-        </p>
-
-        <div className="mt-6 overflow-x-auto rounded-xl border border-earth/15">
-          <table className="min-w-[52rem] w-full border-collapse text-left text-base sm:text-lg">
-            <thead className="bg-parchment-muted/80">
-              <tr className="text-deep">
-                <th className="px-3 py-4 font-bold sm:px-4">Name</th>
-                <th className="px-3 py-4 font-bold sm:px-4">New or renewal</th>
-                <th className="px-3 py-4 font-bold sm:px-4">Paid</th>
-                <th className="px-3 py-4 font-bold sm:px-4">Year</th>
-                <th className="px-3 py-4 font-bold sm:px-4">How paid</th>
-                <th className="px-3 py-4 font-bold sm:px-4">Member</th>
-                <th className="px-3 py-4 font-bold sm:px-4">Donation</th>
-                <th className="px-3 py-4 font-bold sm:px-4">Total</th>
-                <th className="px-3 py-4 pl-2 font-bold sm:px-4">
-                  {canEdit ? "Actions" : "Details"}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="px-4 py-12 text-center text-lg text-earth">
-                    {records.length === 0
-                      ? canEdit
-                        ? "Nothing saved yet. Use “Add a payment” above to enter the first one."
-                        : "Nothing saved yet."
-                      : "No one matches that search. Try fewer letters or clear the box."}
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((r) => {
-                  const total = r.membershipAmountGbp + r.donationAmountGbp;
-                  const expanded = expandedViewId === r.id;
-                  return (
-                    <Fragment key={r.id}>
-                      <tr
-                        id={`member-row-${r.id}`}
-                        aria-expanded={!canEdit ? expanded : undefined}
-                        className="cursor-pointer border-t border-earth/15 align-top scroll-mt-4 hover:bg-amber-50/50"
-                        onClick={() => {
-                          if (!canEdit) {
-                            setExpandedViewId((v) => (v === r.id ? null : r.id));
-                          } else {
-                            onRenewFromRow(r);
-                          }
-                        }}
-                      >
-                        <td className="px-3 py-4 sm:px-4">
-                          <div className="font-bold text-deep">{r.fullName}</div>
-                          <div className="mt-1 text-base text-earth">{r.phone}</div>
-                          {r.email ? <div className="mt-1 text-base text-earth">{r.email}</div> : null}
-                        </td>
-                        <td className="px-3 py-4 text-earth sm:px-4">
-                          {MEMBER_ENTRY_LABELS[r.memberEntryKind]}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-earth sm:px-4">
-                          {formatPaidOn(r.paidOn)}
-                        </td>
-                        <td className="px-3 py-4 font-medium text-deep sm:px-4">{r.membershipYear}</td>
-                        <td className="max-w-[10rem] px-3 py-4 text-earth sm:px-4">
-                          {PAYMENT_METHOD_LABELS[r.paymentMethod]}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 sm:px-4">
-                          {formatMoney(r.membershipAmountGbp)}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 sm:px-4">
-                          {r.donationAmountGbp > 0 ? formatMoney(r.donationAmountGbp) : "—"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 font-bold text-deep sm:px-4">
-                          {formatMoney(total)}
-                        </td>
-                        <td className="px-3 py-3 sm:px-4">
-                          {canEdit ? (
-                            <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
-                              <button
-                                type="button"
-                                onClick={() => onEdit(r)}
-                                className="min-h-[2.75rem] rounded-lg bg-gold/20 px-4 text-base font-bold text-deep transition hover:bg-gold/35 sm:text-lg"
-                              >
-                                Correct this line
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => onDelete(r.id, r.fullName)}
-                                className="min-h-[2.75rem] rounded-lg border-2 border-red-900/25 px-4 text-base font-bold text-red-950 transition hover:bg-red-50 sm:text-lg"
-                              >
-                                Remove line
-                              </button>
-                            </div>
-                          ) : (
-                            <span className="text-base text-earth">
-                              {expanded ? "Details open — tap again to hide" : "Tap row to open"}
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                      {!canEdit && expanded ? (
-                        <tr className="border-t border-earth/10 bg-parchment-muted/40">
-                          <td colSpan={9} className="px-4 py-6 sm:px-6">
-                            <MemberReadOnlyBlock r={r} />
-                          </td>
-                        </tr>
+              <ul className="mt-4 space-y-3">
+                {memberPayments.map((p) => (
+                  <li key={p.id} className="rounded-xl border border-earth/15 bg-parchment-muted/30 px-4 py-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-semibold text-gold-dim">
+                          {p.membershipYear} · {MEMBER_ENTRY_LABELS[p.memberEntryKind]}
+                        </p>
+                        <p className="text-deep">{formatPaidOn(p.paidOn)} — {PAYMENT_METHOD_LABELS[p.paymentMethod]}</p>
+                        <p className="text-sm text-earth">
+                          Membership {formatMoney(p.membershipAmountGbp)}
+                          {p.donationAmountGbp > 0 ? ` · Donation ${formatMoney(p.donationAmountGbp)}` : ""}
+                        </p>
+                        {p.notes ? <p className="mt-1 text-sm text-earth">{p.notes}</p> : null}
+                      </div>
+                      {canEdit ? (
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openEditPayment(p)}
+                            className="text-sm font-semibold text-gold-dim underline"
+                          >
+                            Edit payment
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void onDeletePayment(p.id)}
+                            className="text-sm font-semibold text-red-900"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       ) : null}
-                    </Fragment>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {payOpen && canEdit ? (
+            <div className="rounded-xl border-2 border-gold/30 bg-white p-5">
+              <h4 className="font-display text-lg font-bold text-deep">
+                {editingPaymentId ? "Edit payment" : "Add payment"}
+              </h4>
+              {formError ? <p className="mt-2 text-sm text-red-900">{formError}</p> : null}
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <label className="block sm:col-span-2">
+                  <span className={labelClass}>Type</span>
+                  <select
+                    className={inputClass}
+                    value={payForm.memberEntryKind}
+                    onChange={(ev) =>
+                      setPayForm((f) => ({ ...f, memberEntryKind: ev.target.value as MemberEntryKind }))
+                    }
+                  >
+                    {(Object.keys(MEMBER_ENTRY_LABELS) as MemberEntryKind[]).map((k) => (
+                      <option key={k} value={k}>
+                        {MEMBER_ENTRY_LABELS[k]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className={labelClass}>Date paid</span>
+                  <input
+                    type="date"
+                    className={inputClass}
+                    value={payForm.paidOn}
+                    onChange={(ev) => setPayForm((f) => ({ ...f, paidOn: ev.target.value }))}
+                  />
+                </label>
+                <label className="block">
+                  <span className={labelClass}>Membership year</span>
+                  <select
+                    className={inputClass}
+                    value={payForm.membershipYear}
+                    onChange={(ev) => setPayForm((f) => ({ ...f, membershipYear: Number(ev.target.value) }))}
+                  >
+                    {membershipYearChoices().map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block sm:col-span-2">
+                  <span className={labelClass}>How paid</span>
+                  <select
+                    className={inputClass}
+                    value={payForm.paymentMethod}
+                    onChange={(ev) =>
+                      setPayForm((f) => ({ ...f, paymentMethod: ev.target.value as PaymentMethod }))
+                    }
+                  >
+                    {(Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[]).map((k) => (
+                      <option key={k} value={k}>
+                        {PAYMENT_METHOD_LABELS[k]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className={labelClass}>Membership £</span>
+                  <input
+                    className={inputClass}
+                    value={payForm.membershipAmountGbp}
+                    onChange={(ev) => setPayForm((f) => ({ ...f, membershipAmountGbp: ev.target.value }))}
+                  />
+                </label>
+                <label className="block">
+                  <span className={labelClass}>Donation £</span>
+                  <input
+                    className={inputClass}
+                    placeholder="0"
+                    value={payForm.donationAmountGbp}
+                    onChange={(ev) => setPayForm((f) => ({ ...f, donationAmountGbp: ev.target.value }))}
+                  />
+                </label>
+                <label className="block sm:col-span-2">
+                  <span className={labelClass}>Notes</span>
+                  <input
+                    className={inputClass}
+                    value={payForm.notes}
+                    onChange={(ev) => setPayForm((f) => ({ ...f, notes: ev.target.value }))}
+                  />
+                </label>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void savePayment()}
+                  className="rounded-full bg-gold px-8 py-3 font-bold text-deep disabled:opacity-50"
+                >
+                  Save payment
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPayOpen(false);
+                    setFormError(null);
+                  }}
+                  className="rounded-full border-2 border-earth/25 px-8 py-3 font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+function MemberContactBlock({
+  member,
+  canEdit,
+  busy,
+  onSave,
+}: {
+  member: MemberProfile;
+  canEdit: boolean;
+  busy: boolean;
+  onSave: (m: MemberProfile) => void;
+}) {
+  const [fullName, setFullName] = useState(member.fullName);
+  const [addressLine1, setAddressLine1] = useState(member.addressLine1);
+  const [addressLine2, setAddressLine2] = useState(member.addressLine2);
+  const [city, setCity] = useState(member.city);
+  const [postcode, setPostcode] = useState(member.postcode);
+  const [email, setEmail] = useState(member.email ?? "");
+  const [phone, setPhone] = useState(member.phone);
+  const [notes, setNotes] = useState(member.notes ?? "");
+
+  useEffect(() => {
+    setFullName(member.fullName);
+    setAddressLine1(member.addressLine1);
+    setAddressLine2(member.addressLine2);
+    setCity(member.city);
+    setPostcode(member.postcode);
+    setEmail(member.email ?? "");
+    setPhone(member.phone);
+    setNotes(member.notes ?? "");
+  }, [member]);
+
+  if (!canEdit) {
+    const lines = formatPostalAddressLines(member);
+    return (
+      <div className="grid gap-3 text-base sm:grid-cols-2">
+        <p>
+          <span className="text-xs font-bold uppercase text-earth">Phone</span>
+          <br />
+          {member.phone}
+        </p>
+        <div className="sm:col-span-2">
+          <span className="text-xs font-bold uppercase text-earth">Postal address</span>
+          <address className="mt-1 not-italic leading-relaxed text-deep">
+            {lines.length ? (
+              lines.map((line, i) => (
+                <span key={`addr-line-${i}`} className="block">
+                  {line}
+                </span>
+              ))
+            ) : (
+              <span className="text-earth">—</span>
+            )}
+          </address>
         </div>
-      </section>
+        {member.email ? (
+          <p>
+            <span className="text-xs font-bold uppercase text-earth">Email</span>
+            <br />
+            {member.email}
+          </p>
+        ) : null}
+        {member.notes ? (
+          <p className="sm:col-span-2">
+            <span className="text-xs font-bold uppercase text-earth">Notes</span>
+            <br />
+            {member.notes}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-earth/15 bg-parchment-muted/25 p-4">
+      <p className="text-sm font-semibold text-deep">Contact details</p>
+      <p className="mt-1 text-sm text-earth/80">Change any field, then tap Save contact. To change a year line, use Edit payment below.</p>
+      <div className="mt-3 grid gap-3">
+        <label className="block">
+          <span className={labelClass}>Full name</span>
+          <input className={inputClass} value={fullName} onChange={(e) => setFullName(e.target.value)} />
+        </label>
+        <fieldset className="rounded-xl border border-earth/10 p-4">
+          <legend className="px-1 text-base font-bold text-deep">Postal address</legend>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            <label className="block sm:col-span-2">
+              <span className={labelClass}>Street / building (line 1)</span>
+              <input
+                className={inputClass}
+                value={addressLine1}
+                onChange={(e) => setAddressLine1(e.target.value)}
+                placeholder="House number and street"
+              />
+            </label>
+            <label className="block sm:col-span-2">
+              <span className={labelClass}>Line 2 (optional)</span>
+              <input
+                className={inputClass}
+                value={addressLine2}
+                onChange={(e) => setAddressLine2(e.target.value)}
+                placeholder="Flat, unit, or area"
+              />
+            </label>
+            <label className="block">
+              <span className={labelClass}>City or town</span>
+              <input className={inputClass} value={city} onChange={(e) => setCity(e.target.value)} />
+            </label>
+            <label className="block">
+              <span className={labelClass}>Postcode</span>
+              <input
+                className={inputClass}
+                value={postcode}
+                onChange={(e) => setPostcode(e.target.value)}
+                autoCapitalize="characters"
+              />
+            </label>
+          </div>
+        </fieldset>
+        <label className="block">
+          <span className={labelClass}>Phone</span>
+          <input className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)} />
+        </label>
+        <label className="block">
+          <span className={labelClass}>Email</span>
+          <input className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} />
+        </label>
+        <label className="block">
+          <span className={labelClass}>Member notes</span>
+          <input className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </label>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() =>
+            onSave({
+              ...member,
+              fullName: fullName.trim(),
+              addressLine1: addressLine1.trim(),
+              addressLine2: addressLine2.trim(),
+              city: city.trim(),
+              postcode: postcode.trim(),
+              email: email.trim() ? email.trim() : null,
+              phone: phone.trim(),
+              notes: notes.trim() ? notes.trim() : null,
+              surname: surnameFromFullName(fullName),
+              updatedAt: new Date().toISOString(),
+            })
+          }
+          className="mt-2 rounded-full bg-gold px-6 py-2.5 font-bold text-deep disabled:opacity-50"
+        >
+          Save contact
+        </button>
+      </div>
     </div>
   );
 }

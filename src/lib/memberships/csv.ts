@@ -7,9 +7,13 @@ import type { MemberEntryKind, MembershipRecord, PaymentMethod } from "./types";
 
 export const MEMBERSHIP_CSV_COLUMNS = [
   "id",
+  "memberId",
   "memberEntryKind",
   "fullName",
-  "address",
+  "addressLine1",
+  "addressLine2",
+  "city",
+  "postcode",
   "email",
   "phone",
   "paidOn",
@@ -36,9 +40,13 @@ export function recordsToCsv(rows: MembershipRecord[]) {
     const total = r.membershipAmountGbp + r.donationAmountGbp;
     const line = [
       r.id,
+      r.memberId ?? "",
       r.memberEntryKind,
       r.fullName,
-      r.address,
+      r.addressLine1,
+      r.addressLine2,
+      r.city,
+      r.postcode,
       r.email ?? "",
       r.phone,
       r.paidOn,
@@ -101,7 +109,10 @@ function normalizeHeader(h: string) {
 /** Alternate header labels (e.g. “Name” for fullName) — keys are normalized logical names. */
 const HEADER_ALIASES: Record<string, string[]> = {
   fullname: ["name"],
-  address: ["homeaddress", "postaladdress"],
+  addressline1: ["street", "line1", "address1", "homeaddress", "postaladdress", "address"],
+  addressline2: ["line2", "address2", "flat"],
+  city: ["town"],
+  postcode: ["postalcode", "zip", "postcodeuk"],
   memberentrykind: ["kind", "neworrenewal"],
   membershipyear: ["year"],
   paidon: ["datepaid", "date"],
@@ -197,7 +208,7 @@ export function parseMembershipCsv(
   }
 
   const headerRow = rows[0]!;
-  const need = ["fullName", "address", "phone", "paidOn", "membershipYear", "paymentMethod", "membershipAmountGbp"];
+  const need = ["fullName", "phone", "paidOn", "membershipYear", "paymentMethod", "membershipAmountGbp"];
   for (const k of need) {
     if (headerIndex(headerRow, k) < 0) {
       return {
@@ -211,6 +222,25 @@ export function parseMembershipCsv(
         skippedRows: 0,
       };
     }
+  }
+
+  const hasStructuredAddr =
+    headerIndex(headerRow, "addressLine1") >= 0 &&
+    headerIndex(headerRow, "city") >= 0 &&
+    headerIndex(headerRow, "postcode") >= 0;
+  const hasLegacyAddr = headerIndex(headerRow, "address") >= 0;
+  if (!hasStructuredAddr && !hasLegacyAddr) {
+    return {
+      records: [],
+      errors: [
+        {
+          line: 1,
+          message:
+            "Missing address columns. Either use addressLine1, city, and postcode (recommended), or a single legacy “address” column.",
+        },
+      ],
+      skippedRows: 0,
+    };
   }
 
   const out: MembershipRecord[] = [];
@@ -227,7 +257,15 @@ export function parseMembershipCsv(
     }
 
     const fullName = cell(row, headerRow, "fullName").trim();
-    const address = cell(row, headerRow, "address").trim();
+    const line1Raw = cell(row, headerRow, "addressLine1").trim();
+    const line2 = cell(row, headerRow, "addressLine2").trim();
+    const city = cell(row, headerRow, "city").trim();
+    const postcode = cell(row, headerRow, "postcode").trim();
+    const legacyAddress = cell(row, headerRow, "address").trim();
+    const addressLine1 = line1Raw || legacyAddress;
+    const addressLine2 = line2;
+    const cityF = city;
+    const postcodeF = postcode;
     const phone = cell(row, headerRow, "phone").trim();
     const paidRaw = cell(row, headerRow, "paidOn");
     const paidOn = parsePaidOn(paidRaw);
@@ -239,14 +277,26 @@ export function parseMembershipCsv(
     const donationAmountGbp = donationRaw.trim() === "" ? 0 : parseMoney(donationRaw, 0);
 
     const idCell = cell(row, headerRow, "id").trim();
+    const memberIdCell = cell(row, headerRow, "memberId").trim();
     const emailCell = cell(row, headerRow, "email").trim();
     const notesCell = cell(row, headerRow, "notes").trim();
     const mek = cell(row, headerRow, "memberEntryKind");
     const createdAt = cell(row, headerRow, "createdAt").trim();
     const updatedAt = cell(row, headerRow, "updatedAt").trim();
 
-    if (!fullName || !address || !phone) {
-      errors.push({ line: lineNum, message: "Missing name, address, or phone." });
+    if (!fullName || !phone) {
+      errors.push({ line: lineNum, message: "Missing name or phone." });
+      continue;
+    }
+    if (!addressLine1) {
+      errors.push({ line: lineNum, message: "Missing street / line 1 (or legacy address)." });
+      continue;
+    }
+    if (hasStructuredAddr && (!cityF || !postcodeF)) {
+      errors.push({
+        line: lineNum,
+        message: "With structured address columns, city and postcode are required on each row.",
+      });
       continue;
     }
     if (!paidOn) {
@@ -278,8 +328,12 @@ export function parseMembershipCsv(
 
     const rec: MembershipRecord = {
       id: idCell || newId(),
+      memberId: memberIdCell || undefined,
       fullName,
-      address,
+      addressLine1,
+      addressLine2,
+      city: cityF,
+      postcode: postcodeF,
       email: emailCell ? emailCell : null,
       phone,
       paidOn,

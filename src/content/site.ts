@@ -62,9 +62,10 @@ export const hero = {
 export type SiteEventItem = {
   dateLabel: string;
   title: string;
-  meta: string;
-  href: string;
-  cta: string;
+  summary?: string;
+  imageSrc?: string;
+  href?: string;
+  cta?: string;
 };
 
 export const events = {
@@ -217,6 +218,11 @@ export const leadership = {
     { role: "Treasurer", name: "Srimati Cheetra Singh" },
     { role: "Organising Secretary", name: "Srimati Rose Alli" },
     { role: "Publicity Officer", name: "Sri Devin Singh" },
+    {
+      role: "Sampark (Social Media & Tech)",
+      name: "Arjun Ramdhan",
+      subtitle: "NHSF(UK) National Hindu Student Forum",
+    },
   ],
   committeeHeading: "Committee members",
   committeeMembers: [

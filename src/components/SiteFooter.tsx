@@ -13,14 +13,24 @@ export function SiteFooter() {
         <p className="mt-6 text-xs leading-relaxed text-parchment-muted/90 sm:text-sm">
           Copyright © {year} {site.nameFull}. {footer.rightsReserved}
         </p>
-        <p className="mt-5">
+        <p className="mt-5 text-xs text-parchment-muted/90">
           <a
             href={footer.facebookUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-medium text-gold underline-offset-4 transition hover:text-parchment hover:underline"
+            className="font-medium text-gold underline-offset-4 transition hover:text-parchment hover:underline"
           >
             {footer.officialFacebookLabel}
+          </a>
+        </p>
+        <p className="mt-2 text-[0.7rem] text-parchment-muted/80">
+          <a
+            href="https://arpk.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-gold underline-offset-4 transition hover:text-parchment hover:underline"
+          >
+            Built by Arjun Ramdhan
           </a>
         </p>
       </div>
