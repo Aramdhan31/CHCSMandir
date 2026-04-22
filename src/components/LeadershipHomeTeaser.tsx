@@ -50,11 +50,11 @@ export function LeadershipHomeTeaser() {
           </p>
         </header>
 
-        <div className="mt-14 grid gap-8 md:grid-cols-3">
+        <div className="mt-14 grid place-items-center gap-8">
           {cards.map((card) => (
             <article
               key={card.role}
-              className="group relative overflow-hidden rounded-2xl border border-gold/25 bg-white/80 p-8 shadow-md transition hover:-translate-y-0.5 hover:border-gold/45 hover:shadow-lg"
+              className="group relative w-full max-w-md overflow-hidden rounded-2xl border border-gold/25 bg-white/80 p-8 shadow-md transition hover:-translate-y-0.5 hover:border-gold/45 hover:shadow-lg"
             >
               <div
                 className={`pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${card.accent} opacity-80`}
