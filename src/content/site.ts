@@ -211,7 +211,7 @@ export const leadership = {
   showAdminNames: false,
   executiveTitle: "Executive committee",
   roles: [
-    { role: "President", name: "Sri Khublall (Vishal) Lochan" },
+    { role: "President", name: "Sri Khublall Lochan" },
     { role: "Vice President", name: "Srimati Cheetra Singh" },
     { role: "Secretary", name: "Srimati Sunita (Devi) Lochan" },
     { role: "Treasurer", name: "Srimati Cheetra Singh" },
@@ -238,7 +238,7 @@ export const leadership = {
   priestsTitle: "Pandits",
   priestsCurrent: [
     { role: "Current Pandit", name: "Pt. Bhisham Dindyal" },
-    { role: "Assistant Pandit", name: "Sri Khublall (Vishal) Lochan" },
+    { role: "Assistant Pandit", name: "Sri Khublall Lochan" },
   ],
   pastHeading: "Past pandits",
   pastPriests: [
@@ -293,6 +293,15 @@ export const visit = {
     "Please email om@chcstemple.org for more information on how to join, or use the contact form in the Visit us section further down this page.",
     "Thank you for your support!",
   ],
+  membershipBankHeading: "Bank transfer details",
+  membershipBank: {
+    bankNameLabel: "Bank",
+    bankName: "Lloyds Bank",
+    accountNumberLabel: "Account number",
+    accountNumber: "07290393",
+    sortCodeLabel: "Sort code",
+    sortCode: "30-96-07",
+  },
   contactFormHeading: "For any enquiries please contact us",
   formLabels: {
     firstName: "First name",

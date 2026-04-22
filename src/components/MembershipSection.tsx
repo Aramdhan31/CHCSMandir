@@ -1,6 +1,7 @@
 import { visit } from "@/content/site";
 
 export function MembershipSection() {
+  const bank = visit.membershipBank;
   return (
     <section
       id="membership"
@@ -15,6 +16,38 @@ export function MembershipSection() {
             {visit.membershipParagraphs.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
+          </div>
+
+          <div className="mt-8 rounded-2xl border border-gold/25 bg-white/80 p-5 shadow-sm sm:p-6">
+            <h3 className="font-display text-xl font-semibold text-deep sm:text-2xl">
+              {visit.membershipBankHeading}
+            </h3>
+            <dl className="mt-4 grid gap-4 text-earth sm:grid-cols-3">
+              <div className="rounded-xl border border-gold/15 bg-parchment/40 px-4 py-3">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-gold-dim">
+                  {bank.bankNameLabel}
+                </dt>
+                <dd className="mt-1 font-display text-lg font-semibold text-deep">
+                  {bank.bankName}
+                </dd>
+              </div>
+              <div className="rounded-xl border border-gold/15 bg-parchment/40 px-4 py-3">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-gold-dim">
+                  {bank.accountNumberLabel}
+                </dt>
+                <dd className="mt-1 font-display text-lg font-semibold text-deep">
+                  {bank.accountNumber}
+                </dd>
+              </div>
+              <div className="rounded-xl border border-gold/15 bg-parchment/40 px-4 py-3">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-gold-dim">
+                  {bank.sortCodeLabel}
+                </dt>
+                <dd className="mt-1 font-display text-lg font-semibold text-deep">
+                  {bank.sortCode}
+                </dd>
+              </div>
+            </dl>
           </div>
         </div>
       </div>
