@@ -238,7 +238,6 @@ export const leadership = {
   priestsTitle: "Pandits",
   priestsCurrent: [
     { role: "Current Pandit", name: "Pt. Bhisham Dindyal" },
-    { role: "Assistant Pandit", name: "Sri Khublall Lochan" },
   ],
   pastHeading: "Past pandits",
   pastPriests: [
