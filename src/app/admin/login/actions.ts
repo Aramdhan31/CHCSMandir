@@ -24,6 +24,14 @@ function maxAgeFromRemember(remember: boolean) {
   return remember ? 60 * 60 * 24 * 90 : 60 * 60 * 24 * 7;
 }
 
+function cookieOpts(maxAge: number) {
+  return {
+    ...cookieBase(),
+    maxAge,
+    expires: new Date(Date.now() + maxAge * 1000),
+  };
+}
+
 function resolvePins(): {
   chcs: string | null;
   events: string | null;
@@ -81,25 +89,25 @@ export async function loginUnifiedAdmin(
 
   const p = resolvePins();
   const jar = await cookies();
-  const base = cookieBase();
+  const opts = cookieOpts(maxAge);
 
   if (p.chcs && pin === p.chcs) {
-    jar.set(EVENTS_ADMIN_COOKIE, EVENTS_COOKIE_OK, { ...base, maxAge });
-    jar.set(MEMBERSHIPS_ADMIN_COOKIE, MEMBERSHIP_COOKIE_EDIT, { ...base, maxAge });
+    jar.set(EVENTS_ADMIN_COOKIE, EVENTS_COOKIE_OK, opts);
+    jar.set(MEMBERSHIPS_ADMIN_COOKIE, MEMBERSHIP_COOKIE_EDIT, opts);
     redirect(postLoginRedirect(next, true, true));
   }
   if (p.events && pin === p.events) {
-    jar.set(EVENTS_ADMIN_COOKIE, EVENTS_COOKIE_OK, { ...base, maxAge });
+    jar.set(EVENTS_ADMIN_COOKIE, EVENTS_COOKIE_OK, opts);
     redirect(postLoginRedirect(next, true, false));
   }
   if (p.memEdit && pin === p.memEdit) {
     // One committee edit PIN: unlock events + memberships (same as CHCS_ADMIN_PIN for access scope).
-    jar.set(EVENTS_ADMIN_COOKIE, EVENTS_COOKIE_OK, { ...base, maxAge });
-    jar.set(MEMBERSHIPS_ADMIN_COOKIE, MEMBERSHIP_COOKIE_EDIT, { ...base, maxAge });
+    jar.set(EVENTS_ADMIN_COOKIE, EVENTS_COOKIE_OK, opts);
+    jar.set(MEMBERSHIPS_ADMIN_COOKIE, MEMBERSHIP_COOKIE_EDIT, opts);
     redirect(postLoginRedirect(next, true, true));
   }
   if (p.memView && pin === p.memView) {
-    jar.set(MEMBERSHIPS_ADMIN_COOKIE, MEMBERSHIP_COOKIE_VIEW, { ...base, maxAge });
+    jar.set(MEMBERSHIPS_ADMIN_COOKIE, MEMBERSHIP_COOKIE_VIEW, opts);
     redirect(postLoginRedirect(next, false, true));
   }
 

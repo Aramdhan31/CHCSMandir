@@ -46,7 +46,8 @@ export function UnifiedAdminLoginForm({ nextPath }: { nextPath: string }) {
         />
         <span className="text-base leading-snug text-earth sm:text-lg">
           <span className="font-semibold text-deep">Remember this device</span> — stay signed in longer
-          on this phone or laptop.
+          on this phone or laptop (this won’t carry between different site addresses like
+          <span className="whitespace-nowrap"> localhost</span> and your LAN IP).
         </span>
       </label>
 

@@ -74,7 +74,7 @@ export function SiteHeader() {
           </Link>
           <button
             type="button"
-          className="relative z-[60] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1.5 rounded-md border border-parchment/35 bg-parchment/10 text-parchment shadow-sm backdrop-blur-sm transition hover:border-gold/50 hover:bg-parchment/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-deep md:hidden"
+          className="relative z-[60] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1.5 rounded-md border border-parchment/35 bg-parchment/10 text-deep shadow-sm backdrop-blur-sm transition hover:border-gold/50 hover:bg-parchment/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-deep md:hidden"
             aria-expanded={open}
             aria-controls="primary-nav"
             aria-label={open ? "Close menu" : "Open menu"}
@@ -90,7 +90,7 @@ export function SiteHeader() {
           </button>
           <nav
             id="primary-nav"
-          className={`absolute left-0 right-0 top-full z-[55] max-h-[min(70dvh,calc(100dvh-5rem))] overflow-y-auto border-b border-gold/20 bg-deep/98 px-4 py-4 shadow-lg backdrop-blur-md md:static md:z-auto md:block md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0 md:shadow-none ${open ? "block" : "hidden"}`}
+          className={`absolute left-0 right-0 top-full z-[55] max-h-[min(70dvh,calc(100dvh-5rem))] overflow-y-auto border-b border-gold/20 bg-earth/95 px-4 py-4 shadow-lg backdrop-blur-md md:static md:z-auto md:block md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0 md:shadow-none ${open ? "block" : "hidden"}`}
             aria-label="Primary"
           >
             <ul className="flex flex-col gap-1 md:flex-row md:items-center md:gap-6">
