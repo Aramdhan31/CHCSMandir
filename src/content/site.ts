@@ -294,7 +294,7 @@ export const visit = {
     buses: ["45", "109", "133", "250", "333"],
     drivingLabel: "Driving",
     driving:
-      "Parking is restricted — please allow extra time and be respectful of neighbours. Consider public transport where possible.",
+      "Parking is restricted. Weekdays between 12–2pm there are additional restrictions — please allow extra time and be respectful of neighbours. Consider public transport where possible.",
   },
   phoneLabel: "Phone number",
   phoneDisplay: "+44 (0)20 8674 0755",

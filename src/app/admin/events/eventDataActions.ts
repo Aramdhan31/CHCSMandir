@@ -74,7 +74,7 @@ type UpsertPayload = {
 export async function upsertAdminEventAction(input: UpsertPayload): Promise<void> {
   await assertEventsAdmin();
   const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Supabase service role is not configured on the server.");
+  if (!sb) throw new Error("Events syncing is not configured on the server.");
 
   const id = input.id?.trim();
   const newRowId = id ?? crypto.randomUUID();
@@ -121,7 +121,7 @@ export async function upsertAdminEventAction(input: UpsertPayload): Promise<void
 export async function deleteAdminEventAction(id: string): Promise<void> {
   await assertEventsAdmin();
   const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Supabase service role is not configured on the server.");
+  if (!sb) throw new Error("Events syncing is not configured on the server.");
   const { error } = await sb.from(EVENTS_TABLE).delete().eq("id", id);
   if (error) throw new Error(error.message);
 }

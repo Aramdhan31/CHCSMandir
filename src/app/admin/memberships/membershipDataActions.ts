@@ -177,7 +177,7 @@ export type NewMemberInput = {
 export async function createMembershipMemberAction(input: NewMemberInput): Promise<string> {
   await assertMembershipEdit();
   const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Supabase service role is not configured on the server.");
+  if (!sb) throw new Error("Membership syncing is not configured on the server.");
   const now = new Date().toISOString();
   const { data, error } = await sb
     .from(MEMBERS)
@@ -202,7 +202,7 @@ export async function createMembershipMemberAction(input: NewMemberInput): Promi
 export async function updateMembershipMemberAction(m: MemberProfile): Promise<void> {
   await assertMembershipEdit();
   const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Supabase service role is not configured on the server.");
+  if (!sb) throw new Error("Membership syncing is not configured on the server.");
   const now = new Date().toISOString();
   const { error } = await sb
     .from(MEMBERS)
@@ -224,7 +224,7 @@ export async function updateMembershipMemberAction(m: MemberProfile): Promise<vo
 export async function deleteMembershipMemberAction(memberId: string): Promise<void> {
   await assertMembershipEdit();
   const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Supabase service role is not configured on the server.");
+  if (!sb) throw new Error("Membership syncing is not configured on the server.");
   const { error } = await sb.from(MEMBERS).delete().eq("id", memberId);
   if (error) throwMembershipSupabaseError(error);
 }
@@ -232,7 +232,7 @@ export async function deleteMembershipMemberAction(memberId: string): Promise<vo
 export async function upsertMembershipPaymentAction(p: MembershipPayment): Promise<void> {
   await assertMembershipEdit();
   const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Supabase service role is not configured on the server.");
+  if (!sb) throw new Error("Membership syncing is not configured on the server.");
   const row = {
     id: p.id,
     member_id: p.memberId,
@@ -253,7 +253,7 @@ export async function upsertMembershipPaymentAction(p: MembershipPayment): Promi
 export async function deleteMembershipPaymentAction(id: string): Promise<void> {
   await assertMembershipEdit();
   const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Supabase service role is not configured on the server.");
+  if (!sb) throw new Error("Membership syncing is not configured on the server.");
   const { error } = await sb.from(PAYMENTS).delete().eq("id", id);
   if (error) throw new Error(error.message);
 }
@@ -354,7 +354,7 @@ function findMemberForImportRow(members: MemberProfile[], r: MembershipRecord): 
 export async function importMembershipFlatRowsAction(rows: MembershipRecord[]): Promise<void> {
   await assertMembershipEdit();
   const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Supabase service role is not configured on the server.");
+  if (!sb) throw new Error("Membership syncing is not configured on the server.");
   if (rows.length === 0) return;
 
   let members = await listMembershipMembersAction();

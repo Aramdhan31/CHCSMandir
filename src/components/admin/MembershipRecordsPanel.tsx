@@ -495,8 +495,8 @@ export function MembershipRecordsPanel({
         >
           <p className="font-display text-lg font-bold text-deep sm:text-xl">Not saving to Supabase yet</p>
           <p className="mt-2 leading-relaxed">
-            Members and payments stay in <strong className="text-deep">this browser only</strong> until you set{" "}
-            <code className="text-sm">SUPABASE_SERVICE_ROLE_KEY</code> and restart the dev server.
+            Members and payments stay in <strong className="text-deep">this browser only</strong> until the server is
+            configured to save to Supabase.
           </p>
         </div>
       ) : null}
