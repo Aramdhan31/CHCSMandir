@@ -61,9 +61,9 @@ export function HeroSection() {
             </a>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[18rem] sm:max-w-sm lg:mx-0 lg:max-w-none lg:justify-self-end">
+          <div className="relative mx-auto w-full max-w-[22rem] sm:max-w-md lg:mx-0 lg:max-w-none lg:justify-self-end">
             <div
-              className="relative aspect-square w-full max-w-[18rem] overflow-hidden rounded-2xl border border-gold/30 bg-deep shadow-[0_24px_60px_-12px_rgba(0,0,0,0.55)] ring-1 ring-parchment/10 sm:max-w-sm lg:max-w-[26rem] xl:max-w-[28rem]"
+              className="relative aspect-[4/3] w-full max-w-[22rem] overflow-hidden rounded-2xl border border-gold/30 bg-deep shadow-[0_24px_60px_-12px_rgba(0,0,0,0.55)] ring-1 ring-parchment/10 sm:max-w-md lg:max-w-[30rem] xl:max-w-[32rem]"
             >
               <Image
                 src={hero.homeImageSrc}

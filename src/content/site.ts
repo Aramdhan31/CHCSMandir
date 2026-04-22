@@ -36,9 +36,9 @@ export const hero = {
   primaryCtaLabel: "See upcoming events",
   primaryCtaHash: "#events",
   /** Right column of the welcome row (original single hero image) */
-  homeImageSrc: "/Homepage.avif",
+  homeImageSrc: "/mandir-exterior.jpg",
   homeImageAlt:
-    "Caribbean Hindu Cultural Society mandir — 16 Ostade Road, London",
+    "Front of the CHCS mandir — 16 Ostade Road, London SW2",
   /** Gallery below the welcome row */
   templeGalleryTitle: "Our temple",
   templeGalleryId: "temple",
@@ -137,8 +137,8 @@ export const about = {
     "Our temple today and the journey from 1959 to a registered Place of Worship in Brixton.",
   /** Home #about — photo beside summary (file in /public) */
   homeImage: {
-    src: "/about%20us.avif",
-    alt: "CHCS mandir — gathering and worship at the Caribbean Hindu Cultural Society, Brixton",
+    src: "/mandir-interior.jpg",
+    alt: "Inside the CHCS mandir — carved gold shrines with red canopies, flower offerings, and Om symbols on the altar drapes",
   },
   /** Home page — short version; full narrative lives on /about */
   homeSummaryParagraphs: [
@@ -153,7 +153,7 @@ export const about = {
   pageGallery: {
     title: "The mandir at Ostade Road",
     intro:
-      "Photographs from our registered Place of Worship in Brixton — the street front, the main hall, and the community gathered for worship.",
+      "Photographs from our registered Place of Worship in Brixton — the street front and the main hall.",
     photos: [
       {
         src: "/mandir-exterior.jpg",
@@ -169,9 +169,10 @@ export const about = {
         caption: "Main hall",
       },
       {
-        src: "/about%20us.avif",
-        alt: "CHCS mandir — gathering and worship at the Caribbean Hindu Cultural Society, Brixton",
-        caption: "Community and worship",
+        src: "/mandir-interior.jpg",
+        alt: "Inside the CHCS mandir — carved gold shrines with red canopies, flower offerings, and Om symbols on the altar drapes",
+        caption: "Shrines and offerings",
+        imageClass: "object-cover object-[center_35%]",
       },
     ] as const,
   },
