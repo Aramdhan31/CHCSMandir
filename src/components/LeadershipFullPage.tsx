@@ -19,6 +19,11 @@ function PageOrnament({ className }: { className?: string }) {
 }
 
 export function LeadershipFullPage() {
+  const showExecutive = leadership.showExecutiveNames !== false;
+  const showCommittee = leadership.showCommitteeNames !== false;
+  const showAdmin = leadership.showAdminNames !== false;
+  const showAnyExec = showExecutive || showCommittee || showAdmin;
+
   return (
     <div className="bg-parchment text-ink">
       {/* Hero */}
@@ -60,77 +65,87 @@ export function LeadershipFullPage() {
         </div>
       </header>
 
-      {/* Executive committee — card grid */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <div className="text-center">
-          <h2 className="font-display text-2xl font-semibold text-deep sm:text-3xl">
-            {leadership.executiveTitle}
-          </h2>
-          <PageOrnament className="mt-6" />
-        </div>
-        <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {leadership.roles.map((r) => (
-            <li key={r.role}>
-              <div className="relative h-full overflow-hidden rounded-2xl border border-gold/25 bg-white p-6 shadow-sm transition hover:border-gold/50 hover:shadow-md">
-                <div
-                  className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-90"
-                  aria-hidden
-                />
-                <p className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-gold-dim">
-                  {r.role}
-                </p>
-                <p className="mt-4 font-display text-xl font-semibold text-deep">{r.name}</p>
-                {"subtitle" in r && r.subtitle ? (
-                  <p className="mt-2 text-sm leading-relaxed text-earth/80">
-                    {r.subtitle}
-                  </p>
-                ) : null}
-              </div>
-            </li>
-          ))}
-        </ul>
+      {showAnyExec ? (
+        /* Executive committee — card grid */
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+          <div className="text-center">
+            <h2 className="font-display text-2xl font-semibold text-deep sm:text-3xl">
+              {leadership.executiveTitle}
+            </h2>
+            <PageOrnament className="mt-6" />
+          </div>
 
-        <div className="mt-20 grid gap-14 lg:grid-cols-2">
-          <div>
-            <h3 className="font-display text-xl font-semibold text-deep">
-              {leadership.committeeHeading}
-            </h3>
-            <ul className="mt-6 space-y-3">
-              {leadership.committeeMembers.map((n) => (
-                <li
-                  key={n}
-                  className="flex items-center gap-3 rounded-xl border border-gold/15 bg-white/90 px-4 py-3 text-earth shadow-sm"
-                >
-                  <span
-                    className="inline-block h-2 w-2 shrink-0 rounded-full bg-gold"
-                    aria-hidden
-                  />
-                  {n}
+          {showExecutive ? (
+            <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {leadership.roles.map((r) => (
+                <li key={r.role}>
+                  <div className="relative h-full overflow-hidden rounded-2xl border border-gold/25 bg-white p-6 shadow-sm transition hover:border-gold/50 hover:shadow-md">
+                    <div
+                      className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-90"
+                      aria-hidden
+                    />
+                    <p className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-gold-dim">
+                      {r.role}
+                    </p>
+                    <p className="mt-4 font-display text-xl font-semibold text-deep">{r.name}</p>
+                    {"subtitle" in r && r.subtitle ? (
+                      <p className="mt-2 text-sm leading-relaxed text-earth/80">{r.subtitle}</p>
+                    ) : null}
+                  </div>
                 </li>
               ))}
             </ul>
-          </div>
-          <div>
-            <h3 className="font-display text-xl font-semibold text-deep">
-              {leadership.adminHeading}
-            </h3>
-            <ul className="mt-6 space-y-3">
-              {leadership.adminMembers.map((n) => (
-                <li
-                  key={n}
-                  className="flex items-center gap-3 rounded-xl border border-gold/15 bg-white/90 px-4 py-3 text-earth shadow-sm"
-                >
-                  <span
-                    className="inline-block h-2 w-2 shrink-0 rounded-full bg-saffron/80"
-                    aria-hidden
-                  />
-                  {n}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
+          ) : null}
+
+          {showCommittee || showAdmin ? (
+            <div className="mt-20 grid gap-14 lg:grid-cols-2">
+              {showCommittee ? (
+                <div>
+                  <h3 className="font-display text-xl font-semibold text-deep">
+                    {leadership.committeeHeading}
+                  </h3>
+                  <ul className="mt-6 space-y-3">
+                    {leadership.committeeMembers.map((n) => (
+                      <li
+                        key={n}
+                        className="flex items-center gap-3 rounded-xl border border-gold/15 bg-white/90 px-4 py-3 text-earth shadow-sm"
+                      >
+                        <span
+                          className="inline-block h-2 w-2 shrink-0 rounded-full bg-gold"
+                          aria-hidden
+                        />
+                        {n}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {showAdmin ? (
+                <div>
+                  <h3 className="font-display text-xl font-semibold text-deep">
+                    {leadership.adminHeading}
+                  </h3>
+                  <ul className="mt-6 space-y-3">
+                    {leadership.adminMembers.map((n) => (
+                      <li
+                        key={n}
+                        className="flex items-center gap-3 rounded-xl border border-gold/15 bg-white/90 px-4 py-3 text-earth shadow-sm"
+                      >
+                        <span
+                          className="inline-block h-2 w-2 shrink-0 rounded-full bg-saffron/80"
+                          aria-hidden
+                        />
+                        {n}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       {/* Pandits */}
       <section className="border-t border-gold/20 bg-deep bg-grain py-16 text-parchment sm:py-20">

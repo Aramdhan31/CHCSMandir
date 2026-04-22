@@ -25,11 +25,9 @@ function DividerGlyph() {
 }
 
 export function LeadershipHomeTeaser() {
-  const { president, secretary, pandit } = getLeadershipHomeSpotlights();
+  const { pandit } = getLeadershipHomeSpotlights();
 
   const cards = [
-    { ...president, accent: "from-gold/25 to-transparent" },
-    { ...secretary, accent: "from-saffron/20 to-transparent" },
     { ...pandit, accent: "from-gold/30 to-transparent" },
   ] as const;
 

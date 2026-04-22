@@ -168,12 +168,6 @@ export const about = {
         alt: "Inside the CHCS mandir — carved gold shrines with red canopies, flower offerings, and Om symbols on the altar drapes",
         caption: "Main hall",
       },
-      {
-        src: "/mandir-interior.jpg",
-        alt: "Inside the CHCS mandir — carved gold shrines with red canopies, flower offerings, and Om symbols on the altar drapes",
-        caption: "Shrines and offerings",
-        imageClass: "object-cover object-[center_35%]",
-      },
     ] as const,
   },
   blocks: [
@@ -211,6 +205,10 @@ export const people = {
 export const leadership = {
   sectionTitle: "Executive Committee & pandits",
   intro: "Caribbean Hindu Cultural Society Executive Committee (Managing Trustees)",
+  /** Privacy: keep data in code, but don't display committee names publicly yet. */
+  showExecutiveNames: false,
+  showCommitteeNames: false,
+  showAdminNames: false,
   executiveTitle: "Executive committee",
   roles: [
     { role: "President", name: "Sri Khublall (Vishal) Lochan" },
