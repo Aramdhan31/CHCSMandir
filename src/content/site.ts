@@ -261,7 +261,7 @@ export const leadershipPageMeta = {
 export const homeLeadership = {
   sectionTitle: "Leadership & spiritual guidance",
   intro:
-    "Our mandir is served by our pandit. View the current pandit here, or see previous pandits on the full page.",
+    "Our leadership is run by our elected executive committee, and our mandir is served by our pandit. View the current pandit here, or see previous pandits on the full page.",
   ctaLabel: "View previous pandits",
   ctaHref: leadershipPageMeta.path,
 } as const;
