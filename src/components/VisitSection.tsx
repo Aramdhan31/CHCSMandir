@@ -8,6 +8,7 @@ const visitMapHeightClass =
 
 export function VisitSection() {
   const mapSrc = getGoogleMapsEmbedSrc();
+  const d = visit.directions;
 
   return (
     <section
@@ -54,6 +55,43 @@ export function VisitSection() {
                 {visit.email}
               </a>
             </p>
+          </div>
+
+          <div className="rounded-2xl border border-gold/20 bg-white/70 p-6 shadow-sm">
+            <h3 className="font-display text-lg font-semibold text-earth">
+              {visit.directionsHeading}
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-earth">
+              {visit.directionsIntro}
+            </p>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-xl border border-gold/15 bg-parchment/40 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-gold-dim">
+                  {d.trainsLabel}
+                </p>
+                <ul className="mt-2 space-y-1 text-sm text-earth">
+                  {d.trains.map((s) => (
+                    <li key={s}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-gold/15 bg-parchment/40 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-gold-dim">
+                  {d.busesLabel}
+                </p>
+                <ul className="mt-2 space-y-1 text-sm text-earth">
+                  {d.buses.map((b) => (
+                    <li key={b}>{b}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="mt-4 rounded-xl border border-gold/15 bg-parchment/40 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gold-dim">
+                {d.drivingLabel}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-earth">{d.driving}</p>
+            </div>
           </div>
 
           <div

@@ -261,7 +261,7 @@ export const leadershipPageMeta = {
 export const homeLeadership = {
   sectionTitle: "Leadership & spiritual guidance",
   intro:
-    "Our leadership is run by our elected executive committee, and our mandir is served by our pandit. View the current pandit here, or see previous pandits on the full page.",
+    "Our leadership is run by our elected executive committee, and our mandir is served by our elected pandit. View the current pandit here, or see previous pandits on the full page.",
   ctaLabel: "View previous pandits",
   ctaHref: leadershipPageMeta.path,
 } as const;
@@ -281,6 +281,21 @@ export const visit = {
   servicesHeading: "Services",
   addressLabel: "Address",
   addressLines: ["16 Ostade Road", "London, SW2 2BB"],
+  directionsHeading: "Getting here",
+  directionsIntro:
+    "We’re in Brixton, South London. Use the map for the exact pin — these are the nearest public transport options.",
+  directions: {
+    trainsLabel: "Nearest stations",
+    trains: [
+      "Brixton Station (Victoria line + National Rail)",
+      "Streatham Hill Station (National Rail)",
+    ],
+    busesLabel: "Buses nearby",
+    buses: ["45", "109", "133", "250", "333"],
+    drivingLabel: "Driving",
+    driving:
+      "Parking is restricted — please allow extra time and be respectful of neighbours. Consider public transport where possible.",
+  },
   phoneLabel: "Phone number",
   phoneDisplay: "+44 (0)20 8674 0755",
   phoneHref: "tel:+442086740755",
