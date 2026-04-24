@@ -88,6 +88,14 @@ export function SiteHeader() {
             className={`block h-0.5 w-5 rounded-full bg-current transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`}
             />
           </button>
+          {open ? (
+            <button
+              type="button"
+              aria-label="Close menu overlay"
+              className="fixed inset-0 z-[54] bg-deep/70 backdrop-blur-[2px] md:hidden"
+              onClick={() => setOpen(false)}
+            />
+          ) : null}
           <nav
             id="primary-nav"
           className={`absolute left-0 right-0 top-full z-[55] max-h-[min(70dvh,calc(100dvh-5rem))] overflow-y-auto border-b border-gold/20 bg-earth/95 px-4 py-4 shadow-lg backdrop-blur-md md:static md:z-auto md:block md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0 md:shadow-none ${open ? "block" : "hidden"}`}
