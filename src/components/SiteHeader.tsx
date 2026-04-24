@@ -92,13 +92,13 @@ export function SiteHeader() {
             <button
               type="button"
               aria-label="Close menu overlay"
-              className="fixed inset-0 z-[54] bg-deep/70 backdrop-blur-[2px] md:hidden"
+              className="fixed inset-0 z-[54] bg-deep/80 backdrop-blur-[2px] md:hidden"
               onClick={() => setOpen(false)}
             />
           ) : null}
           <nav
             id="primary-nav"
-          className={`absolute left-0 right-0 top-full z-[55] max-h-[min(70dvh,calc(100dvh-5rem))] overflow-y-auto border-b border-gold/20 bg-earth/95 px-4 py-4 shadow-lg backdrop-blur-md md:static md:z-auto md:block md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0 md:shadow-none ${open ? "block" : "hidden"}`}
+          className={`absolute left-0 right-0 top-full z-[55] max-h-[min(70dvh,calc(100dvh-5rem))] overflow-y-auto border-b border-gold/20 bg-deep/95 px-4 py-4 shadow-lg backdrop-blur-md md:static md:z-auto md:block md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0 md:shadow-none ${open ? "block" : "hidden"}`}
             aria-label="Primary"
           >
             <ul className="flex flex-col gap-1 md:flex-row md:items-center md:gap-6">
