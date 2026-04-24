@@ -31,8 +31,9 @@ export const hero = {
   /** Full line for metadata / accessibility; hero displays `titleLines` on two lines. */
   title: "Welcome to Caribbean Hindu Cultural Society",
   titleLines: ["Welcome to Caribbean", "Hindu Cultural Society"] as const,
-  quote: "Action thy duty, reward not thy concern.",
-  quoteCitation: "Bhagavad Gita 2.47 – Chapter 2, Verse 47",
+  quote:
+    "To those who are devoted with love, I guide them so they may come to Me.",
+  quoteCitation: "Bhagavad Gita 10.10 – Chapter 10, Verse 10",
   primaryCtaLabel: "See upcoming events",
   primaryCtaHash: "#events",
   /** Right column of the welcome row (original single hero image) */
@@ -237,13 +238,29 @@ export const leadership = {
   ],
   priestsTitle: "Pandits",
   priestsCurrent: [
-    { role: "Current Pandit", name: "Pt. Bhisham Dindyal" },
+    {
+      role: "Current Pandit",
+      name: "Pt. Bhisham Dindyal",
+      imageSrc: "/Pt Bisham.jpeg",
+      imageAlt: "Pt. Bhisham Dindyal — current pandit at CHCS mandir",
+    },
   ],
   pastHeading: "Past pandits",
   pastPriests: [
-    { years: "2019 – 2021", name: "Pt. Bish Persaud" },
+    {
+      years: "2019 – 2021",
+      name: "Pt. Bish Persaud",
+      imageSrc: "/Pandit Bish.webp",
+      imageAlt: "Pt. Bish Persaud — past pandit at CHCS mandir",
+    },
     { years: "2014 – 2019", name: "Pt. Jai Ramrattan" },
-    { years: "2003 – 2014", name: "Pt. R. Sankar" },
+    {
+      years: "2003 – 2014",
+      name: "Pt. R. Sankar",
+      imageSrc: "/Pt R Sankar.png",
+      imageAlt: "Pt. R. Sankar — past pandit at CHCS mandir",
+      imageClass: "origin-center scale-[1.65] object-cover object-[50%_12%]",
+    },
     { years: "1972 – 2003", name: "Pt. H. Tiwarie" },
     { years: "1962 – 1972", name: "Pt. R. Maharaj" },
     { years: "1959 – 1962", name: "Pt. H. Tiwarie" },

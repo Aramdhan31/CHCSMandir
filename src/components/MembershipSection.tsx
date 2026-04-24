@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { visit } from "@/content/site";
 
 export function MembershipSection() {
@@ -9,13 +10,29 @@ export function MembershipSection() {
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="rounded-2xl border border-gold/30 bg-deep/5 p-6 shadow-sm sm:p-8">
-          <h2 className="font-display text-2xl font-semibold text-deep sm:text-3xl">
-            {visit.membershipHeading}
-          </h2>
-          <div className="mt-4 max-w-prose space-y-3 text-earth">
-            {visit.membershipParagraphs.map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
+          <div className="grid gap-10 lg:grid-cols-[1fr_360px] lg:items-start">
+            <div>
+              <h2 className="font-display text-2xl font-semibold text-deep sm:text-3xl">
+                {visit.membershipHeading}
+              </h2>
+              <div className="mt-4 max-w-prose space-y-3 text-earth">
+                {visit.membershipParagraphs.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            </div>
+
+            <div className="hidden justify-self-end lg:block">
+              <div className="relative h-80 w-80">
+                <Image
+                  src="/ganesh-bhagwan.png"
+                  alt="Lord Ganesh"
+                  fill
+                  sizes="320px"
+                  className="object-contain object-center"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="mt-8 rounded-2xl border border-gold/25 bg-white/80 p-5 shadow-sm sm:p-6">

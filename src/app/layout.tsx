@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Newsreader } from "next/font/google";
 import "./globals.css";
 import { HashScrollHandler } from "@/components/HashScrollHandler";
+import { ImagePrivacyGuard } from "@/components/ImagePrivacyGuard";
 import { brand, site } from "@/content/site";
 
 /** So tab icons / OG URLs resolve to this origin in dev (not production). */
@@ -62,6 +63,7 @@ export default function RootLayout({
     >
       <body suppressHydrationWarning>
         <HashScrollHandler />
+        <ImagePrivacyGuard />
         {children}
       </body>
     </html>

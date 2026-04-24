@@ -11,8 +11,8 @@ const ABOUT_IMAGE_HEIGHT = 1067;
 const LG = "(min-width: 1024px)";
 const XL = "(min-width: 1280px)";
 /** Max photo width (px) beside prose — keeps the image from feeling oversized on laptop / wide layouts. */
-const ABOUT_IMAGE_WIDTH_CAP_LG = 320;
-const ABOUT_IMAGE_WIDTH_CAP_XL = 448;
+const ABOUT_IMAGE_WIDTH_CAP_LG = 520;
+const ABOUT_IMAGE_WIDTH_CAP_XL = 720;
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false);
@@ -61,7 +61,10 @@ export function AboutSection() {
   const desktopReady = isLg && textBox.width > 0 && textBox.height > 0;
   const imageWidthCap = isXl ? ABOUT_IMAGE_WIDTH_CAP_XL : ABOUT_IMAGE_WIDTH_CAP_LG;
   const desktopImageWidth = desktopReady
-    ? Math.min(textBox.width, imageWidthCap)
+    ? Math.min(Math.max(textBox.width, 420), imageWidthCap)
+    : 1;
+  const desktopImageHeight = desktopReady
+    ? Math.min(textBox.height, Math.round(desktopImageWidth * 0.62))
     : 1;
 
   return (
@@ -98,7 +101,7 @@ export function AboutSection() {
           </div>
 
           {!isLg ? (
-            <figure className="mx-auto w-full max-w-prose shrink-0">
+            <figure className="mx-auto w-full max-w-xl shrink-0">
               <Image
                 src={about.homeImage.src}
                 alt={about.homeImage.alt}
@@ -110,20 +113,22 @@ export function AboutSection() {
             </figure>
           ) : (
             <figure
-              className="relative mx-0 hidden shrink-0 lg:block"
+              className="relative mx-0 hidden shrink-0 lg:block lg:-mt-12"
               style={{
                 width: desktopImageWidth,
-                height: desktopReady ? textBox.height : 1,
+                height: desktopImageHeight,
               }}
             >
               {desktopReady ? (
-                <Image
-                  src={about.homeImage.src}
-                  alt={about.homeImage.alt}
-                  fill
-                  className="object-contain object-left"
-                  sizes={`${desktopImageWidth}px`}
-                />
+                <div className="relative h-full w-full overflow-hidden rounded-2xl border border-gold/25 bg-white/60 shadow-sm">
+                  <Image
+                    src={about.homeImage.src}
+                    alt={about.homeImage.alt}
+                    fill
+                    className="object-cover object-center"
+                    sizes={`${desktopImageWidth}px`}
+                  />
+                </div>
               ) : null}
             </figure>
           )}

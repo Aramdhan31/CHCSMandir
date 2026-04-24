@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Pandit placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a1810" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#b8860b" stop-opacity="0.12"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="25%" r="70%">
+      <stop offset="0" stop-color="#b8860b" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#b8860b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="0" y="0" width="256" height="256" rx="28" fill="url(#bg)"/>
+  <rect x="0" y="0" width="256" height="256" rx="28" fill="url(#glow)"/>
+
+  <!-- simple silhouette -->
+  <circle cx="128" cy="104" r="42" fill="#2a1810" fill-opacity="0.28"/>
+  <path
+    d="M52 214c10-42 40-70 76-70s66 28 76 70"
+    fill="#2a1810"
+    fill-opacity="0.24"
+  />
+
+  <!-- subtle ornament -->
+  <path
+    d="M128 34c10 14 10 22 0 36c-10-14-10-22 0-36Z"
+    fill="#b8860b"
+    fill-opacity="0.22"
+  />
+  <circle cx="128" cy="72" r="6" fill="#b8860b" fill-opacity="0.22"/>
+</svg>
+

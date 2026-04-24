@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   getLeadershipHomeSpotlights,
@@ -61,14 +62,27 @@ export function LeadershipHomeTeaser() {
                 aria-hidden
               />
               <div className="relative">
-                <p className="font-display text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-gold-dim">
+                {"imageSrc" in card && card.imageSrc ? (
+                  <div className="mb-6 flex justify-center">
+                    <div className="relative h-32 w-32 overflow-hidden rounded-2xl border border-gold/35 bg-parchment-muted/60 shadow-sm">
+                      <Image
+                        src={card.imageSrc}
+                        alt={"imageAlt" in card && card.imageAlt ? card.imageAlt : card.name}
+                        fill
+                        sizes="128px"
+                        className="origin-center scale-[1.15] object-cover object-[42%_6%]"
+                      />
+                    </div>
+                  </div>
+                ) : null}
+                <p className="text-center font-display text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-gold-dim">
                   {card.role}
                 </p>
-                <p className="mt-4 font-display text-2xl font-semibold leading-snug text-deep sm:text-[1.65rem]">
+                <p className="mt-4 text-center font-display text-2xl font-semibold leading-snug text-deep sm:text-[1.65rem]">
                   {card.name}
                 </p>
                 <span
-                  className="mt-6 block h-px w-12 bg-gradient-to-r from-gold to-transparent"
+                  className="mx-auto mt-6 block h-px w-12 bg-gradient-to-r from-gold to-transparent"
                   aria-hidden
                 />
               </div>

@@ -67,6 +67,15 @@ img.navbar-logo {
   background: transparent;
 }
 
+/* Image privacy: discourage long-press / drag-save on mobile & desktop (not foolproof). */
+img,
+picture,
+svg {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 ::selection {
   background-color: rgb(184 134 11 / 0.35);
   color: var(--ink);

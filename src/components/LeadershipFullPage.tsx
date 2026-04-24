@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { leadership, leadershipPageMeta } from "@/content/site";
 
@@ -23,6 +24,61 @@ export function LeadershipFullPage() {
   const showCommittee = leadership.showCommitteeNames !== false;
   const showAdmin = leadership.showAdminNames !== false;
   const showAnyExec = showExecutive || showCommittee || showAdmin;
+  const singleCurrentPandit = leadership.priestsCurrent.length === 1;
+  const groupedPastPriests = (() => {
+    const map = new Map<
+      string,
+      {
+        name: string;
+        years: string[];
+        imageSrc?: string;
+        imageAlt?: string;
+        imageClass?: string;
+      }
+    >();
+
+    for (const p of leadership.pastPriests) {
+      const key = p.name.trim();
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, {
+          name: p.name,
+          years: [p.years],
+          ...(("imageSrc" in p && p.imageSrc ? { imageSrc: p.imageSrc } : {}) as object),
+          ...(("imageAlt" in p && p.imageAlt ? { imageAlt: p.imageAlt } : {}) as object),
+          ...(("imageClass" in p && p.imageClass
+            ? { imageClass: p.imageClass }
+            : {}) as object),
+        });
+        continue;
+      }
+
+      if (!existing.years.includes(p.years)) existing.years.push(p.years);
+      if (!existing.imageSrc && "imageSrc" in p && p.imageSrc) existing.imageSrc = p.imageSrc;
+      if (!existing.imageAlt && "imageAlt" in p && p.imageAlt) existing.imageAlt = p.imageAlt;
+      if (!existing.imageClass && "imageClass" in p && p.imageClass)
+        existing.imageClass = p.imageClass;
+    }
+
+    return Array.from(map.values());
+  })();
+
+  const pastPriestsOrdered = (() => {
+    const parseYears = (s: string) => {
+      const nums = s.match(/\d{4}/g)?.map((n) => Number(n)) ?? [];
+      const start = nums[0] ?? 0;
+      const end = nums[1] ?? start;
+      return { start, end };
+    };
+
+    return [...groupedPastPriests]
+      .map((p) => {
+        const spans = p.years.map(parseYears);
+        const sortKey = Math.max(...spans.map((x) => x.end), 0);
+        return { ...p, sortKey };
+      })
+      .sort((a, b) => b.sortKey - a.sortKey);
+  })();
 
   return (
     <div className="bg-parchment text-ink">
@@ -167,20 +223,46 @@ export function LeadershipFullPage() {
                     isChief
                       ? "border-gold/50 bg-[linear-gradient(145deg,rgba(201,162,39,0.12)_0%,rgba(42,24,16,0.95)_55%)] shadow-[0_0_0_1px_rgba(201,162,39,0.15)]"
                       : "border-parchment/15 bg-parchment/5"
-                  }`}
+                  } ${isChief && singleCurrentPandit ? "lg:col-span-2 lg:mx-auto lg:w-full lg:max-w-3xl" : ""}`}
                 >
                   {isChief ? (
                     <p className="absolute right-6 top-6 font-display text-[0.6rem] font-semibold uppercase tracking-[0.35em] text-gold">
                       Pradhān
                     </p>
                   ) : null}
-                  <p className="font-display text-xs font-semibold uppercase tracking-[0.3em] text-gold/90">
+                  {"imageSrc" in p && p.imageSrc ? (
+                    <div className="mb-7 flex justify-center">
+                      <div className="relative h-44 w-44 overflow-hidden rounded-3xl border border-gold/35 bg-parchment/10 shadow-[0_18px_55px_-24px_rgba(0,0,0,0.75)] ring-1 ring-parchment/10">
+                        <Image
+                          src={p.imageSrc}
+                          alt={"imageAlt" in p && p.imageAlt ? p.imageAlt : p.name}
+                          fill
+                          sizes="176px"
+                          className="origin-center scale-[1.15] object-cover object-[42%_6%]"
+                          priority={isChief}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+                  <p
+                    className={`font-display text-xs font-semibold uppercase tracking-[0.3em] text-gold/90 ${
+                      isChief ? "text-center" : ""
+                    }`}
+                  >
                     {p.role}
                   </p>
-                  <p className="mt-4 font-display text-3xl font-semibold leading-tight sm:text-4xl">
+                  <p
+                    className={`mt-4 font-display text-3xl font-semibold leading-tight sm:text-4xl ${
+                      isChief ? "text-center" : ""
+                    }`}
+                  >
                     {p.name}
                   </p>
-                  <p className="mt-4 max-w-md text-parchment-muted">
+                  <p
+                    className={`mt-4 text-parchment-muted ${
+                      isChief ? "mx-auto max-w-md text-center" : "max-w-md"
+                    }`}
+                  >
                     {isChief
                       ? "Leading worship, festivals, and scripture at CHCS."
                       : "Supporting the mandir’s religious programmes alongside the pandit."}
@@ -194,21 +276,42 @@ export function LeadershipFullPage() {
             <h3 className="text-center font-display text-xl font-semibold text-gold sm:text-2xl">
               {leadership.pastHeading}
             </h3>
-            <ul className="mx-auto mt-10 max-w-2xl border-y border-parchment/15">
-              {leadership.pastPriests.map((p) => (
-                <li
-                  key={`${p.years}-${p.name}`}
-                  className="flex flex-col gap-1 border-b border-parchment/10 py-4 last:border-b-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8 sm:py-5"
-                >
-                  <p className="shrink-0 font-display text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-gold/90">
-                    {p.years}
-                  </p>
-                  <p className="font-display text-lg font-semibold leading-snug text-parchment sm:text-right">
-                    {p.name}
-                  </p>
-                </li>
-              ))}
-            </ul>
+
+            <div className="mx-auto mt-10 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {pastPriestsOrdered.map((p) => {
+                const isPlaceholder = !p.imageSrc;
+                const imageSrc = p.imageSrc ?? "/pandit-placeholder.svg";
+                const imageAlt = p.imageAlt ?? `${p.name} — photo coming soon`;
+                const imageClass = isPlaceholder
+                  ? "object-contain object-center p-4 opacity-80"
+                  : p.imageClass ?? "origin-center scale-[1.15] object-cover object-[50%_8%]";
+
+                return (
+                  <div
+                    key={`past-card-${p.name}`}
+                    className="relative overflow-hidden rounded-2xl border border-parchment/15 bg-parchment/5 p-6 text-center shadow-sm"
+                  >
+                    <div className="mx-auto mb-4 flex justify-center">
+                      <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-parchment/20 bg-parchment/10 ring-1 ring-parchment/10">
+                        <Image
+                          src={imageSrc}
+                          alt={imageAlt}
+                          fill
+                          sizes="112px"
+                          className={imageClass}
+                        />
+                      </div>
+                    </div>
+                    <p className="font-display text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-gold/90">
+                      {p.years.join(" • ")}
+                    </p>
+                    <p className="mt-2 font-display text-lg font-semibold text-parchment">
+                      {p.name}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
