@@ -308,13 +308,61 @@ export const visit = {
   directionsIntro:
     "We’re in Brixton, South London. Use the map for the exact pin — these are the nearest public transport options.",
   directions: {
+    walkingHint: "5–8 minute walk from Brixton Station.",
+    bestRoutesHeading: "Best routes to get here",
+    bestRoutes: [
+      { from: "From Croydon", how: "109 or 250 → Brixton Station" },
+      { from: "From Central London", how: "133, 59, 159 → Brixton" },
+      { from: "From South London", how: "45 or 333" },
+    ],
     trainsLabel: "Nearest stations",
     trains: [
       "Brixton Station (Victoria line + National Rail)",
-      "Streatham Hill Station (National Rail)",
+      "Loughborough Junction (National Rail)",
     ],
     busesLabel: "Buses nearby",
-    buses: ["45", "109", "133", "250", "333"],
+    buses: [
+      {
+        route: "45",
+        href: "https://tfl.gov.uk/bus/route/45/",
+        note: "towards Camberwell Green",
+      },
+      {
+        route: "109",
+        href: "https://tfl.gov.uk/bus/route/109/",
+        note: "towards Brixton",
+      },
+      {
+        route: "250",
+        href: "https://tfl.gov.uk/bus/route/250/",
+        note: "towards Brixton",
+      },
+      {
+        route: "133",
+        href: "https://tfl.gov.uk/bus/route/133/",
+        note: "towards Central London (via Brixton)",
+      },
+      {
+        route: "333",
+        href: "https://tfl.gov.uk/bus/route/333/",
+        note: "towards Central London (via Brixton)",
+      },
+      {
+        route: "59",
+        href: "https://tfl.gov.uk/bus/route/59/",
+        note: "towards Brixton",
+      },
+      {
+        route: "159",
+        href: "https://tfl.gov.uk/bus/route/159/",
+        note: "towards Brixton",
+      },
+      { route: "3", href: "https://tfl.gov.uk/bus/route/3/" },
+      { route: "2", href: "https://tfl.gov.uk/bus/route/2/" },
+      { route: "415", href: "https://tfl.gov.uk/bus/route/415/" },
+    ],
+    liveBusesLabel: "Check live buses",
+    liveBusesHref: "https://tfl.gov.uk/bus/stop/",
     drivingLabel: "Driving",
     driving:
       "Parking is restricted. Weekdays between 12–2pm there are additional restrictions — please allow extra time and be respectful of neighbours. Consider public transport where possible.",

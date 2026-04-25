@@ -10,12 +10,9 @@ function mapsSearchUrl(query: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
-function tflLiveBusNearMandirUrl(route: string, addressQuery: string) {
-  // TfL stop finder (shows nearby stops; each stop has a live arrivals board).
-  // We include the route in the search text so TfL can narrow results.
-  return `https://tfl.gov.uk/travel-information/stations-stops-and-piers/?searchText=${encodeURIComponent(
-    `${route} bus near ${addressQuery}`,
-  )}`;
+function tflRouteUrl(url: string) {
+  // Routes given by client; keep as-is (no UTM).
+  return url;
 }
 
 export function VisitSection() {
@@ -84,6 +81,24 @@ export function VisitSection() {
             <p className="mt-3 text-sm leading-relaxed text-earth">
               {visit.directionsIntro}
             </p>
+            {"bestRoutesHeading" in d && d.bestRoutes ? (
+              <div className="mt-5 rounded-xl border border-gold/15 bg-parchment/40 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-gold-dim">
+                  {d.bestRoutesHeading}
+                </p>
+                <ul className="mt-2 space-y-1 text-sm text-earth">
+                  {d.bestRoutes.map((r) => (
+                    <li key={r.from} className="flex flex-wrap gap-x-2">
+                      <span className="font-semibold text-deep">{r.from}:</span>
+                      <span>{r.how}</span>
+                    </li>
+                  ))}
+                </ul>
+                {"walkingHint" in d && d.walkingHint ? (
+                  <p className="mt-2 text-sm font-semibold text-deep">{d.walkingHint}</p>
+                ) : null}
+              </div>
+            ) : null}
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <div className="rounded-xl border border-gold/15 bg-parchment/40 px-4 py-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-gold-dim">
@@ -110,19 +125,31 @@ export function VisitSection() {
                 </p>
                 <ul className="mt-2 flex flex-wrap gap-2">
                   {d.buses.map((b) => (
-                    <li key={b}>
+                    <li key={b.route}>
                       <a
-                        href={tflLiveBusNearMandirUrl(b, addressQuery)}
+                        href={tflRouteUrl(b.href)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center rounded-full border border-gold/25 bg-white/70 px-3 py-1 text-sm font-semibold text-gold-dim transition hover:border-gold/45 hover:bg-white hover:text-deep"
-                        title="Opens TfL stop finder for live arrivals"
+                        title={b.note ? `Route ${b.route} (${b.note})` : `Route ${b.route}`}
                       >
-                        {b} <span className="ml-1 text-earth/60">live</span>
+                        {b.route}
                       </a>
                     </li>
                   ))}
                 </ul>
+                {"liveBusesHref" in d && d.liveBusesHref ? (
+                  <p className="mt-3 text-sm">
+                    <a
+                      href={d.liveBusesHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
+                    >
+                      {("liveBusesLabel" in d && d.liveBusesLabel) ? d.liveBusesLabel : "Check live buses"}
+                    </a>
+                  </p>
+                ) : null}
               </div>
             </div>
             <div className="mt-4 rounded-xl border border-gold/15 bg-parchment/40 px-4 py-3">
