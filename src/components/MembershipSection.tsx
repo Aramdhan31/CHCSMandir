@@ -1,6 +1,25 @@
 import Image from "next/image";
 import { visit } from "@/content/site";
 
+function renderParagraphWithEmail(p: string) {
+  const email = visit.email;
+  if (!p.includes(email)) return p;
+
+  const parts = p.split(email);
+  return (
+    <>
+      {parts[0]}
+      <a
+        href={`mailto:${email}`}
+        className="font-semibold text-gold-dim underline underline-offset-4 hover:text-deep"
+      >
+        {email}
+      </a>
+      {parts.slice(1).join(email)}
+    </>
+  );
+}
+
 export function MembershipSection() {
   const bank = visit.membershipBank;
   return (
@@ -17,7 +36,7 @@ export function MembershipSection() {
               </h2>
               <div className="mt-4 max-w-prose space-y-3 text-earth">
                 {visit.membershipParagraphs.map((p, i) => (
-                  <p key={i}>{p}</p>
+                  <p key={i}>{renderParagraphWithEmail(p)}</p>
                 ))}
               </div>
             </div>

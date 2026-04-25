@@ -50,6 +50,7 @@ export const hero = {
       src: "/mandir-exterior.jpg",
       alt: "Front of the CHCS mandir — brick building and entrance at 16 Ostade Road, London SW2",
       label: "Front of the mandir",
+      galleryImageClass: "object-cover object-[50%_78%] sm:object-center",
     },
     {
       src: "/mandir-interior.jpg",
@@ -178,7 +179,7 @@ export const about = {
         "The Caribbean Hindu Cultural Society was the first Hindu organisation in South London for the promotion of Hinduism and Hindu Culture.",
         "Over the years it has evolved as a cohesive society reaching out to the wider community, providing a range of cultural programmes and activities which anyone of any age and cultural background may attend.",
         "In 2000, the name of the Society was changed to “Caribbean Hindu Cultural Society”. The Temple was formally registered with Lambeth Council as a Place of Worship and as a place for the Solemnisation of Marriages on 30th January 2001.",
-        "In addition to regular Sunday Havan (four Sundays per month) all Hindu festivals are celebrated with full English translation. The audience is encouraged to participate as and when appropriate under the guidance of the officiating pandit.",
+        "In addition to regular Sunday Havan (four Sundays per month) all Hindu festivals are celebrated with full English translation. The audience is encouraged to participate as and when appropriate under the guidance of the officiating Pandit.",
         "Membership to the society is open to all sections of the community and provides specific benefits as outlined in its constitution.",
       ],
     },
@@ -204,7 +205,7 @@ export const people = {
 } as const;
 
 export const leadership = {
-  sectionTitle: "Executive Committee & pandits",
+  sectionTitle: "Executive Committee & Pandits",
   intro: "Caribbean Hindu Cultural Society Executive Committee (Managing Trustees)",
   /** Privacy: keep data in code, but don't display committee names publicly yet. */
   showExecutiveNames: false,
@@ -275,7 +276,7 @@ export const leadership = {
 export const leadershipPageMeta = {
   path: "/executive-committee",
   breadcrumbHome: "Home",
-  documentTitle: "Executive Committee & pandits",
+  documentTitle: "Executive Committee & Pandits",
   heroEyebrow: "Governance & sewa",
 } as const;
 
@@ -283,7 +284,7 @@ export const leadershipPageMeta = {
 export const homeLeadership = {
   sectionTitle: "Leadership & spiritual guidance",
   intro:
-    "Our leadership is run by our elected executive committee, and our mandir is served by our elected pandit. View the current pandit here, or see previous pandits on the full page.",
+    "Our leadership is run by our elected executive committee, and our mandir is served by our elected Pandit. View the current Pandit here, or see previous Pandits on the full page.",
   ctaLabel: "View previous pandits",
   ctaHref: leadershipPageMeta.path,
 } as const;

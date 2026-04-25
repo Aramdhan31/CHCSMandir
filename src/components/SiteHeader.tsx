@@ -12,7 +12,7 @@ import { brand, leadershipPageMeta, site } from "@/content/site";
 const nav = [
   { label: "Home", href: "/#home" },
   { label: "About us", href: "/about" },
-  { label: "EC & pandits", href: leadershipPageMeta.path },
+  { label: "EC & Pandits", href: leadershipPageMeta.path },
   { label: "Events", href: "/#events" },
   { label: "Our people", href: "/#people" },
   { label: "Facebook", href: "/#connect" },
