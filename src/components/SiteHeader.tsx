@@ -76,7 +76,7 @@ export function SiteHeader() {
             type="button"
           className={`relative z-[60] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1.5 rounded-md border shadow-sm backdrop-blur-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-deep md:hidden ${
             open
-              ? "border-gold/60 bg-deep/70 text-parchment hover:border-gold hover:bg-deep/80"
+              ? "border-gold/70 bg-deep/80 text-gold hover:border-gold hover:bg-deep"
               : "border-parchment/35 bg-parchment/10 text-deep hover:border-gold/50 hover:bg-parchment/15"
           }`}
             aria-expanded={open}

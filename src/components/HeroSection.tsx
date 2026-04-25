@@ -98,7 +98,7 @@ export function HeroSection() {
                 "galleryFrameClass" in photo &&
                 typeof photo.galleryFrameClass === "string"
                   ? photo.galleryFrameClass
-                  : "aspect-[4/5]";
+                  : "aspect-[16/10] sm:aspect-[4/5]";
               const imageClass =
                 "galleryImageClass" in photo &&
                 typeof photo.galleryImageClass === "string"
@@ -108,7 +108,7 @@ export function HeroSection() {
               return (
               <figure key={photo.src} className="m-0">
                 <div
-                  className={`relative overflow-hidden rounded-2xl border border-gold/30 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.55)] ring-1 ring-parchment/10 ${frameClass} ${letterbox ? "bg-deep/40" : ""}`}
+                  className={`relative max-h-[52vh] overflow-hidden rounded-2xl border border-gold/30 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.55)] ring-1 ring-parchment/10 ${frameClass} ${letterbox ? "bg-deep/40" : ""}`}
                 >
                   <Image
                     src={photo.src}
