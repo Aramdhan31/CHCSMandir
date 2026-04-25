@@ -1,0 +1,14 @@
+User-agent: *
+
+# Allow pages to be indexed
+Disallow:
+
+# But block crawling of image files (keeps images out of Google Images)
+Disallow: /*.png$
+Disallow: /*.jpg$
+Disallow: /*.jpeg$
+Disallow: /*.webp$
+Disallow: /*.avif$
+Disallow: /*.gif$
+Disallow: /*.svg$
+

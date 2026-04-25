@@ -25,6 +25,21 @@ const nextConfig: NextConfig = {
         .map((s) => s.trim())
         .filter(Boolean)
     : [],
+  async headers() {
+    return [
+      // Prevent Google Images indexing of your image assets.
+      // Note: does not prevent screenshots or manual downloads.
+      {
+        source: "/:path*\\.(png|jpg|jpeg|webp|avif|gif|svg)",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, noimageindex",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

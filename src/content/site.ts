@@ -10,7 +10,7 @@ export const site = {
   nameShort: "CHCS",
   nameFull: "Caribbean Hindu Cultural Society",
   tagline:
-    "Hindu temple in Brixton, South London – open to every generation and background.",
+    "A Hindu temple in Brixton, south London - open to all generations and backgrounds, honoring diverse traditions while nurturing unity, inclusion, and spiritual growth for all.",
 } as const;
 
 /**
