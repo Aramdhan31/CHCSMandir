@@ -6,9 +6,22 @@ import { ContactForm } from "./ContactForm";
 const visitMapHeightClass =
   "h-[min(52dvh,28rem)] sm:h-[min(58dvh,32rem)] lg:h-[min(62dvh,36rem)]";
 
+function mapsSearchUrl(query: string) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+function tflLiveBusNearMandirUrl(route: string, addressQuery: string) {
+  // TfL stop finder (shows nearby stops; each stop has a live arrivals board).
+  // We include the route in the search text so TfL can narrow results.
+  return `https://tfl.gov.uk/travel-information/stations-stops-and-piers/?searchText=${encodeURIComponent(
+    `${route} bus near ${addressQuery}`,
+  )}`;
+}
+
 export function VisitSection() {
   const mapSrc = getGoogleMapsEmbedSrc();
   const d = visit.directions;
+  const addressQuery = visit.addressLines.join(", ");
 
   return (
     <section
@@ -31,11 +44,18 @@ export function VisitSection() {
             <address className="mt-4 not-italic text-earth">
               <p className="text-sm font-semibold text-deep">{visit.addressLabel}</p>
               <p className="mt-1">
-                {visit.addressLines.map((line) => (
-                  <span key={line} className="block">
-                    {line}
-                  </span>
-                ))}
+                <a
+                  href={mapsSearchUrl(addressQuery)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-md outline-none ring-gold/50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-parchment"
+                >
+                  {visit.addressLines.map((line) => (
+                    <span key={line} className="block text-gold-dim hover:underline">
+                      {line}
+                    </span>
+                  ))}
+                </a>
               </p>
             </address>
             <p className="mt-4 text-sm">
@@ -71,7 +91,16 @@ export function VisitSection() {
                 </p>
                 <ul className="mt-2 space-y-1 text-sm text-earth">
                   {d.trains.map((s) => (
-                    <li key={s}>{s}</li>
+                    <li key={s}>
+                      <a
+                        href={mapsSearchUrl(`${s}, ${addressQuery}`)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gold-dim underline-offset-4 hover:text-deep hover:underline"
+                      >
+                        {s}
+                      </a>
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -79,9 +108,19 @@ export function VisitSection() {
                 <p className="text-xs font-semibold uppercase tracking-wide text-gold-dim">
                   {d.busesLabel}
                 </p>
-                <ul className="mt-2 space-y-1 text-sm text-earth">
+                <ul className="mt-2 flex flex-wrap gap-2">
                   {d.buses.map((b) => (
-                    <li key={b}>{b}</li>
+                    <li key={b}>
+                      <a
+                        href={tflLiveBusNearMandirUrl(b, addressQuery)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center rounded-full border border-gold/25 bg-white/70 px-3 py-1 text-sm font-semibold text-gold-dim transition hover:border-gold/45 hover:bg-white hover:text-deep"
+                        title="Opens TfL stop finder for live arrivals"
+                      >
+                        {b} <span className="ml-1 text-earth/60">live</span>
+                      </a>
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -91,6 +130,16 @@ export function VisitSection() {
                 {d.drivingLabel}
               </p>
               <p className="mt-2 text-sm leading-relaxed text-earth">{d.driving}</p>
+              <p className="mt-3">
+                <a
+                  href={connect.map.openInMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
+                >
+                  {connect.map.openInMapsLabel}
+                </a>
+              </p>
             </div>
           </div>
 

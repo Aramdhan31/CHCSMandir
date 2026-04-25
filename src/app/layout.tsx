@@ -61,6 +61,9 @@ export default function RootLayout({
       className={`${fraunces.variable} ${newsreader.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <meta name="format-detection" content="telephone=no" />
+      </head>
       <body suppressHydrationWarning>
         <HashScrollHandler />
         <ImagePrivacyGuard />
