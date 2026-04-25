@@ -8,8 +8,9 @@
   --parchment-muted: #e8e0d4;
   --gold: #b8860b;
   --gold-dim: #8a6610;
-  --deep: #2a1810;
-  --earth: #4a3024;
+  /* Lighter brown palette (site-wide) */
+  --deep: #3a241b;
+  --earth: #5a3a2c;
   --saffron: #d4a017;
 }
 

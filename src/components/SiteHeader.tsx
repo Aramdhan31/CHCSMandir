@@ -85,11 +85,19 @@ export function SiteHeader() {
           onClick={() => setOpen((v) => !v)}
           >
             <span
-            className={`block h-0.5 w-5 rounded-full bg-current transition-transform ${open ? "translate-y-2 rotate-45" : ""}`}
+              className={`block h-0.5 w-5 rounded-full bg-current transition-transform ${
+                open ? "translate-y-2 rotate-45" : ""
+              }`}
             />
-          <span className={`block h-0.5 w-5 rounded-full bg-current ${open ? "opacity-0" : ""}`} />
             <span
-            className={`block h-0.5 w-5 rounded-full bg-current transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`}
+              className={`block h-0.5 w-5 rounded-full bg-current transition-opacity ${
+                open ? "opacity-0" : "opacity-100"
+              }`}
+            />
+            <span
+              className={`block h-0.5 w-5 rounded-full bg-current transition-transform ${
+                open ? "-translate-y-2 -rotate-45" : ""
+              }`}
             />
           </button>
           {open ? (
