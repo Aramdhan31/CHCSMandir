@@ -253,7 +253,12 @@ export const leadership = {
       imageSrc: "/Pandit Bish.webp",
       imageAlt: "Pt. Bish Persaud — past pandit at CHCS mandir",
     },
-    { years: "2014 – 2019", name: "Pt. Jai Ramrattan" },
+    {
+      years: "2014 – 2019",
+      name: "Pt. Jai Ramrattan",
+      imageSrc: "/Pt Jai Ramrattan.png",
+      imageAlt: "Pt. Jai Ramrattan — past pandit at CHCS mandir",
+    },
     {
       years: "2003 – 2014",
       name: "Pt. R. Sankar",
