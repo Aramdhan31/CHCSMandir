@@ -131,7 +131,11 @@ export function VisitSection() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center rounded-full border border-gold/25 bg-white/70 px-3 py-1 text-sm font-semibold text-gold-dim transition hover:border-gold/45 hover:bg-white hover:text-deep"
-                        title={b.note ? `Route ${b.route} (${b.note})` : `Route ${b.route}`}
+                        title={
+                          "note" in b && b.note
+                            ? `Route ${b.route} (${b.note})`
+                            : `Route ${b.route}`
+                        }
                       >
                         {b.route}
                       </a>
