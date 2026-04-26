@@ -2,7 +2,7 @@ import { connect, getGoogleMapsEmbedSrc, visit } from "@/content/site";
 import { MandirMapEmbed } from "@/components/MandirMapEmbed";
 import { ContactForm } from "./ContactForm";
 
-/** Map beside services — large but slightly shorter than the Facebook-only strip. */
+/** Visit section map: full width below the two-column intro row. */
 const visitMapHeightClass =
   "h-[min(52dvh,28rem)] sm:h-[min(58dvh,32rem)] lg:h-[min(62dvh,36rem)]";
 
@@ -33,14 +33,15 @@ export function VisitSection() {
         >
           {visit.sectionTitle}
         </h2>
-        <div className="mt-10 grid gap-8 lg:grid-cols-2 lg:items-stretch">
-          <div className="rounded-2xl border border-gold/20 bg-white/70 p-6 shadow-sm">
-            <h3 className="font-display text-lg font-semibold text-earth">
+        <div className="mt-10 flex flex-col gap-8">
+          <div className="grid gap-8 lg:grid-cols-2 lg:items-stretch">
+          <div className="rounded-2xl border border-gold/30 bg-white/90 p-7 shadow-md ring-1 ring-gold/15 sm:p-8">
+            <h3 className="font-display text-xl font-semibold text-earth sm:text-2xl">
               {visit.servicesHeading}
             </h3>
-            <address className="mt-4 not-italic text-earth">
-              <p className="text-sm font-semibold text-deep">{visit.addressLabel}</p>
-              <p className="mt-1">
+            <address className="mt-5 not-italic text-earth">
+              <p className="text-base font-semibold text-deep">{visit.addressLabel}</p>
+              <p className="mt-1.5">
                 <a
                   href={mapsSearchUrl(addressQuery)}
                   target="_blank"
@@ -48,21 +49,21 @@ export function VisitSection() {
                   className="inline-block rounded-md outline-none ring-gold/50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-parchment"
                 >
                   {visit.addressLines.map((line) => (
-                    <span key={line} className="block text-gold-dim hover:underline">
+                    <span key={line} className="block text-base text-gold-dim hover:underline">
                       {line}
                     </span>
                   ))}
                 </a>
               </p>
             </address>
-            <p className="mt-4 text-sm">
+            <p className="mt-5 text-base leading-relaxed">
               <span className="font-semibold text-deep">{visit.phoneLabel}</span>
               <br />
               <a href={visit.phoneHref} className="text-gold-dim hover:underline">
                 {visit.phoneDisplay}
               </a>
             </p>
-            <p className="mt-3 text-sm">
+            <p className="mt-4 text-base leading-relaxed">
               <span className="font-semibold text-deep">{visit.emailLabel}</span>
               <br />
               <a
@@ -173,10 +174,11 @@ export function VisitSection() {
               </p>
             </div>
           </div>
+          </div>
 
           <div
             id="visit-map"
-            className="flex min-h-0 flex-col rounded-2xl border border-gold/20 bg-white/80 p-4 shadow-sm sm:p-5 lg:col-span-2"
+            className="flex min-h-0 w-full flex-col rounded-2xl border border-gold/20 bg-white/80 p-4 shadow-sm sm:p-5"
           >
             <h3 className="font-display text-lg font-semibold text-deep">
               {connect.map.heading}
@@ -199,7 +201,7 @@ export function VisitSection() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-gold/20 bg-white/70 p-6 shadow-sm lg:col-span-2">
+          <div className="rounded-2xl border border-gold/20 bg-white/70 p-6 shadow-sm">
             <h3 className="font-display text-lg font-semibold text-deep">
               {visit.contactFormHeading}
             </h3>

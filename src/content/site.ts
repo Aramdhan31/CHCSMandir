@@ -419,12 +419,8 @@ export const connect = {
   },
   map: {
     heading: "Visit the mandir",
-    /** Shown on the inactive overlay before the map accepts drag / wheel */
-    overlayTitle: "Visit the mandir",
-    overlayHint: "Click or tap to explore the map",
-    overlayBody:
-      "You can scroll the page past this area anytime. When you’re ready, open the map to pan and zoom — then press Done or Esc to go back to normal page scrolling (your place on the page stays the same).",
-    doneLabel: "Done exploring map",
+    /** One line before the first interaction so the page can scroll past the embed */
+    mapOverlayCta: "Click or tap to use the map",
     openInMapsLabel: "Open in Google Maps",
     /** Plain Google Maps link (same location as the embed) */
     openInMapsUrl:

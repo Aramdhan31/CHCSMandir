@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { connect } from "@/content/site";
 
 type MandirMapEmbedProps = {
@@ -14,26 +14,12 @@ export function MandirMapEmbed({ mapSrc, layout = "default" }: MandirMapEmbedPro
     layout === "fill"
       ? "h-full min-h-0"
       : "min-h-[280px] sm:min-h-[320px] lg:min-h-[420px]";
-  const [active, setActive] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { map: copy } = connect;
-
-  const deactivate = useCallback(() => {
-    setActive(false);
-  }, []);
-
-  useEffect(() => {
-    if (!active) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") deactivate();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [active, deactivate]);
+  /** Once the visitor enables the map, keep it on — toggling off used to make the view feel like it "snaps back" */
+  const [unlocked, setUnlocked] = useState(false);
+  const cta = connect.map.mapOverlayCta;
 
   return (
     <div
-      ref={containerRef}
       className={`relative w-full overflow-hidden rounded-xl border border-gold/15 bg-parchment-muted/50 ${sizeClass}`}
     >
       <iframe
@@ -43,37 +29,21 @@ export function MandirMapEmbed({ mapSrc, layout = "default" }: MandirMapEmbedPro
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
         allowFullScreen
-        style={{ pointerEvents: active ? "auto" : "none" }}
+        style={{ pointerEvents: unlocked ? "auto" : "none" }}
       />
 
-      {!active ? (
+      {!unlocked ? (
         <button
           type="button"
-          className="group absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-3 bg-gradient-to-b from-deep/55 to-deep/70 p-6 text-center text-parchment transition hover:from-deep/60 hover:to-deep/75 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-parchment"
-          onClick={() => setActive(true)}
-          aria-label={`${copy.overlayTitle}: ${copy.overlayHint}`}
+          className="absolute inset-0 flex cursor-pointer items-center justify-center bg-deep/30 px-4 text-center text-parchment outline-none transition hover:bg-deep/40 focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-parchment"
+          onClick={() => setUnlocked(true)}
+          aria-label={cta}
         >
-          <span className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
-            {copy.overlayTitle}
-          </span>
-          <span className="max-w-xs rounded-full border border-gold/50 bg-parchment/95 px-5 py-2.5 text-sm font-semibold text-deep shadow-md transition group-hover:border-gold group-hover:shadow-lg">
-            {copy.overlayHint}
-          </span>
-          <span className="max-w-sm text-xs leading-relaxed text-parchment-muted sm:text-sm">
-            {copy.overlayBody}
+          <span className="max-w-sm rounded-lg border border-gold/50 bg-parchment/95 px-4 py-2.5 text-sm font-semibold text-deep shadow-md">
+            {cta}
           </span>
         </button>
-      ) : (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center p-3">
-          <button
-            type="button"
-            onClick={deactivate}
-            className="pointer-events-auto rounded-full border-2 border-gold/80 bg-deep px-5 py-2.5 font-display text-sm font-semibold text-parchment shadow-lg backdrop-blur-sm transition hover:border-gold hover:bg-earth"
-          >
-            {copy.doneLabel}
-          </button>
-        </div>
-      )}
+      ) : null}
     </div>
   );
 }
