@@ -176,7 +176,7 @@ export function VisitSection() {
 
           <div
             id="visit-map"
-            className="flex min-h-0 flex-col rounded-2xl border border-gold/20 bg-white/80 p-4 shadow-sm sm:p-5"
+            className="flex min-h-0 flex-col rounded-2xl border border-gold/20 bg-white/80 p-4 shadow-sm sm:p-5 lg:col-span-2"
           >
             <h3 className="font-display text-lg font-semibold text-deep">
               {connect.map.heading}
