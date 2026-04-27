@@ -311,9 +311,9 @@ export const visit = {
     walkingHint: "5–8 minute walk from Brixton Station.",
     bestRoutesHeading: "Best routes to get here",
     bestRoutes: [
-      { from: "From Croydon", how: "109 or 250 → Brixton Station" },
-      { from: "From Central London", how: "133, 59, 159 → Brixton" },
-      { from: "From South London", how: "45 or 333" },
+      { from: "From Croydon", how: "109 or 250 → Brixton Hill (get off at New Park Road)" },
+      { from: "From Central London", how: "133, 59, 159 → Brixton Hill (get off at New Park Road)" },
+      { from: "From South London", how: "45 or 333 → Brixton Hill (get off at New Park Road)" },
     ],
     trainsLabel: "Nearest stations",
     trains: [
@@ -362,7 +362,7 @@ export const visit = {
       { route: "415", href: "https://tfl.gov.uk/bus/route/415/" },
     ],
     liveBusesLabel: "Check live buses",
-    liveBusesHref: "https://tfl.gov.uk/bus/stop/",
+    liveBusesHref: "https://tfl.gov.uk/modes/buses/",
     drivingLabel: "Driving",
     driving:
       "Parking is restricted. Weekdays between 12–2pm there are additional restrictions — please allow extra time and be respectful of neighbours. Consider public transport where possible.",
