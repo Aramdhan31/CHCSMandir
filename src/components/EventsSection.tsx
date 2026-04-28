@@ -74,6 +74,10 @@ export async function EventsSection() {
   });
   const hasCards = cardItems.length > 0;
   const embedSrc = getMandirCalendarEmbedSrc();
+  const calendarIntroParts = mandirCalendar.embedIntro
+    .split(/\n\s*\n/g)
+    .map((s) => s.trim())
+    .filter(Boolean);
 
   return (
     <section id="events" className="border-t border-gold/15 bg-parchment py-16 sm:py-20">
@@ -187,9 +191,20 @@ export async function EventsSection() {
 
         <div className="border-t border-gold/15 pt-10">
           <h3 className="font-display text-xl font-semibold text-deep sm:text-2xl">Mandir calendar</h3>
-          <p className="mt-2 max-w-3xl text-base leading-relaxed text-earth sm:text-lg">
-            {mandirCalendar.embedIntro}
-          </p>
+          <div className="mt-2 max-w-3xl space-y-3 text-base leading-relaxed text-earth sm:text-lg">
+            {calendarIntroParts.map((text, idx) => (
+              <p
+                key={idx}
+                className={
+                  text.startsWith("⚠️")
+                    ? "rounded-xl border border-gold/25 bg-parchment-muted/60 px-4 py-3 text-base leading-relaxed text-earth"
+                    : undefined
+                }
+              >
+                {text}
+              </p>
+            ))}
+          </div>
 
           <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <a
