@@ -70,6 +70,69 @@ export type SiteEventItem = {
   cta?: string;
 };
 
+function getLondonYmd(now: Date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+
+  const get = (type: "year" | "month" | "day") =>
+    Number(parts.find((p) => p.type === type)?.value ?? "0");
+
+  const year = get("year");
+  const month = get("month"); // 1-12
+  const day = get("day"); // 1-31
+  return { year, month, day };
+}
+
+function utcNoonDate(year: number, monthIndex0: number, day: number) {
+  return new Date(Date.UTC(year, monthIndex0, day, 12, 0, 0));
+}
+
+function firstSundayOfMonthUtcNoon(year: number, monthIndex0: number) {
+  const first = utcNoonDate(year, monthIndex0, 1);
+  const dow = first.getUTCDay(); // 0=Sun
+  const offset = (7 - dow) % 7;
+  return utcNoonDate(year, monthIndex0, 1 + offset);
+}
+
+function formatLondonEventDateLabel(dateUtcNoon: Date, timeLabel: string) {
+  const date = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(dateUtcNoon);
+  return `${date} · ${timeLabel}`;
+}
+
+export function getNextMonthlySatsangEvent(now = new Date()): SiteEventItem {
+  const { year, month, day } = getLondonYmd(now);
+  const thisMonthIndex0 = month - 1;
+  const todayUtcNoon = utcNoonDate(year, thisMonthIndex0, day);
+
+  const thisMonthFirstSunday = firstSundayOfMonthUtcNoon(year, thisMonthIndex0);
+  const mondayAfter = new Date(thisMonthFirstSunday.getTime());
+  mondayAfter.setUTCDate(mondayAfter.getUTCDate() + 1);
+
+  const target = todayUtcNoon >= mondayAfter
+    ? firstSundayOfMonthUtcNoon(
+        thisMonthIndex0 === 11 ? year + 1 : year,
+        (thisMonthIndex0 + 1) % 12,
+      )
+    : thisMonthFirstSunday;
+
+  return {
+    title: "Next Monthly Satsang",
+    dateLabel: formatLondonEventDateLabel(target, "11:00am"),
+    summary: "1st Sunday of every month. All are welcome.",
+    imageSrc: "/monthly-satsang-sanitized.jpg",
+  };
+}
+
 export const events = {
   sectionTitle: "Upcoming events",
   /** Shown beside the section title while dated event cards are not on the site yet */
@@ -207,6 +270,11 @@ export const people = {
 export const leadership = {
   sectionTitle: "Executive Committee & Pandits",
   intro: "Caribbean Hindu Cultural Society Executive Committee (Managing Trustees)",
+  patronsHeading: "Patrons",
+  patrons: [
+    "Lord Alli",
+    "Shree Laleshwar Singh (former High Commissioner for Guyana)",
+  ],
   /** Privacy: keep data in code, but don't display committee names publicly yet. */
   showExecutiveNames: false,
   showCommitteeNames: false,
@@ -302,6 +370,21 @@ export function getLeadershipHomeSpotlights() {
 export const visit = {
   sectionTitle: "Visit us",
   servicesHeading: "Services",
+  communityHeading: "Community programmes",
+  communityItems: [
+    {
+      title: "Wednesday Lunch Club",
+      detail: "Wednesdays, 11:00am – 2:00pm (just turn up).",
+    },
+    {
+      title: "School visits",
+      detail: "Wednesdays, 10:30am – 11:30am (email to book a slot).",
+    },
+    {
+      title: "Hall hire",
+      detail: "Email for more details.",
+    },
+  ],
   addressLabel: "Address",
   addressLines: ["16 Ostade Road", "London, SW2 2BB"],
   directionsHeading: "Getting here",
@@ -375,18 +458,9 @@ export const visit = {
   membershipHeading: "CHCS membership",
   membershipParagraphs: [
     "Join us in supporting the temple with a yearly membership of just £15. Your contribution will help us maintain our community and continue our important work. Together, we can make a difference and ensure the temple remains a welcoming space for all.",
-    "Please email om@chcstemple.org for more information on how to join, or use the contact form in the Visit us section further down this page.",
+    "If you’d like to join, donate, or support the mandir in other ways, please email om@chcstemple.org or use the contact form in the Visit us section further down this page.",
     "Thank you for your support!",
   ],
-  membershipBankHeading: "Bank transfer details",
-  membershipBank: {
-    bankNameLabel: "Bank",
-    bankName: "Lloyds Bank",
-    accountNumberLabel: "Account number",
-    accountNumber: "07290393",
-    sortCodeLabel: "Sort code",
-    sortCode: "30-96-07",
-  },
   contactFormHeading: "For any enquiries please contact us",
   formLabels: {
     firstName: "First name",

@@ -9,14 +9,14 @@ type Props = {
 };
 
 function safeNextFromSearch(raw: string | undefined): string {
-  if (!raw) return "/admin";
+  if (!raw) return "/admin/events";
   const t = raw.trim();
-  if (!t.startsWith("/") || t.startsWith("//")) return "/admin";
-  if (!t.startsWith("/admin")) return "/admin";
-  if (t === "/admin" || t === "/admin/") return "/admin";
+  if (!t.startsWith("/") || t.startsWith("//")) return "/admin/events";
+  if (!t.startsWith("/admin")) return "/admin/events";
+  if (t === "/admin" || t === "/admin/") return "/admin/events";
   if (t.startsWith("/admin/events")) return t;
   if (t.startsWith("/admin/memberships")) return t;
-  return "/admin";
+  return "/admin/events";
 }
 
 function signInHeading(nextPath: string): string {
@@ -47,8 +47,8 @@ function signInIntro(nextPath: string): ReactNode {
   return (
     <>
       For <strong className="text-deep">committee use only</strong>. Enter the PIN you were given,
-      then open the large shortcuts to <strong className="text-deep">events</strong> or{" "}
-      <strong className="text-deep">memberships</strong> from the admin home.
+      then you will be taken to the Events admin to add or change what visitors see on the main
+      site.
     </>
   );
 }

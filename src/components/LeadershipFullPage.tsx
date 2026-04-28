@@ -24,6 +24,8 @@ export function LeadershipFullPage() {
   const showCommittee = leadership.showCommitteeNames !== false;
   const showAdmin = leadership.showAdminNames !== false;
   const showAnyExec = showExecutive || showCommittee || showAdmin;
+  const hasPatrons =
+    "patrons" in leadership && Array.isArray(leadership.patrons) && leadership.patrons.length > 0;
   const singleCurrentPandit = leadership.priestsCurrent.length === 1;
   const groupedPastPriests = (() => {
     const map = new Map<
@@ -120,6 +122,31 @@ export function LeadershipFullPage() {
           </p>
         </div>
       </header>
+
+      {hasPatrons ? (
+        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
+          <div className="rounded-3xl border border-gold/25 bg-white/80 p-8 shadow-sm sm:p-10">
+            <div className="text-center">
+              <h2 className="font-display text-2xl font-semibold text-deep sm:text-3xl">
+                {"patronsHeading" in leadership && leadership.patronsHeading
+                  ? leadership.patronsHeading
+                  : "Patrons"}
+              </h2>
+              <PageOrnament className="mt-6" />
+            </div>
+            <ul className="mx-auto mt-10 grid max-w-3xl gap-4 sm:grid-cols-2">
+              {leadership.patrons.map((name) => (
+                <li
+                  key={name}
+                  className="rounded-2xl border border-gold/15 bg-parchment/40 px-5 py-4 text-center text-earth shadow-sm"
+                >
+                  <p className="font-display text-lg font-semibold text-deep">{name}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       {showAnyExec ? (
         /* Executive committee — card grid */

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import {
   events,
+  getNextMonthlySatsangEvent,
   getMandirCalendarEmbedSrc,
   getMandirCalendarIcalUrl,
   getMandirCalendarWebcalUrl,
@@ -10,7 +11,8 @@ import { fetchPublishedSupabaseEvents } from "@/lib/events/fetchPublished";
 
 export async function EventsSection() {
   const remoteItems = await fetchPublishedSupabaseEvents();
-  const cardItems = [...remoteItems, ...events.items];
+  const recurringMonthly = getNextMonthlySatsangEvent();
+  const cardItems = [recurringMonthly, ...remoteItems, ...events.items];
   const hasCards = cardItems.length > 0;
   const embedSrc = getMandirCalendarEmbedSrc();
 
@@ -29,6 +31,10 @@ export async function EventsSection() {
             ) : null}
           </div>
           <p className="mt-4 text-lg text-earth">{events.intro}</p>
+          <p className="mt-2 text-base text-earth/90">
+            <span className="font-semibold text-deep">Wednesday Lunch Club</span>: Wednesdays, 11:00am
+            – 2:00pm (just turn up).
+          </p>
         </header>
 
         {!hasCards ? (
@@ -41,13 +47,23 @@ export async function EventsSection() {
               <li key={`${ev.title}-${ev.dateLabel}`}>
                 <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gold/20 bg-white/60 shadow-sm transition hover:border-gold/40 hover:shadow-md">
                   {ev.imageSrc ? (
-                    <div className="relative aspect-[16/9] w-full border-b border-gold/15 bg-parchment-muted/60">
+                    <div
+                      className={`relative w-full border-b border-gold/15 bg-parchment-muted/60 ${
+                        ev.imageSrc === "/monthly-satsang-sanitized.jpg"
+                          ? "aspect-[3/4]"
+                          : "aspect-[16/9]"
+                      }`}
+                    >
                       <Image
                         src={ev.imageSrc}
                         alt={ev.title}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover object-center"
+                        className={
+                          ev.imageSrc === "/monthly-satsang-sanitized.jpg"
+                            ? "object-contain object-center p-3"
+                            : "object-cover object-center"
+                        }
                       />
                     </div>
                   ) : null}

@@ -73,6 +73,24 @@ export function VisitSection() {
                 {visit.email}
               </a>
             </p>
+
+            {"communityItems" in visit && visit.communityItems?.length ? (
+              <div className="mt-6 rounded-xl border border-gold/15 bg-parchment/40 px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-gold-dim">
+                  {"communityHeading" in visit && visit.communityHeading
+                    ? visit.communityHeading
+                    : "Community programmes"}
+                </p>
+                <ul className="mt-3 space-y-2 text-sm text-earth">
+                  {visit.communityItems.map((item) => (
+                    <li key={item.title} className="leading-relaxed">
+                      <span className="font-semibold text-deep">{item.title}:</span>{" "}
+                      <span>{item.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
 
           <div className="rounded-2xl border border-gold/20 bg-white/70 p-6 shadow-sm">

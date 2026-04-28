@@ -61,12 +61,12 @@ function resolvePins(): {
 
 function safeNextPath(raw: string): string {
   const t = raw.trim();
-  if (!t.startsWith("/") || t.startsWith("//")) return "/admin";
-  if (!t.startsWith("/admin")) return "/admin";
-  if (t === "/admin" || t === "/admin/") return "/admin";
+  if (!t.startsWith("/") || t.startsWith("//")) return "/admin/events";
+  if (!t.startsWith("/admin")) return "/admin/events";
+  if (t === "/admin" || t === "/admin/") return "/admin/events";
   if (t.startsWith("/admin/events")) return t;
   if (t.startsWith("/admin/memberships")) return t;
-  return "/admin";
+  return "/admin/events";
 }
 
 function postLoginRedirect(next: string, hasEvents: boolean, hasMemberships: boolean): string {

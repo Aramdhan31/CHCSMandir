@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { canManageEventsAdmin } from "@/lib/admin/eventsAccess";
 import {
   MEMBERSHIPS_ADMIN_COOKIE,
@@ -17,6 +18,12 @@ export default async function AdminHubPage() {
   const jar = await cookies();
   const eventsOk = canManageEventsAdmin(jar);
   const memRole = parseMembershipsRole(jar.get(MEMBERSHIPS_ADMIN_COOKIE)?.value);
+
+  // For now, the admin flow is "events-first": once signed in for events, go straight there.
+  if (eventsOk) redirect("/admin/events");
+
+  // Keep memberships code/routes for later, but hide from the admin home UI for now.
+  const showMemberships = false;
 
   return (
     <div className="min-h-screen bg-parchment bg-grain text-ink">
@@ -91,46 +98,48 @@ export default async function AdminHubPage() {
             )}
           </section>
 
-          <section
-            className={`rounded-2xl border-2 p-5 shadow-sm sm:p-6 ${
-              memRole ? "border-gold/30 bg-white/90" : "border-earth/20 bg-white/70"
-            }`}
-          >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <h2 className="font-display text-xl font-bold text-deep sm:text-2xl">Memberships</h2>
-              {memRole === "edit" ? (
-                <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-950">
-                  Edit access
-                </span>
-              ) : memRole === "view" ? (
-                <span className="rounded-full bg-sky-100 px-3 py-1 text-sm font-semibold text-sky-950">
-                  View only
-                </span>
+          {showMemberships ? (
+            <section
+              className={`rounded-2xl border-2 p-5 shadow-sm sm:p-6 ${
+                memRole ? "border-gold/30 bg-white/90" : "border-earth/20 bg-white/70"
+              }`}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <h2 className="font-display text-xl font-bold text-deep sm:text-2xl">Memberships</h2>
+                {memRole === "edit" ? (
+                  <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-950">
+                    Edit access
+                  </span>
+                ) : memRole === "view" ? (
+                  <span className="rounded-full bg-sky-100 px-3 py-1 text-sm font-semibold text-sky-950">
+                    View only
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-earth/10 px-3 py-1 text-sm font-semibold text-earth">
+                    Not signed in
+                  </span>
+                )}
+              </div>
+              <p className="mt-3 text-base leading-relaxed text-earth sm:text-lg">
+                Yearly membership payment lines, CSV import/export.
+              </p>
+              {memRole ? (
+                <Link
+                  href="/admin/memberships"
+                  className="mt-5 inline-flex min-h-[3.5rem] w-full items-center justify-center rounded-full bg-gold px-6 text-lg font-bold text-deep transition hover:bg-saffron sm:text-xl"
+                >
+                  Open membership admin
+                </Link>
               ) : (
-                <span className="rounded-full bg-earth/10 px-3 py-1 text-sm font-semibold text-earth">
-                  Not signed in
-                </span>
+                <Link
+                  href="/admin/login?next=/admin/memberships"
+                  className="mt-5 inline-flex min-h-[3.5rem] w-full items-center justify-center rounded-full border-2 border-gold/60 bg-white px-6 text-lg font-bold text-deep transition hover:border-gold hover:bg-amber-50/80 sm:text-xl"
+                >
+                  Sign in for memberships
+                </Link>
               )}
-            </div>
-            <p className="mt-3 text-base leading-relaxed text-earth sm:text-lg">
-              Yearly membership payment lines, CSV import/export.
-            </p>
-            {memRole ? (
-              <Link
-                href="/admin/memberships"
-                className="mt-5 inline-flex min-h-[3.5rem] w-full items-center justify-center rounded-full bg-gold px-6 text-lg font-bold text-deep transition hover:bg-saffron sm:text-xl"
-              >
-                Open membership admin
-              </Link>
-            ) : (
-              <Link
-                href="/admin/login?next=/admin/memberships"
-                className="mt-5 inline-flex min-h-[3.5rem] w-full items-center justify-center rounded-full border-2 border-gold/60 bg-white px-6 text-lg font-bold text-deep transition hover:border-gold hover:bg-amber-50/80 sm:text-xl"
-              >
-                Sign in for memberships
-              </Link>
-            )}
-          </section>
+            </section>
+          ) : null}
         </div>
       </div>
     </div>
