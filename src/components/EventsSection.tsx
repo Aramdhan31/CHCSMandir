@@ -9,6 +9,50 @@ import {
 import { fetchPublishedSupabaseEvents } from "@/lib/events/fetchPublished";
 import { EventImageLightbox } from "@/components/EventImageLightbox";
 
+function getLondonNow() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  return {
+    y: Number(get("year")),
+    m: Number(get("month")),
+    d: Number(get("day")),
+    hh: Number(get("hour")),
+    mm: Number(get("minute")),
+  };
+}
+
+function parseIsoDate(iso: string) {
+  const m = iso.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  return { y: Number(m[1]), m: Number(m[2]), d: Number(m[3]) };
+}
+
+function dateKey(y: number, m: number, d: number) {
+  return y * 10000 + m * 100 + d;
+}
+
+function isEventEnded(input: { dateIso?: string; time?: string }) {
+  if (!input.dateIso) return false;
+  const eventDate = parseIsoDate(input.dateIso);
+  if (!eventDate) return false;
+
+  const now = getLondonNow();
+  const todayKey = dateKey(now.y, now.m, now.d);
+  const eventKey = dateKey(eventDate.y, eventDate.m, eventDate.d);
+
+  // Only mark ended the day AFTER the event date.
+  return eventKey < todayKey;
+}
+
 export async function EventsSection() {
   const remoteItems = await fetchPublishedSupabaseEvents();
   const recurringMonthly = getNextMonthlySatsangEvent();
@@ -108,16 +152,23 @@ export async function EventsSection() {
                     )}
                   </div>
                   <div className="flex h-full flex-col p-5">
-                  <p className="font-display text-sm font-semibold text-gold-dim">
-                    {ev.dateLabel}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-display text-sm font-semibold text-gold-dim">
+                      {ev.dateLabel}
+                    </p>
+                    {isEventEnded(ev) ? (
+                      <span className="inline-flex items-center rounded-full border border-red-900/15 bg-red-50 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-red-950">
+                        Event ended
+                      </span>
+                    ) : null}
+                  </div>
                   <h3 className="mt-2 font-display text-lg font-semibold text-deep">
                     {ev.title}
                   </h3>
                   {ev.summary ? (
                     <p className="mt-1 text-sm text-earth/80">{ev.summary}</p>
                   ) : null}
-                  {ev.href && ev.cta ? (
+                  {ev.href && ev.cta && !isEventEnded(ev) ? (
                     <div className="mt-auto pt-4">
                       <a
                         href={ev.href}

@@ -185,7 +185,7 @@ export const mandirCalendar = {
   webcalAppleLabel: "Apple Calendar (webcal subscribe)",
   /** Short intro above the embed (Google’s own controls change month / view) */
   embedIntro:
-    "Browse below — use the arrows to change month. Add it in Google Calendar, or use the .ics / webcal links for Apple, Outlook, Samsung, and other calendar apps. Note: festival dates shown are the traditional calendar observance dates — CHCS event/service dates may differ.",
+    "Browse below — use the arrows to change month. Add it in Google Calendar, or use the .ics / webcal links for Apple, Outlook, Samsung, and other calendar apps.\n\n⚠️ Note: festival dates shown are the traditional calendar observance dates — CHCS event/service dates may differ.",
 } as const;
 
 /** Optional: set `NEXT_PUBLIC_MANDIR_CALENDAR_EMBED_SRC` in `.env.local` to override the iframe `src`. */
