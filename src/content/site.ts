@@ -50,7 +50,7 @@ export const hero = {
       src: "/mandir-exterior.jpg",
       alt: "Front of the CHCS mandir — brick building and entrance at 16 Ostade Road, London SW2",
       label: "Front of the mandir",
-      galleryImageClass: "object-cover object-[50%_78%] sm:object-center",
+      galleryImageClass: "object-cover object-[50%_86%] sm:object-center",
     },
     {
       src: "/mandir-interior.jpg",
@@ -66,6 +66,10 @@ export type SiteEventItem = {
   title: string;
   summary?: string;
   imageSrc?: string;
+  /** Optional ISO date used for sorting / calendar links. */
+  dateIso?: string;
+  /** Optional local time (24h) `HH:MM` or `HH:MM:SS` (as returned by Supabase). */
+  time?: string;
   href?: string;
   cta?: string;
 };
@@ -125,11 +129,27 @@ export function getNextMonthlySatsangEvent(now = new Date()): SiteEventItem {
       )
     : thisMonthFirstSunday;
 
+  const y = target.getUTCFullYear();
+  const m = String(target.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(target.getUTCDate()).padStart(2, "0");
+  const icsParams = new URLSearchParams({
+    title: "Monthly Satsang (CHCS)",
+    date: `${y}-${m}-${d}`,
+    time: "11:00",
+    summary: "1st Sunday of every month. All are welcome.",
+  });
+  const href = `/events/ics?${icsParams.toString()}`;
+  const dateIso = `${y}-${m}-${d}`;
+
   return {
     title: "Next Monthly Satsang",
     dateLabel: formatLondonEventDateLabel(target, "11:00am"),
     summary: "1st Sunday of every month. All are welcome.",
     imageSrc: "/monthly-satsang-sanitized.jpg",
+    dateIso,
+    time: "11:00",
+    href,
+    cta: "Add to calendar",
   };
 }
 
@@ -164,7 +184,7 @@ export const mandirCalendar = {
   webcalAppleLabel: "Apple Calendar (webcal subscribe)",
   /** Short intro above the embed (Google’s own controls change month / view) */
   embedIntro:
-    "Browse below — use the arrows to change month. Add it in Google Calendar, or use the .ics / webcal links for Apple, Outlook, Samsung, and other calendar apps.",
+    "Browse below — use the arrows to change month. Add it in Google Calendar, or use the .ics / webcal links for Apple, Outlook, Samsung, and other calendar apps. Note: festival dates shown are the traditional calendar observance dates — CHCS event/service dates may differ.",
 } as const;
 
 /** Optional: set `NEXT_PUBLIC_MANDIR_CALENDAR_EMBED_SRC` in `.env.local` to override the iframe `src`. */

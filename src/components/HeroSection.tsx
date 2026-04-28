@@ -72,7 +72,11 @@ export function HeroSection() {
                 priority
                 quality={92}
                 sizes="(max-width: 1023px) 320px, (max-width: 1280px) 384px, 416px"
-                className="object-cover object-center"
+                className={
+                  hero.homeImageSrc === "/mandir-exterior.jpg"
+                    ? "object-cover object-[50%_86%]"
+                    : "object-cover object-center"
+                }
               />
               <div
                 className="pointer-events-none absolute inset-0 bg-gradient-to-t from-deep/10 via-transparent to-transparent"

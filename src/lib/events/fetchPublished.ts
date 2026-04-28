@@ -1,5 +1,6 @@
 import type { SiteEventItem } from "@/content/site";
 import { createSupabaseAnonServerClient } from "@/lib/supabase/serverAnon";
+import { buildIcsDownloadUrl } from "@/lib/events/calendarLinks";
 
 type EventRow = {
   title: string;
@@ -57,10 +58,24 @@ export async function fetchPublishedSupabaseEvents(): Promise<SiteEventItem[]> {
 
   if (error) return [];
 
-  return ((data as EventRow[] | null) ?? []).map((row) => ({
-    dateLabel: eventDateLabel(row),
-    title: row.title,
-    summary: row.summary ?? undefined,
-    imageSrc: row.image_public_url ?? undefined,
-  }));
+  return ((data as EventRow[] | null) ?? []).map((row) => {
+    const icsHref = row.event_date
+      ? buildIcsDownloadUrl({
+          title: row.title,
+          dateIso: row.event_date,
+          time: row.event_time,
+          summary: row.summary ?? undefined,
+        })
+      : null;
+
+    return {
+      dateLabel: eventDateLabel(row),
+      title: row.title,
+      summary: row.summary ?? undefined,
+      imageSrc: row.image_public_url ?? undefined,
+      dateIso: row.event_date,
+      time: row.event_time ?? undefined,
+      ...(icsHref ? { href: icsHref, cta: "Add to calendar" } : {}),
+    };
+  });
 }

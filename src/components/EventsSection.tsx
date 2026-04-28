@@ -12,7 +12,22 @@ import { EventImageLightbox } from "@/components/EventImageLightbox";
 export async function EventsSection() {
   const remoteItems = await fetchPublishedSupabaseEvents();
   const recurringMonthly = getNextMonthlySatsangEvent();
-  const cardItems = [recurringMonthly, ...remoteItems, ...events.items];
+  const cardItemsRaw = [recurringMonthly, ...remoteItems, ...events.items];
+
+  const cardItems = [...cardItemsRaw].sort((a, b) => {
+    const ad = a.dateIso?.trim() || "";
+    const bd = b.dateIso?.trim() || "";
+    if (ad && bd) {
+      const c = ad.localeCompare(bd);
+      if (c !== 0) return c;
+      const at = a.time?.trim() || "";
+      const bt = b.time?.trim() || "";
+      return at.localeCompare(bt);
+    }
+    if (ad) return -1;
+    if (bd) return 1;
+    return a.title.localeCompare(b.title);
+  });
   const hasCards = cardItems.length > 0;
   const embedSrc = getMandirCalendarEmbedSrc();
 
@@ -53,7 +68,7 @@ export async function EventsSection() {
                         alt={ev.title}
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-contain object-center p-3"
-                        enable={ev.title !== "Next Monthly Satsang"}
+                        enable
                       />
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
@@ -106,8 +121,6 @@ export async function EventsSection() {
                     <div className="mt-auto pt-4">
                       <a
                         href={ev.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="inline-flex text-sm font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
                       >
                         {ev.cta}
