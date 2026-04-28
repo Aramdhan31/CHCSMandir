@@ -65,7 +65,46 @@ function formatDateTimeLabel(dateIso: string, time?: string) {
   return tt ? `${base} · ${tt}` : base;
 }
 
-function readFileAsBase64(file: File): Promise<string> {
+async function readFileAsOptimizedJpegBase64(file: File): Promise<{
+  base64: string;
+  filename: string;
+  contentType: string;
+}> {
+  // Server Actions have payload limits; optimize images client-side for reliability.
+  const maxDim = 1600;
+  const quality = 0.82;
+
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+  const w = Math.max(1, Math.round(bitmap.width * scale));
+  const h = Math.max(1, Math.round(bitmap.height * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Could not prepare image for upload.");
+  ctx.drawImage(bitmap, 0, 0, w, h);
+
+  const blob: Blob = await new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error("Could not prepare image for upload."))),
+      "image/jpeg",
+      quality,
+    );
+  });
+
+  const buf = await blob.arrayBuffer();
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+  const safeBase = file.name.replace(/\.[^.]+$/, "").replace(/[^\w.\-]+/g, "_").slice(0, 60);
+  return {
+    base64,
+    filename: `${safeBase || "event"}.jpg`,
+    contentType: "image/jpeg",
+  };
+}
+
+function readFileAsBase64Original(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -81,6 +120,25 @@ function readFileAsBase64(file: File): Promise<string> {
     reader.onerror = () => reject(new Error("Could not read image file."));
     reader.readAsDataURL(file);
   });
+}
+
+async function readFileAsUploadBase64(file: File): Promise<{
+  base64: string;
+  filename: string;
+  contentType: string;
+}> {
+  // Prefer compressing to JPEG for reliability, but allow ANY image format by falling back.
+  // (Some browsers can’t decode HEIC/HEIF via canvas/createImageBitmap.)
+  try {
+    return await readFileAsOptimizedJpegBase64(file);
+  } catch {
+    const base64 = await readFileAsBase64Original(file);
+    return {
+      base64,
+      filename: file.name,
+      contentType: file.type || "application/octet-stream",
+    };
+  }
 }
 
 export function EventsAdminPanel({
@@ -156,9 +214,10 @@ export function EventsAdminPanel({
         let imageFilename: string | undefined;
         let imageContentType: string | undefined;
         if (pendingImageFile) {
-          imageBase64 = await readFileAsBase64(pendingImageFile);
-          imageFilename = pendingImageFile.name;
-          imageContentType = pendingImageFile.type || undefined;
+          const payload = await readFileAsUploadBase64(pendingImageFile);
+          imageBase64 = payload.base64;
+          imageFilename = payload.filename;
+          imageContentType = payload.contentType;
         }
         await upsertAdminEventAction({
           id: editingId ?? undefined,
@@ -321,7 +380,7 @@ export function EventsAdminPanel({
             <span className="mb-2 block text-sm font-semibold text-deep">Image (optional)</span>
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,.heic,.heif"
               className="block w-full rounded-xl border-2 border-earth/20 bg-white px-4 py-3 text-base text-ink outline-none ring-gold/40 focus:border-gold focus:ring-2"
               onChange={(e) => {
                 const f = e.currentTarget.files?.[0];
