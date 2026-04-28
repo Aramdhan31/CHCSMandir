@@ -97,6 +97,7 @@ export function EventsAdminPanel({
   const [summary, setSummary] = useState("");
   const [imageSrc, setImageSrc] = useState("");
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [pendingImagePreviewUrl, setPendingImagePreviewUrl] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -138,6 +139,7 @@ export function EventsAdminPanel({
     setSummary("");
     setImageSrc("");
     setPendingImageFile(null);
+    setPendingImagePreviewUrl(null);
     setEditingId(null);
   }
 
@@ -195,6 +197,16 @@ export function EventsAdminPanel({
     });
     resetForm();
   }
+
+  useEffect(() => {
+    if (!pendingImageFile) {
+      setPendingImagePreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(pendingImageFile);
+    setPendingImagePreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [pendingImageFile]);
 
   async function copyToSite() {
     const lines = sorted.map((ev) => {
@@ -333,6 +345,41 @@ export function EventsAdminPanel({
                 </>
               )}
             </p>
+
+            {pendingImageFile ? (
+              <div className="mt-3 rounded-xl border border-gold/20 bg-parchment-muted/50 px-4 py-3 text-sm text-earth">
+                <p className="font-semibold text-deep">
+                  New image selected{useSupabase ? " (will replace current image on save)" : ""}:
+                </p>
+                <p className="mt-1">
+                  <code className="text-xs">{pendingImageFile.name}</code>
+                </p>
+                {pendingImagePreviewUrl ? (
+                  <div className="mt-3 overflow-hidden rounded-lg border border-gold/15 bg-white/70">
+                    <img
+                      src={pendingImagePreviewUrl}
+                      alt="New event image preview"
+                      className="h-44 w-full object-contain"
+                    />
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {imageSrc.trim() ? (
+              <div className="mt-3 rounded-xl border border-earth/15 bg-white/70 px-4 py-3 text-sm text-earth">
+                <p className="font-semibold text-deep">Current image</p>
+                <div className="mt-3 overflow-hidden rounded-lg border border-earth/10 bg-white/70">
+                  <img
+                    src={imageSrc.trim()}
+                    alt="Current event image"
+                    className="h-44 w-full object-contain"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            ) : null}
+
             <div className="mt-3">
             <input
               value={imageSrc}
@@ -341,6 +388,22 @@ export function EventsAdminPanel({
               placeholder="e.g. /events/diwali.jpg (in public/) or https://…"
             />
             </div>
+
+            {imageSrc.trim() || pendingImageFile ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPendingImageFile(null);
+                    setPendingImagePreviewUrl(null);
+                    setImageSrc("");
+                  }}
+                  className="rounded-full border border-earth/25 bg-white/70 px-4 py-2 text-sm font-semibold text-earth transition hover:border-gold/60 hover:text-deep"
+                >
+                  Remove image
+                </button>
+              </div>
+            ) : null}
           </label>
 
           <div className="flex flex-wrap gap-3 pt-1">
