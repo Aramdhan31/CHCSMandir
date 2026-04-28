@@ -74,7 +74,7 @@ export function HeroSection() {
                 sizes="(max-width: 1023px) 320px, (max-width: 1280px) 384px, 416px"
                 className={
                   hero.homeImageSrc === "/mandir-exterior.jpg"
-                    ? "object-cover object-[50%_92%]"
+                    ? "object-cover object-[50%_98%]"
                     : "object-cover object-center"
                 }
               />

@@ -50,7 +50,7 @@ export const hero = {
       src: "/mandir-exterior.jpg",
       alt: "Front of the CHCS mandir — brick building and entrance at 16 Ostade Road, London SW2",
       label: "Front of the mandir",
-      galleryImageClass: "object-cover object-[50%_92%] sm:object-center",
+      galleryImageClass: "object-cover object-[50%_98%] sm:object-center",
     },
     {
       src: "/mandir-interior.jpg",
