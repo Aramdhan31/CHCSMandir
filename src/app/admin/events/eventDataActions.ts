@@ -27,10 +27,36 @@ function formatDateLabel(iso: string) {
   }).format(t);
 }
 
+function formatTimeLabel(raw: string) {
+  const t = raw.trim();
+  if (!t) return "";
+  const m = t.match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return t;
+  let h = Number(m[1]);
+  const min = m[2];
+  if (!Number.isFinite(h)) return t;
+  const ampm = h >= 12 ? "pm" : "am";
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${h}:${min}${ampm}`;
+}
+
+function normalizeEventTime(raw: string | undefined): string | null {
+  const t = (raw ?? "").trim();
+  if (!t) return null;
+  // Accept "HH:MM" from <input type="time"> or "HH:MM:SS" from API.
+  const m = t.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  if (!m) return null;
+  const hh = String(Number(m[1])).padStart(2, "0");
+  const mm = m[2];
+  return `${hh}:${mm}`;
+}
+
 type EventRow = {
   id: string;
   title: string;
   event_date: string;
+  event_time: string | null;
   date_label: string;
   summary: string | null;
   image_public_url: string | null;
@@ -40,6 +66,7 @@ function rowToAdmin(row: EventRow): AdminEventItem {
   return {
     id: row.id,
     date: row.event_date,
+    time: row.event_time ?? undefined,
     title: row.title,
     summary: row.summary ?? undefined,
     imageSrc: row.image_public_url ?? undefined,
@@ -53,7 +80,7 @@ export async function listAdminEventsAction(): Promise<AdminEventItem[]> {
 
   const { data, error } = await sb
     .from(EVENTS_TABLE)
-    .select("id,title,event_date,date_label,summary,image_public_url")
+    .select("id,title,event_date,event_time,date_label,summary,image_public_url")
     .order("event_date", { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -64,6 +91,7 @@ type UpsertPayload = {
   id?: string;
   title: string;
   date: string;
+  time?: string;
   summary?: string;
   imageSrc?: string;
   imageBase64?: string;
@@ -81,6 +109,7 @@ export async function upsertAdminEventAction(input: UpsertPayload): Promise<void
   const title = input.title.trim();
   const eventDate = input.date.trim();
   if (!title || !eventDate) throw new Error("Title and date are required.");
+  const eventTime = normalizeEventTime(input.time);
 
   let imageUrl = input.imageSrc?.trim() || null;
 
@@ -98,10 +127,12 @@ export async function upsertAdminEventAction(input: UpsertPayload): Promise<void
     imageUrl = pub.publicUrl;
   }
 
-  const dateLabel = formatDateLabel(eventDate);
+  const dateLabelBase = formatDateLabel(eventDate);
+  const dateLabel = eventTime ? `${dateLabelBase} · ${formatTimeLabel(eventTime)}` : dateLabelBase;
   const row = {
     title,
     event_date: eventDate,
+    event_time: eventTime,
     date_label: dateLabel,
     summary: input.summary?.trim() ? input.summary.trim() : null,
     image_public_url: imageUrl,

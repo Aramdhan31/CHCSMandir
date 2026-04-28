@@ -36,6 +36,35 @@ function formatDate(iso: string) {
   }).format(t);
 }
 
+function formatTime(raw: string | undefined) {
+  const t = (raw ?? "").trim();
+  if (!t) return "";
+  const m = t.match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return t;
+  let h = Number(m[1]);
+  const min = m[2];
+  if (!Number.isFinite(h)) return t;
+  const ampm = h >= 12 ? "pm" : "am";
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${h}:${min}${ampm}`;
+}
+
+function normalizeTime(raw: string) {
+  const t = raw.trim();
+  if (!t) return "";
+  const m = t.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  if (!m) return "";
+  const hh = String(Number(m[1])).padStart(2, "0");
+  return `${hh}:${m[2]}`;
+}
+
+function formatDateTimeLabel(dateIso: string, time?: string) {
+  const base = formatDate(dateIso);
+  const tt = formatTime(time);
+  return tt ? `${base} · ${tt}` : base;
+}
+
 function readFileAsBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -64,6 +93,7 @@ export function EventsAdminPanel({
   const [events, setEvents] = useState<AdminEventItem[]>([]);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(todayIso());
+  const [time, setTime] = useState("");
   const [summary, setSummary] = useState("");
   const [imageSrc, setImageSrc] = useState("");
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
@@ -104,6 +134,7 @@ export function EventsAdminPanel({
   function resetForm() {
     setTitle("");
     setDate(todayIso());
+    setTime("");
     setSummary("");
     setImageSrc("");
     setPendingImageFile(null);
@@ -131,6 +162,7 @@ export function EventsAdminPanel({
           id: editingId ?? undefined,
           title: t,
           date: date.trim(),
+          time: normalizeTime(time) || undefined,
           summary: s || undefined,
           imageSrc: imageSrc.trim() || undefined,
           imageBase64,
@@ -152,6 +184,7 @@ export function EventsAdminPanel({
       id: editingId ?? newId(),
       title: t,
       date: date.trim(),
+      time: normalizeTime(time) || undefined,
       summary: s || undefined,
       imageSrc: imageSrc.trim() || undefined,
     };
@@ -166,7 +199,7 @@ export function EventsAdminPanel({
   async function copyToSite() {
     const lines = sorted.map((ev) => {
       const obj = {
-        dateLabel: formatDate(ev.date),
+        dateLabel: formatDateTimeLabel(ev.date, ev.time),
         title: ev.title,
         summary: ev.summary,
         imageSrc: ev.imageSrc,
@@ -246,6 +279,17 @@ export function EventsAdminPanel({
               onChange={(e) => setDate(e.target.value)}
               className="w-full rounded-xl border-2 border-earth/20 bg-white px-4 py-3 text-base text-ink outline-none ring-gold/40 focus:border-gold focus:ring-2"
             />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-semibold text-deep">Time (optional)</span>
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="w-full rounded-xl border-2 border-earth/20 bg-white px-4 py-3 text-base text-ink outline-none ring-gold/40 focus:border-gold focus:ring-2"
+            />
+            <p className="mt-2 text-sm text-earth/80">Leave blank if there’s no specific start time.</p>
           </label>
 
           <label className="block">
@@ -369,7 +413,9 @@ export function EventsAdminPanel({
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-gold-dim">{formatDate(ev.date)}</p>
+                    <p className="text-sm font-semibold text-gold-dim">
+                      {formatDateTimeLabel(ev.date, ev.time)}
+                    </p>
                     <p className="mt-1 font-display text-lg font-semibold text-deep">
                       {ev.title}
                     </p>
@@ -389,6 +435,7 @@ export function EventsAdminPanel({
                         setEditingId(ev.id);
                         setTitle(ev.title);
                         setDate(ev.date);
+                        setTime(normalizeTime(ev.time ?? ""));
                         setSummary(ev.summary ?? "");
                         setImageSrc(ev.imageSrc ?? "");
                         setPendingImageFile(null);
