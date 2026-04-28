@@ -1,4 +1,3 @@
-import Image from "next/image";
 import {
   events,
   getNextMonthlySatsangEvent,
@@ -8,6 +7,7 @@ import {
   mandirCalendar,
 } from "@/content/site";
 import { fetchPublishedSupabaseEvents } from "@/lib/events/fetchPublished";
+import { EventImageLightbox } from "@/components/EventImageLightbox";
 
 export async function EventsSection() {
   const remoteItems = await fetchPublishedSupabaseEvents();
@@ -46,27 +46,52 @@ export async function EventsSection() {
             {cardItems.map((ev) => (
               <li key={`${ev.title}-${ev.dateLabel}`}>
                 <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gold/20 bg-white/60 shadow-sm transition hover:border-gold/40 hover:shadow-md">
-                  {ev.imageSrc ? (
-                    <div
-                      className={`relative w-full border-b border-gold/15 bg-parchment-muted/60 ${
-                        ev.imageSrc === "/monthly-satsang-sanitized.jpg"
-                          ? "aspect-[3/4]"
-                          : "aspect-[16/9]"
-                      }`}
-                    >
-                      <Image
+                  <div className="relative aspect-[3/4] w-full border-b border-gold/15 bg-parchment-muted/60">
+                    {ev.imageSrc ? (
+                      <EventImageLightbox
                         src={ev.imageSrc}
                         alt={ev.title}
-                        fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className={
-                          ev.imageSrc === "/monthly-satsang-sanitized.jpg"
-                            ? "object-contain object-center p-3"
-                            : "object-cover object-center"
-                        }
+                        className="object-contain object-center p-3"
+                        enable={ev.title !== "Next Monthly Satsang"}
                       />
-                    </div>
-                  ) : null}
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
+                        <div
+                          className="pointer-events-none absolute inset-0 opacity-80"
+                          aria-hidden
+                          style={{
+                            backgroundImage:
+                              "radial-gradient(circle at 1px 1px, rgba(201,162,39,0.18) 1px, transparent 0)",
+                            backgroundSize: "18px 18px",
+                          }}
+                        />
+                        <div
+                          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_35%,rgba(201,162,39,0.20),transparent)]"
+                          aria-hidden
+                        />
+                        <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/25 bg-white/70 shadow-sm">
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-7 w-7 text-gold-dim"
+                            fill="none"
+                            aria-hidden
+                          >
+                            <path
+                              d="M7 4v2M17 4v2M6 9h12M6.5 6h11A1.5 1.5 0 0 1 19 7.5v11A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-11A1.5 1.5 0 0 1 6.5 6Z"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                        </div>
+                        <p className="relative font-display text-lg font-semibold text-deep">
+                          Poster coming soon
+                        </p>
+                        <p className="relative text-sm font-semibold text-earth/80">{ev.title}</p>
+                      </div>
+                    )}
+                  </div>
                   <div className="flex h-full flex-col p-5">
                   <p className="font-display text-sm font-semibold text-gold-dim">
                     {ev.dateLabel}
