@@ -32,8 +32,8 @@ export const hero = {
   title: "Welcome to Caribbean Hindu Cultural Society",
   titleLines: ["Welcome to Caribbean", "Hindu Cultural Society"] as const,
   quote:
-    "To those who are devoted with love, I guide them so they may come to Me.",
-  quoteCitation: "Bhagavad Gita 10.10",
+    "You are what you believe in — you become that which you believe you can become.",
+  quoteCitation: "Bhagavad Gita 17.3",
   primaryCtaLabel: "See upcoming events",
   primaryCtaHash: "#events",
   /** Right column of the welcome row (original single hero image) */
