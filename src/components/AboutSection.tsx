@@ -68,18 +68,18 @@ export function AboutSection() {
       suppressHydrationWarning
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <h2 className="font-display text-3xl font-semibold text-deep sm:text-4xl">
-          {about.sectionTitle}
-        </h2>
+        {/*
+          Full-width heading row; photo shares a row **only with the prose block** so the image
+          top lines up with the first paragraph—not with the heading.
+        */}
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:mt-10 lg:grid-cols-[minmax(0,65ch)_auto] lg:items-start lg:gap-x-10 lg:gap-y-6 xl:gap-x-12">
+          <h2 className="col-span-full font-display text-3xl font-semibold text-deep sm:text-4xl">
+            {about.sectionTitle}
+          </h2>
 
-        <div className="mt-8 flex flex-col gap-8 lg:mt-10 lg:flex-row lg:items-start lg:gap-10 xl:gap-12">
-          {/*
-            No flex-1 here — otherwise the block stretches to half the row and the photo no longer
-            matches the real width of the paragraphs (max-w-prose).
-          */}
           <div
             ref={textRef}
-            className="mx-auto w-full max-w-prose space-y-4 text-lg leading-relaxed text-earth lg:mx-0 lg:flex-none lg:max-w-prose"
+            className="mx-auto w-full max-w-prose space-y-4 text-lg leading-relaxed text-earth lg:mx-0 lg:max-w-none"
           >
             {about.homeSummaryParagraphs.map((p, i) => (
               <p key={i}>{p}</p>
@@ -107,7 +107,7 @@ export function AboutSection() {
             </figure>
           ) : (
             <figure
-              className="mx-0 hidden shrink-0 lg:block"
+              className="mx-0 hidden min-w-0 shrink-0 self-start lg:block"
               style={{ width: desktopImageWidth }}
             >
               {desktopReady ? (
