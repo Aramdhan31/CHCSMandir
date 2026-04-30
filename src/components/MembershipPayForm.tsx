@@ -8,6 +8,7 @@ export function MembershipPayForm() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [kind, setKind] = useState<"membership" | "donation">("membership");
+  const [amountGbp, setAmountGbp] = useState("15");
   const [membershipYear, setMembershipYear] = useState(() => String(new Date().getFullYear()));
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -21,17 +22,22 @@ export function MembershipPayForm() {
       email: email.trim(),
       phone: phone.trim(),
       kind,
+      amountGbp: amountGbp.trim(),
       membershipYear: membershipYear.trim(),
       message: message.trim(),
     };
-  }, [email, fullName, kind, membershipYear, message, phone]);
+  }, [amountGbp, email, fullName, kind, membershipYear, message, phone]);
 
   const onSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       setError(null);
-      if (!payload.fullName || !payload.email) {
-        setError("Please enter your name and email.");
+      if (!payload.fullName || !payload.phone) {
+        setError("Please enter your name and phone.");
+        return;
+      }
+      if (!payload.amountGbp) {
+        setError("Please enter the amount.");
         return;
       }
       if (!paymentUrl) {
@@ -92,9 +98,8 @@ export function MembershipPayForm() {
           />
         </label>
         <label className="block text-sm font-medium text-deep">
-          <span className="mb-1 block">Email</span>
+          <span className="mb-1 block">Email (optional)</span>
           <input
-            required
             type="email"
             name="email"
             autoComplete="email"
@@ -107,8 +112,9 @@ export function MembershipPayForm() {
 
       <div className="grid gap-5">
         <label className="block text-sm font-medium text-deep">
-          <span className="mb-1 block">Phone (optional)</span>
+          <span className="mb-1 block">Phone</span>
           <input
+            required
             name="phone"
             autoComplete="tel"
             value={phone}
@@ -121,7 +127,15 @@ export function MembershipPayForm() {
           <select
             name="kind"
             value={kind}
-            onChange={(ev) => setKind(ev.target.value === "donation" ? "donation" : "membership")}
+            onChange={(ev) => {
+              const nextKind = ev.target.value === "donation" ? "donation" : "membership";
+              setKind(nextKind);
+              setAmountGbp((prev) => {
+                const trimmed = prev.trim();
+                if (nextKind === "membership") return trimmed || "15";
+                return trimmed === "15" ? "" : trimmed;
+              });
+            }}
             className="w-full rounded-xl border border-earth/25 bg-white px-4 py-2.5 text-ink outline-none ring-gold/50 focus:ring-2"
           >
             <option value="membership">Membership (£15)</option>
@@ -131,6 +145,20 @@ export function MembershipPayForm() {
       </div>
 
       <div className="grid gap-5">
+        <label className="block text-sm font-medium text-deep">
+          <span className="mb-1 block">Amount (£)</span>
+          <input
+            required
+            name="amountGbp"
+            inputMode="decimal"
+            value={amountGbp}
+            onChange={(ev) => setAmountGbp(ev.target.value)}
+            className="w-full rounded-xl border border-earth/25 bg-white px-4 py-2.5 text-ink outline-none ring-gold/50 focus:ring-2"
+          />
+          <p className="mt-1 text-xs text-earth/80">
+            Enter the amount you would like to pay today.
+          </p>
+        </label>
         <label className="block text-sm font-medium text-deep">
           <span className="mb-1 block">Membership year</span>
           <input

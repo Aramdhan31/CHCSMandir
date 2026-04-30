@@ -318,6 +318,11 @@ export const about = {
         alt: "Inside the CHCS mandir — carved gold shrines with red canopies, flower offerings, and Om symbols on the altar drapes",
         caption: "Main hall",
       },
+      {
+        src: "/Upstairs Pooja room.JPEG",
+        alt: "Upstairs pooja room at the CHCS mandir — wooden shrine with deities and offerings",
+        caption: "Upstairs Pooja Room",
+      },
     ] as const,
   },
   blocks: [

@@ -23,9 +23,10 @@ function matchesQuery(row: OnlinePaymentIntent, qRaw: string): boolean {
   if (!q) return true;
   const hay = [
     row.fullName,
-    row.email,
+    row.email ?? "",
     row.phone ?? "",
     row.kind,
+    row.amountGbp !== null ? String(row.amountGbp) : "",
     row.membershipYear ? String(row.membershipYear) : "",
     row.message ?? "",
   ]
@@ -107,7 +108,7 @@ export function OnlinePaymentIntentsPanel() {
         ) : null}
 
         <div className="mt-5 overflow-x-auto rounded-xl border border-earth/15 bg-white">
-          <table className="min-w-[46rem] w-full text-sm">
+          <table className="min-w-[54rem] w-full text-sm">
             <thead className="bg-parchment-muted/60 text-left text-xs font-bold uppercase tracking-wide text-earth">
               <tr>
                 <th className="px-4 py-3">Submitted</th>
@@ -115,6 +116,7 @@ export function OnlinePaymentIntentsPanel() {
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Phone</th>
                 <th className="px-4 py-3">For</th>
+                <th className="px-4 py-3">Amount</th>
                 <th className="px-4 py-3">Year</th>
                 <th className="px-4 py-3">Note</th>
               </tr>
@@ -122,13 +124,13 @@ export function OnlinePaymentIntentsPanel() {
             <tbody className="divide-y divide-earth/10">
               {!hydrated ? (
                 <tr>
-                  <td className="px-4 py-6 text-earth" colSpan={7}>
+                  <td className="px-4 py-6 text-earth" colSpan={8}>
                     Loading…
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-6 text-earth" colSpan={7}>
+                  <td className="px-4 py-6 text-earth" colSpan={8}>
                     No matches.
                   </td>
                 </tr>
@@ -137,12 +139,15 @@ export function OnlinePaymentIntentsPanel() {
                   <tr key={r.id} className="align-top">
                     <td className="px-4 py-3 whitespace-nowrap text-earth/90">{formatDateTime(r.createdAt)}</td>
                     <td className="px-4 py-3 font-semibold text-deep">{r.fullName}</td>
-                    <td className="px-4 py-3">{r.email}</td>
+                    <td className="px-4 py-3">{r.email ?? "—"}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{r.phone ?? "—"}</td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className="rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-950">
                         {r.kind === "donation" ? "Donation" : "Membership"}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {r.amountGbp === null ? "—" : `£${r.amountGbp.toFixed(2)}`}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">{r.membershipYear ?? "—"}</td>
                     <td className="px-4 py-3 text-earth/90">

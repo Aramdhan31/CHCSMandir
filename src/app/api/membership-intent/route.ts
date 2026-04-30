@@ -18,6 +18,14 @@ function parseYear(raw: unknown) {
   return Math.trunc(y);
 }
 
+function parseAmount(raw: unknown) {
+  const t = clean(raw, 32);
+  if (!t) return null;
+  const n = Number(t.replace(/,/g, ""));
+  if (!Number.isFinite(n) || n <= 0 || n > 100000) return null;
+  return Math.round(n * 100) / 100;
+}
+
 export async function POST(req: Request) {
   const sb = getSupabaseServiceRole();
   if (!sb) {
@@ -40,23 +48,28 @@ export async function POST(req: Request) {
   const phone = clean(obj.phone, 60) || null;
   const kindRaw = clean(obj.kind, 20);
   const kind = kindRaw === "donation" ? "donation" : "membership";
+  const amountGbp = parseAmount(obj.amountGbp);
   const membershipYear = parseYear(obj.membershipYear);
   const message = clean(obj.message, 600) || null;
   const userAgent = clean(req.headers.get("user-agent") ?? "", 240) || null;
   const sumupUrl = clean(visit.membershipPaymentUrl, 500) || null;
 
-  if (!fullName || !email) {
+  if (!fullName || !phone) {
     return NextResponse.json(
-      { ok: false, error: "Missing fullName or email." },
+      { ok: false, error: "Missing fullName or phone." },
       { status: 400 },
     );
+  }
+  if (amountGbp === null) {
+    return NextResponse.json({ ok: false, error: "Missing or invalid amount." }, { status: 400 });
   }
 
   const row = {
     full_name: fullName,
-    email,
+    email: email || null,
     phone,
     kind,
+    amount_gbp: amountGbp,
     membership_year: membershipYear,
     message,
     user_agent: userAgent,

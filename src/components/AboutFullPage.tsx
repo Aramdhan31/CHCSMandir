@@ -20,7 +20,7 @@ function PageOrnament({ className }: { className?: string }) {
 }
 
 export function AboutFullPage() {
-  const galleryPhotos = about.pageGallery.photos;
+  const galleryPhotos = [...about.pageGallery.photos];
   return (
     <div className="bg-parchment text-ink">
       <header className="relative overflow-hidden bg-deep bg-grain text-parchment">
