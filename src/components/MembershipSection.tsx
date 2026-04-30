@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { visit } from "@/content/site";
+import { MembershipPayForm } from "@/components/MembershipPayForm";
 
 function renderParagraphWithEmail(p: string) {
   const email = visit.email;
@@ -38,19 +39,7 @@ export function MembershipSection() {
                   <p key={i}>{renderParagraphWithEmail(p)}</p>
                 ))}
               </div>
-              <div className="mt-7 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
-                <a
-                  href={visit.membershipPaymentUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-semibold text-deep shadow-sm transition hover:bg-saffron sm:w-auto"
-                >
-                  {visit.membershipPaymentLabel}
-                </a>
-                <span className="text-sm text-earth/80">
-                  {visit.membershipPaymentNote}
-                </span>
-              </div>
+              <MembershipPayForm />
             </div>
 
             <div className="hidden justify-self-end lg:block">

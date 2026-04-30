@@ -357,7 +357,7 @@ export const leadership = {
   intro: "Caribbean Hindu Cultural Society Executive Committee (Managing Trustees)",
   patronsHeading: "Patrons",
   patrons: [
-    "Lord Alli",
+    "The Lord Alli",
     "Shree Laleshwar Singh (former High Commissioner for Guyana)",
   ],
   /** Privacy: keep data in code, but don't display committee names publicly yet. */
@@ -420,9 +420,19 @@ export const leadership = {
       imageAlt: "Pt. R. Sankar — past pandit at CHCS mandir",
       imageClass: "origin-center scale-[1.65] object-cover object-[50%_12%]",
     },
-    { years: "1972 – 2003", name: "Pt. H. Tiwarie" },
+    {
+      years: "1972 – 2003",
+      name: "Pt. H. Tiwari",
+      imageSrc: "/Pandit T.png",
+      imageAlt: "Pt. H. Tiwari — past pandit at CHCS mandir",
+    },
     { years: "1962 – 1972", name: "Pt. R. Maharaj" },
-    { years: "1959 – 1962", name: "Pt. H. Tiwarie" },
+    {
+      years: "1959 – 1962",
+      name: "Pt. H. Tiwari",
+      imageSrc: "/Pandit T.png",
+      imageAlt: "Pt. H. Tiwari — past pandit at CHCS mandir",
+    },
   ],
 } as const;
 
