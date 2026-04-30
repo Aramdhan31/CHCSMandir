@@ -33,7 +33,7 @@ export function HeroSection() {
             ॐ
           </p>
           <p
-            className="mt-3 font-display text-sm font-semibold tracking-[0.48em] text-gold/95 sm:text-base"
+            className="mt-2 text-center font-display text-[0.72rem] font-medium uppercase tracking-[0.38em] text-gold/80 sm:mt-3 sm:text-sm"
             aria-label="C.H.C.S"
           >
             C.H.C.S

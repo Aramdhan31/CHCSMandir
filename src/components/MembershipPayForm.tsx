@@ -67,7 +67,7 @@ export function MembershipPayForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="mt-7 space-y-4 rounded-2xl border border-gold/20 bg-white/70 p-5 shadow-sm"
+      className="mt-7 space-y-5 rounded-2xl border border-gold/20 bg-white/80 p-6 shadow-sm sm:p-8"
       noValidate
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -79,7 +79,7 @@ export function MembershipPayForm() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5">
         <label className="block text-sm font-medium text-deep">
           <span className="mb-1 block">Full name</span>
           <input
@@ -88,7 +88,7 @@ export function MembershipPayForm() {
             autoComplete="name"
             value={fullName}
             onChange={(ev) => setFullName(ev.target.value)}
-            className="mt-1 w-full rounded-lg border border-earth/20 bg-white px-3 py-2 text-ink outline-none ring-gold/40 focus:ring-2"
+            className="w-full rounded-xl border border-earth/25 bg-white px-4 py-2.5 text-ink outline-none ring-gold/50 focus:ring-2"
           />
         </label>
         <label className="block text-sm font-medium text-deep">
@@ -100,12 +100,12 @@ export function MembershipPayForm() {
             autoComplete="email"
             value={email}
             onChange={(ev) => setEmail(ev.target.value)}
-            className="mt-1 w-full rounded-lg border border-earth/20 bg-white px-3 py-2 text-ink outline-none ring-gold/40 focus:ring-2"
+            className="w-full rounded-xl border border-earth/25 bg-white px-4 py-2.5 text-ink outline-none ring-gold/50 focus:ring-2"
           />
         </label>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5">
         <label className="block text-sm font-medium text-deep">
           <span className="mb-1 block">Phone (optional)</span>
           <input
@@ -113,7 +113,7 @@ export function MembershipPayForm() {
             autoComplete="tel"
             value={phone}
             onChange={(ev) => setPhone(ev.target.value)}
-            className="mt-1 w-full rounded-lg border border-earth/20 bg-white px-3 py-2 text-ink outline-none ring-gold/40 focus:ring-2"
+            className="w-full rounded-xl border border-earth/25 bg-white px-4 py-2.5 text-ink outline-none ring-gold/50 focus:ring-2"
           />
         </label>
         <label className="block text-sm font-medium text-deep">
@@ -122,7 +122,7 @@ export function MembershipPayForm() {
             name="kind"
             value={kind}
             onChange={(ev) => setKind(ev.target.value === "donation" ? "donation" : "membership")}
-            className="mt-1 w-full rounded-lg border border-earth/20 bg-white px-3 py-2 text-ink outline-none ring-gold/40 focus:ring-2"
+            className="w-full rounded-xl border border-earth/25 bg-white px-4 py-2.5 text-ink outline-none ring-gold/50 focus:ring-2"
           >
             <option value="membership">Membership (£15)</option>
             <option value="donation">Donation</option>
@@ -130,7 +130,7 @@ export function MembershipPayForm() {
         </label>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5">
         <label className="block text-sm font-medium text-deep">
           <span className="mb-1 block">Membership year</span>
           <input
@@ -138,39 +138,43 @@ export function MembershipPayForm() {
             inputMode="numeric"
             value={membershipYear}
             onChange={(ev) => setMembershipYear(ev.target.value)}
-            className="mt-1 w-full rounded-lg border border-earth/20 bg-white px-3 py-2 text-ink outline-none ring-gold/40 focus:ring-2"
+            className="w-full rounded-xl border border-earth/25 bg-white px-4 py-2.5 text-ink outline-none ring-gold/50 focus:ring-2"
           />
-          <p className="mt-1 text-xs text-earth/75">
+          <p className="mt-1 text-xs text-earth/80">
             If you’re donating only, you can leave this as-is.
           </p>
         </label>
         <label className="block text-sm font-medium text-deep">
           <span className="mb-1 block">Note (optional)</span>
-          <input
+          <textarea
             name="message"
             value={message}
             onChange={(ev) => setMessage(ev.target.value)}
             placeholder="e.g. family membership, in memory of…, etc."
-            className="mt-1 w-full rounded-lg border border-earth/20 bg-white px-3 py-2 text-ink outline-none ring-gold/40 focus:ring-2"
+            rows={3}
+            className="w-full resize-y rounded-xl border border-earth/25 bg-white px-4 py-2.5 text-ink outline-none ring-gold/50 focus:ring-2"
           />
         </label>
       </div>
 
-      <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="grid gap-3 pt-2">
         <button
           type="submit"
           disabled={busy}
-          className="inline-flex w-full items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-semibold text-deep shadow-sm transition hover:bg-saffron disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          className="inline-flex w-full items-center justify-center rounded-full bg-gold px-8 py-3 text-sm font-semibold text-deep shadow-sm transition hover:bg-saffron disabled:cursor-not-allowed disabled:opacity-60"
         >
           {busy ? "Saving…" : "Continue to secure payment"}
         </button>
-        <p className="text-sm text-earth/80">
-          Step 2: you’ll complete payment on SumUp (guest checkout is normal).
+        <p className="text-sm text-earth/85">
+          Next: you’ll complete payment on SumUp (guest checkout is normal).
         </p>
       </div>
 
       {error ? (
-        <p className="text-sm font-semibold text-red-950" role="alert">
+        <p
+          className="rounded-xl border border-red-950/15 bg-red-50 px-4 py-3 text-sm font-semibold text-red-950"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}
