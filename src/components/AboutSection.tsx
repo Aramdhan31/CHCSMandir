@@ -63,8 +63,9 @@ export function AboutSection() {
   const desktopImageWidth = desktopReady
     ? Math.min(Math.max(textBox.width, 420), imageWidthCap)
     : 1;
+  /** Taller frame than legacy 0.62 so shrine photo fits with object-contain without feeling squashed */
   const desktopImageHeight = desktopReady
-    ? Math.min(textBox.height, Math.round(desktopImageWidth * 0.62))
+    ? Math.min(textBox.height, Math.round(desktopImageWidth * 0.92))
     : 1;
 
   return (
@@ -78,7 +79,7 @@ export function AboutSection() {
           {about.sectionTitle}
         </h2>
 
-        <div className="mt-8 flex flex-col gap-8 lg:mt-10 lg:flex-row lg:items-start lg:gap-10 xl:gap-12">
+        <div className="mt-8 flex flex-col gap-8 lg:mt-10 lg:flex-row lg:items-center lg:gap-10 xl:gap-12">
           {/*
             No flex-1 here — otherwise the block stretches to half the row and the photo no longer
             matches the real width of the paragraphs (max-w-prose).
@@ -101,31 +102,31 @@ export function AboutSection() {
           </div>
 
           {!isLg ? (
-            <figure className="mx-auto w-full max-w-xl shrink-0">
+            <figure className="mx-auto w-full max-w-xl shrink-0 overflow-hidden rounded-2xl border border-gold/25 bg-parchment-muted/70 shadow-sm ring-1 ring-gold/10">
               <Image
                 src={about.homeImage.src}
                 alt={about.homeImage.alt}
                 width={ABOUT_IMAGE_WIDTH}
                 height={ABOUT_IMAGE_HEIGHT}
-                className="h-auto w-full"
-                sizes="100vw"
+                className="h-auto w-full object-contain object-center"
+                sizes="(max-width: 1024px) 90vw, 520px"
               />
             </figure>
           ) : (
             <figure
-              className="relative mx-0 hidden shrink-0 lg:block lg:-mt-12"
+              className="relative mx-0 hidden shrink-0 lg:block"
               style={{
                 width: desktopImageWidth,
                 height: desktopImageHeight,
               }}
             >
               {desktopReady ? (
-                <div className="relative h-full w-full overflow-hidden rounded-2xl border border-gold/25 bg-deep/15 shadow-sm ring-1 ring-gold/10">
+                <div className="relative h-full w-full overflow-hidden rounded-2xl border border-gold/25 bg-parchment-muted/70 shadow-sm ring-1 ring-gold/10">
                   <Image
                     src={about.homeImage.src}
                     alt={about.homeImage.alt}
                     fill
-                    className="object-cover object-[50%_42%]"
+                    className="object-contain object-center p-2 sm:p-3"
                     sizes={`${desktopImageWidth}px`}
                   />
                 </div>
