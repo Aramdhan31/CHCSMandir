@@ -120,12 +120,12 @@ export function AboutSection() {
               }}
             >
               {desktopReady ? (
-                <div className="relative h-full w-full overflow-hidden rounded-2xl border border-gold/25 bg-white/60 shadow-sm">
+                <div className="relative h-full w-full overflow-hidden rounded-2xl border border-gold/25 bg-deep/15 shadow-sm ring-1 ring-gold/10">
                   <Image
                     src={about.homeImage.src}
                     alt={about.homeImage.alt}
                     fill
-                    className="object-cover object-center"
+                    className="object-cover object-[50%_42%]"
                     sizes={`${desktopImageWidth}px`}
                   />
                 </div>

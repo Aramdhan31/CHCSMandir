@@ -55,7 +55,7 @@ export const hero = {
     },
     {
       src: "/mandir-interior.jpg",
-      alt: "Inside the CHCS mandir — carved gold shrines with red canopies, flower offerings, and Om symbols on the altar drapes",
+      alt: "Inside the CHCS mandir — wooden shrine canopy with Rama, Sita and Lakshmana, flower garlands, framed pictures and golden Om decorations",
       label: "Inside the mandir",
     },
   ] as const,
@@ -287,8 +287,8 @@ export const about = {
     "Our temple today and the journey from 1959 to a registered Place of Worship in Brixton.",
   /** Home #about — photo beside summary (file in /public) */
   homeImage: {
-    src: "/mandir-interior.jpg",
-    alt: "Inside the CHCS mandir — carved gold shrines with red canopies, flower offerings, and Om symbols on the altar drapes",
+    src: "/mandir-main-hall-2.jpg",
+    alt: "CHCS mandir main hall — ornate wooden shrine with Rama, Sita, Lakshmana, flower garlands, framed pictures and golden Om decorations",
   },
   /** Home page — short version; full narrative lives on /about */
   homeSummaryParagraphs: [
@@ -303,7 +303,7 @@ export const about = {
   pageGallery: {
     title: "The mandir at Ostade Road",
     intro:
-      "Photographs from our registered Place of Worship in Brixton — the street front and the main hall.",
+      "Photographs from our registered Place of Worship in Brixton — street frontage, main hall shrine, and the upstairs pooja room.",
     photos: [
       {
         src: "/mandir-exterior.jpg",
@@ -314,14 +314,31 @@ export const about = {
         imageClass: "object-contain object-center",
       },
       {
-        src: "/mandir-interior.jpg",
-        alt: "Inside the CHCS mandir — carved gold shrines with red canopies, flower offerings, and Om symbols on the altar drapes",
-        caption: "Main hall",
+        mainHallStack: {
+          hero: {
+            src: "/mandir-main-hall-2.jpg",
+            alt:
+              "CHCS mandir main hall — ornate wooden shrine with Rama, Sita, Lakshmana and Om decorations",
+          },
+          bottomLeft: {
+            src: "/mandir-main-hall-1.jpg",
+            alt: "CHCS mandir main hall — Radha and Krishna shrine",
+          },
+          bottomRight: {
+            src: "/mandir-main-hall-3.jpg",
+            alt: "CHCS mandir main hall — Shiva and Parvati shrine",
+          },
+          caption: "Main hall shrine",
+        },
       },
       {
         src: "/Upstairs Pooja room.JPEG",
-        alt: "Upstairs pooja room at the CHCS mandir — wooden shrine with deities and offerings",
-        caption: "Upstairs Pooja Room",
+        alt:
+          "Upstairs pooja room at the CHCS mandir — ornate wooden Singhasan with Ram darbar (Rama, Sita, Lakshmana and Hanuman), Radha-Krishna, Durga with Saraswati, Ganesha, Shiva lingam and other deities",
+        caption: "Upstairs Pooja Room — historic Singhasan (Prana Pratishta 1985)",
+        /** Shown beneath the upstairs photo on /about — names the murtis along the shrine. */
+        murtisNote:
+          "Along the shrine (left to right): a Shiv ling with Ganesha and Shiva beside it; Ram darbar in the centre—Hanuman kneeling before Rama, Sita and Lakshmana with bow; then Radha–Krishna standing together; Durga Mata on her vahana with Saraswati; and seated goddesses toward the far right.",
       },
     ] as const,
   },

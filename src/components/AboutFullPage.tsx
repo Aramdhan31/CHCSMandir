@@ -21,6 +21,13 @@ function PageOrnament({ className }: { className?: string }) {
 
 export function AboutFullPage() {
   const galleryPhotos = [...about.pageGallery.photos];
+  const primary = galleryPhotos[0];
+  const primaryHasSrc = primary && "src" in primary;
+  const secondary = galleryPhotos[1];
+  const tertiary = galleryPhotos[2];
+  const hasTertiaryImage = Boolean(tertiary && "src" in tertiary);
+  const mainHallStack =
+    secondary && "mainHallStack" in secondary ? secondary.mainHallStack : null;
   return (
     <div className="bg-parchment text-ink">
       <header className="relative overflow-hidden bg-deep bg-grain text-parchment">
@@ -76,59 +83,101 @@ export function AboutFullPage() {
             {about.pageGallery.intro}
           </p>
 
-          <div className="mt-10 flex flex-col gap-5 md:grid md:grid-cols-12 md:grid-rows-2 md:gap-4">
-            {galleryPhotos.length > 0 ? (
-              <figure
-                className={`relative m-0 w-full min-w-0 max-w-xl overflow-hidden rounded-2xl border border-gold/25 shadow-md sm:max-w-2xl md:col-span-8 md:row-span-2 md:max-w-none ${
-                  "frameClass" in galleryPhotos[0] && galleryPhotos[0].frameClass
-                    ? `${galleryPhotos[0].frameClass} bg-white/60`
-                    : "aspect-[16/10] bg-white/60 md:aspect-auto"
-                } mx-auto md:mx-0`}
-              >
-                <Image
-                  src={galleryPhotos[0].src}
-                  alt={galleryPhotos[0].alt}
-                  fill
-                  className={
-                    "imageClass" in galleryPhotos[0] && galleryPhotos[0].imageClass
-                      ? galleryPhotos[0].imageClass
-                      : "object-cover object-center"
-                  }
-                  sizes="(max-width: 768px) 100vw, 66vw"
-                />
-                <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/90 via-deep/40 to-transparent px-4 pb-4 pt-12 text-left text-sm font-semibold text-parchment">
-                  {galleryPhotos[0].caption}
-                </figcaption>
-              </figure>
-            ) : null}
-
-            {galleryPhotos.slice(1).map((p, idx) => {
-              const isOnlySide = galleryPhotos.length === 2;
-              const sideClass = isOnlySide
-                ? "md:col-span-4 md:col-start-9 md:row-span-2 md:aspect-auto md:min-h-[26rem]"
-                : idx === 0
-                  ? "md:col-span-4 md:col-start-9 md:row-start-1 md:aspect-auto md:min-h-[12.5rem]"
-                  : "md:col-span-4 md:col-start-9 md:row-start-2 md:aspect-auto md:min-h-[12.5rem]";
-              const imageClass =
-                "imageClass" in p && p.imageClass ? p.imageClass : "object-cover object-center";
-              return (
+          <div className="mt-10 grid gap-5 md:grid-cols-12 md:items-start md:gap-6">
+            <div className="flex flex-col overflow-hidden rounded-2xl border border-gold/25 bg-white/60 shadow-md md:col-span-6 md:justify-self-stretch">
+              {primaryHasSrc ? (
                 <figure
-                  key={p.src}
-                  className={`relative m-0 aspect-[4/3] overflow-hidden rounded-2xl border border-gold/20 bg-white/60 shadow-sm ${sideClass}`}
+                  className={`relative m-0 w-full min-w-0 overflow-hidden ${
+                    hasTertiaryImage ? "border-b border-gold/20" : ""
+                  } ${"frameClass" in primary && primary.frameClass ? primary.frameClass : "aspect-[16/10]"}`}
                 >
                   <Image
-                    src={p.src}
-                    alt={p.alt}
+                    src={primary.src}
+                    alt={primary.alt}
                     fill
-                    className={imageClass}
-                    sizes="(max-width: 768px) 100vw, 34vw"
+                    className={
+                      "imageClass" in primary && primary.imageClass
+                        ? primary.imageClass
+                        : "object-cover object-center"
+                    }
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
-                  <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/85 to-transparent px-3 pb-3 pt-10 text-left text-xs font-semibold text-parchment sm:text-sm">
-                    {p.caption}
+                  <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/90 via-deep/40 to-transparent px-4 pb-4 pt-12 text-left text-sm font-semibold text-parchment">
+                    {primary.caption}
                   </figcaption>
                 </figure>
-              );
-            })}
+              ) : null}
+
+              {tertiary && "src" in tertiary ? (
+                <>
+                  <figure className="relative m-0 aspect-[16/11] w-full overflow-hidden">
+                    <Image
+                      src={tertiary.src}
+                      alt={tertiary.alt}
+                      fill
+                      unoptimized={tertiary.src.toLowerCase().endsWith(".heic")}
+                      className={
+                        "imageClass" in tertiary && tertiary.imageClass
+                          ? tertiary.imageClass
+                          : "object-cover object-center"
+                      }
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                    <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/85 to-transparent px-4 pb-4 pt-12 text-left text-sm font-semibold text-parchment">
+                      {tertiary.caption}
+                    </figcaption>
+                  </figure>
+                  {"murtisNote" in tertiary && tertiary.murtisNote ? (
+                    <p className="border-t border-gold/15 px-3 py-3 text-xs leading-relaxed text-earth/85 md:text-sm md:leading-relaxed">
+                      {tertiary.murtisNote}
+                    </p>
+                  ) : null}
+                </>
+              ) : null}
+            </div>
+
+            {mainHallStack ? (
+              <div className="flex flex-col gap-3 rounded-2xl border border-gold/20 bg-white/60 p-2 shadow-sm md:col-span-6 md:h-full">
+                <figure className="relative m-0 aspect-[16/11] overflow-hidden rounded-xl border border-gold/15">
+                  <Image
+                    src={mainHallStack.hero.src}
+                    alt={mainHallStack.hero.alt}
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                  <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/85 to-transparent px-3 pb-3 pt-10 text-left text-xs font-semibold text-parchment sm:text-sm">
+                    {mainHallStack.caption}
+                  </figcaption>
+                </figure>
+                <div className="grid min-h-0 flex-1 grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                  <figure className="relative m-0 aspect-[4/5] overflow-hidden rounded-xl border border-gold/15">
+                    <Image
+                      src={mainHallStack.bottomLeft.src}
+                      alt={mainHallStack.bottomLeft.alt}
+                      fill
+                      className="object-cover object-center"
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                    />
+                  </figure>
+                  <figure className="relative m-0 aspect-[4/5] overflow-hidden rounded-xl border border-gold/15">
+                    <Image
+                      src={mainHallStack.bottomRight.src}
+                      alt={mainHallStack.bottomRight.alt}
+                      fill
+                      className="object-cover object-center"
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                    />
+                  </figure>
+                </div>
+                <p className="mx-2 mb-2 text-xs text-earth/85 md:text-sm">
+                  These three photos are all from the <strong className="text-deep">main hall</strong>: the wide view shows the central shrine with{" "}
+                  <strong className="text-deep">Rama, Sita and Lakshmana</strong> (with <strong className="text-deep">Hanuman</strong> at their feet),
+                  flanked by <strong className="text-deep">Om</strong> on the altar; the left panel is <strong className="text-deep">Radha–Krishna</strong>;
+                  the right panel is <strong className="text-deep">Shiva–Parvati</strong> (with <strong className="text-deep">Nandi</strong>).
+                </p>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
