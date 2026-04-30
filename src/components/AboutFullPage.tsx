@@ -115,7 +115,11 @@ export function AboutFullPage() {
               {tertiary && "src" in tertiary ? (
                 <>
                   <figure className="relative m-0 w-full overflow-hidden">
-                    <div className="relative aspect-[16/11] w-full overflow-hidden">
+                    <div
+                      className={`relative w-full overflow-hidden ${
+                        "frameClass" in tertiary && tertiary.frameClass ? tertiary.frameClass : "aspect-[16/11]"
+                      }`}
+                    >
                       <Image
                         src={tertiary.src}
                         alt={tertiary.alt}

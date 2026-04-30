@@ -316,9 +316,9 @@ export const about = {
       {
         mainHallStack: {
           hero: {
-            src: "/mandir-main-hall-2.jpg",
+            src: "/mandir-interior.jpg",
             alt:
-              "CHCS mandir main hall — ornate wooden shrine with Rama, Sita, Lakshmana and Om decorations",
+              "CHCS mandir main hall — central shrine with maroon canopy, Rama, Sita and Lakshmana, flower garlands, framed deities and golden Om decorations",
           },
           bottomLeft: {
             src: "/mandir-main-hall-1.jpg",
@@ -335,6 +335,9 @@ export const about = {
         src: "/Upstairs Pooja room.JPEG",
         alt:
           "Upstairs pooja room at the CHCS mandir — ornate wooden shrine with Ram darbar (Rama, Sita, Lakshmana and Hanuman), Radha-Krishna, Durga with Saraswati, Ganesha, Shiva lingam and other deities",
+        /** Wider-than-tall panorama — object-contain (below) avoids cropping edges. */
+        frameClass: "aspect-[5/4] sm:aspect-[3/2] md:aspect-[16/11]",
+        imageClass: "object-contain object-center",
         caption: "Upstairs Pooja Room",
         /** Secondary line under the caption — smaller bracketed detail on /about photo. */
         captionSub:
