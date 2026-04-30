@@ -334,8 +334,11 @@ export const about = {
       {
         src: "/Upstairs Pooja room.JPEG",
         alt:
-          "Upstairs pooja room at the CHCS mandir — ornate wooden Singhasan with Ram darbar (Rama, Sita, Lakshmana and Hanuman), Radha-Krishna, Durga with Saraswati, Ganesha, Shiva lingam and other deities",
-        caption: "Upstairs Pooja Room — historic Singhasan (Prana Pratishta 1985)",
+          "Upstairs pooja room at the CHCS mandir — ornate wooden shrine with Ram darbar (Rama, Sita, Lakshmana and Hanuman), Radha-Krishna, Durga with Saraswati, Ganesha, Shiva lingam and other deities",
+        caption: "Upstairs Pooja Room",
+        /** Secondary line under the caption — smaller bracketed detail on /about photo. */
+        captionSub:
+          "(historic Singhasan — Prana Pratishta, September 1985)",
         /** Shown beneath the upstairs photo on /about — names the murtis along the shrine. */
         murtisNote:
           "Along the shrine (left to right): a Shiv ling with Ganesha and Shiva beside it; Ram darbar in the centre—Hanuman kneeling before Rama, Sita and Lakshmana with bow; then Radha–Krishna standing together; Durga Mata on her vahana with Saraswati; and seated goddesses toward the far right.",

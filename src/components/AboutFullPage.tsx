@@ -86,23 +86,27 @@ export function AboutFullPage() {
           <div className="mt-10 grid gap-5 md:grid-cols-12 md:items-start md:gap-6">
             <div className="flex flex-col overflow-hidden rounded-2xl border border-gold/25 bg-white/60 shadow-md md:col-span-6 md:justify-self-stretch">
               {primaryHasSrc ? (
-                <figure
-                  className={`relative m-0 w-full min-w-0 overflow-hidden ${
-                    hasTertiaryImage ? "border-b border-gold/20" : ""
-                  } ${"frameClass" in primary && primary.frameClass ? primary.frameClass : "aspect-[16/10]"}`}
-                >
-                  <Image
-                    src={primary.src}
-                    alt={primary.alt}
-                    fill
-                    className={
-                      "imageClass" in primary && primary.imageClass
-                        ? primary.imageClass
-                        : "object-cover object-center"
-                    }
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                  <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/90 via-deep/40 to-transparent px-4 pb-4 pt-12 text-left text-sm font-semibold text-parchment">
+                <figure className="relative m-0 min-w-0 w-full overflow-hidden">
+                  <div
+                    className={`relative w-full overflow-hidden ${hasTertiaryImage ? "border-b border-gold/20" : ""} ${
+                      "frameClass" in primary && primary.frameClass ? primary.frameClass : "aspect-[16/10]"
+                    }`}
+                  >
+                    <Image
+                      src={primary.src}
+                      alt={primary.alt}
+                      fill
+                      className={
+                        "imageClass" in primary && primary.imageClass
+                          ? primary.imageClass
+                          : "object-cover object-center"
+                      }
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+                  <figcaption
+                    className="relative z-[1] border-t border-gold/20 bg-parchment px-4 py-3.5 text-left text-base font-semibold leading-snug text-deep shadow-[inset_0_1px_0_rgba(201,162,39,0.12)] md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:border-0 md:bg-gradient-to-t md:from-deep md:from-40% md:via-deep/75 md:to-transparent md:px-4 md:py-0 md:pb-4 md:pt-16 md:text-sm md:font-semibold md:text-parchment md:shadow-none"
+                  >
                     {primary.caption}
                   </figcaption>
                 </figure>
@@ -110,21 +114,30 @@ export function AboutFullPage() {
 
               {tertiary && "src" in tertiary ? (
                 <>
-                  <figure className="relative m-0 aspect-[16/11] w-full overflow-hidden">
-                    <Image
-                      src={tertiary.src}
-                      alt={tertiary.alt}
-                      fill
-                      unoptimized={tertiary.src.toLowerCase().endsWith(".heic")}
-                      className={
-                        "imageClass" in tertiary && tertiary.imageClass
-                          ? tertiary.imageClass
-                          : "object-cover object-center"
-                      }
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                    <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/85 to-transparent px-4 pb-4 pt-12 text-left text-sm font-semibold text-parchment">
-                      {tertiary.caption}
+                  <figure className="relative m-0 w-full overflow-hidden">
+                    <div className="relative aspect-[16/11] w-full overflow-hidden">
+                      <Image
+                        src={tertiary.src}
+                        alt={tertiary.alt}
+                        fill
+                        unoptimized={tertiary.src.toLowerCase().endsWith(".heic")}
+                        className={
+                          "imageClass" in tertiary && tertiary.imageClass
+                            ? tertiary.imageClass
+                            : "object-cover object-center"
+                        }
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    </div>
+                    <figcaption
+                      className="relative z-[1] flex flex-col gap-1 border-t border-gold/20 bg-parchment px-4 py-3.5 text-left text-sm font-semibold leading-snug text-deep md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:border-0 md:bg-gradient-to-t md:from-deep md:from-40% md:via-deep/75 md:to-transparent md:px-4 md:py-0 md:pb-4 md:pt-16 md:text-sm md:text-parchment"
+                    >
+                      <span>{tertiary.caption}</span>
+                      {"captionSub" in tertiary && tertiary.captionSub ? (
+                        <span className="text-xs font-normal leading-snug text-earth/80 md:text-[0.7rem] md:text-parchment/80">
+                          {tertiary.captionSub}
+                        </span>
+                      ) : null}
                     </figcaption>
                   </figure>
                   {"murtisNote" in tertiary && tertiary.murtisNote ? (
