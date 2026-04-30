@@ -150,15 +150,17 @@ export function AboutFullPage() {
 
             {mainHallStack ? (
               <div className="flex flex-col gap-2 rounded-2xl border border-gold/20 bg-white/60 p-2 shadow-sm md:col-span-6">
-                <figure className="relative m-0 aspect-[16/11] overflow-hidden rounded-xl border border-gold/15 bg-parchment-muted/40">
-                  <Image
-                    src={mainHallStack.hero.src}
-                    alt={mainHallStack.hero.alt}
-                    fill
-                    className="object-contain object-center"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                  <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/80 via-deep/35 to-transparent px-3 pb-3 pt-8 text-left text-xs font-semibold text-parchment sm:pt-9 sm:text-sm">
+                <figure className="relative m-0 w-full overflow-hidden rounded-xl border border-gold/15">
+                  <div className="relative aspect-[16/11] w-full overflow-hidden bg-parchment-muted/40">
+                    <Image
+                      src={mainHallStack.hero.src}
+                      alt={mainHallStack.hero.alt}
+                      fill
+                      className="object-contain object-center"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+                  <figcaption className="relative z-[1] border-t border-gold/20 bg-parchment px-4 py-3.5 text-left text-base font-semibold leading-snug text-deep shadow-[inset_0_1px_0_rgba(201,162,39,0.12)]">
                     {mainHallStack.caption}
                   </figcaption>
                 </figure>

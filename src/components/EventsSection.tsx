@@ -203,7 +203,7 @@ export async function EventsSection() {
         ) : null}
 
         <div className="border-t border-gold/15 pt-10">
-          <h3 className="font-display text-xl font-semibold text-deep sm:text-2xl">Mandir calendar</h3>
+          <h3 className="font-display text-xl font-semibold text-deep sm:text-2xl">Mandir Calendar</h3>
           <div className="mt-2 max-w-3xl space-y-3 text-base leading-relaxed text-earth sm:text-lg">
             {calendarIntroParts.map((text, idx) => (
               <p
