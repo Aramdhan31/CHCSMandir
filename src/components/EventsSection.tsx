@@ -2,10 +2,6 @@ import {
   events,
   getNextMonthlySatsangEvent,
   getNextBhajanSatsangEvent,
-  getMandirCalendarEmbedSrc,
-  getMandirCalendarIcalUrl,
-  getMandirCalendarWebcalUrl,
-  mandirCalendar,
   recurringEventTitles,
 } from "@/content/site";
 import { fetchPublishedSupabaseEvents } from "@/lib/events/fetchPublished";
@@ -90,11 +86,6 @@ export async function EventsSection() {
     return a.title.localeCompare(b.title);
   });
   const hasCards = cardItems.length > 0;
-  const embedSrc = getMandirCalendarEmbedSrc();
-  const calendarIntroParts = mandirCalendar.embedIntro
-    .split(/\n\s*\n/g)
-    .map((s) => s.trim())
-    .filter(Boolean);
 
   return (
     <section id="events" className="border-t border-gold/15 bg-parchment py-16 sm:py-20">
@@ -115,11 +106,6 @@ export async function EventsSection() {
             <span className="font-semibold text-deep">Wednesday Lunch Club</span>: Wednesdays, 11:00am
             – 2:00pm (just turn up).
           </p>
-          {hasCards ? (
-            <p className="mt-4 max-w-3xl rounded-xl border border-gold/20 bg-parchment-muted/50 px-4 py-3 text-sm leading-relaxed text-earth sm:text-base">
-              {events.cardsCalendarHint}
-            </p>
-          ) : null}
         </header>
 
         {!hasCards ? (
@@ -264,69 +250,6 @@ export async function EventsSection() {
             ))}
           </ul>
         ) : null}
-
-        <div className="border-t border-gold/15 pt-10">
-          <h3 className="font-display text-xl font-semibold text-deep sm:text-2xl">Mandir Calendar</h3>
-          <div className="mt-2 max-w-3xl space-y-3 text-base leading-relaxed text-earth sm:text-lg">
-            {calendarIntroParts.map((text, idx) => (
-              <p
-                key={idx}
-                className={
-                  text.startsWith("⚠️")
-                    ? "rounded-xl border border-gold/25 bg-parchment-muted/60 px-4 py-3 text-base leading-relaxed text-earth"
-                    : undefined
-                }
-              >
-                {text}
-              </p>
-            ))}
-          </div>
-
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <a
-              href={mandirCalendar.openUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center rounded-full bg-gold px-5 py-3 text-sm font-semibold text-deep shadow-sm transition hover:bg-saffron sm:w-auto sm:py-2.5"
-            >
-              {mandirCalendar.openLabel}
-            </a>
-            <a
-              href={mandirCalendar.subscribeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center rounded-full border-2 border-gold/50 bg-white/80 px-5 py-3 text-sm font-semibold text-gold-dim transition hover:border-gold hover:bg-white hover:text-deep sm:w-auto sm:py-2.5"
-            >
-              {mandirCalendar.subscribeGoogleLabel}
-            </a>
-            <a
-              href={getMandirCalendarIcalUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center rounded-full border-2 border-gold/50 bg-white/80 px-5 py-3 text-sm font-semibold text-gold-dim transition hover:border-gold hover:bg-white hover:text-deep sm:w-auto sm:py-2.5"
-            >
-              {mandirCalendar.icalSubscribeLabel}
-            </a>
-            <a
-              href={getMandirCalendarWebcalUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center rounded-full border-2 border-gold/35 bg-parchment-muted/80 px-5 py-3 text-sm font-semibold text-earth transition hover:border-gold hover:text-deep sm:w-auto sm:py-2.5"
-            >
-              {mandirCalendar.webcalAppleLabel}
-            </a>
-          </div>
-
-          <div className="mt-6 overflow-hidden rounded-xl border border-gold/20 bg-white/60 shadow-sm">
-            <iframe
-              title={mandirCalendar.embedTitle}
-              src={embedSrc}
-              className="h-[min(36rem,70vh)] w-full min-h-[20rem] border-0 sm:h-[32rem] lg:h-[36rem]"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
-        </div>
       </div>
     </section>
   );

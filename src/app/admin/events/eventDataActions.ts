@@ -4,15 +4,8 @@ import { cookies } from "next/headers";
 import { canManageEventsAdmin } from "@/lib/admin/eventsAccess";
 import type { AdminEventItem } from "@/lib/events/types";
 import { getSupabaseServiceRole } from "@/lib/supabase/service";
-import { getNextBhajanSatsangEvent, getNextMonthlySatsangEvent } from "@/content/site";
-import {
-  canSyncGoogleCalendar,
-  deleteGoogleCalendarEvent,
-  upsertGoogleCalendarEvent,
-} from "@/lib/events/googleCalendarSync";
 
 const EVENTS_TABLE = "events";
-const SYNC_MAP_TABLE = "google_calendar_sync_map";
 
 function eventsBucket() {
   return process.env.SUPABASE_EVENTS_STORAGE_BUCKET?.trim() || "event-images";
@@ -67,7 +60,6 @@ type EventRow = {
   date_label: string;
   summary: string | null;
   image_public_url: string | null;
-  google_calendar_event_id?: string | null;
 };
 
 function rowToAdmin(row: EventRow): AdminEventItem {
@@ -88,9 +80,7 @@ export async function listAdminEventsAction(): Promise<AdminEventItem[]> {
 
   const { data, error } = await sb
     .from(EVENTS_TABLE)
-    .select(
-      "id,title,event_date,event_time,date_label,summary,image_public_url,google_calendar_event_id",
-    )
+    .select("id,title,event_date,event_time,date_label,summary,image_public_url")
     .order("event_date", { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -112,7 +102,7 @@ type UpsertPayload = {
 export async function upsertAdminEventAction(input: UpsertPayload): Promise<void> {
   await assertEventsAdmin();
   const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Events syncing is not configured on the server.");
+  if (!sb) throw new Error("Events are not configured on the server (Supabase).");
 
   const id = input.id?.trim();
   const newRowId = id ?? crypto.randomUUID();
@@ -156,192 +146,13 @@ export async function upsertAdminEventAction(input: UpsertPayload): Promise<void
     const { error } = await sb.from(EVENTS_TABLE).insert({ id: newRowId, ...row });
     if (error) throw new Error(error.message);
   }
-
-  // Sync to the shared Mandir Google Calendar so subscribers get updates.
-  // If creds are missing, we keep website events working and just skip calendar sync.
-  if (!canSyncGoogleCalendar()) return;
-
-  const { data: rows, error: selErr } = await sb
-    .from(EVENTS_TABLE)
-    .select("id,title,event_date,event_time,summary,google_calendar_event_id")
-    .eq("id", newRowId)
-    .limit(1);
-  if (selErr) throw new Error(selErr.message);
-  const current = (rows?.[0] ?? null) as
-    | (Pick<
-        EventRow,
-        "id" | "title" | "event_date" | "event_time" | "summary" | "google_calendar_event_id"
-      > & { google_calendar_event_id?: string | null })
-    | null;
-  if (!current) return;
-
-  try {
-    const { googleEventId } = await upsertGoogleCalendarEvent({
-      input: {
-        id: current.id,
-        title: current.title,
-        dateIso: current.event_date,
-        time: current.event_time,
-        summary: current.summary,
-      },
-      existingGoogleEventId: current.google_calendar_event_id ?? null,
-    });
-    await sb
-      .from(EVENTS_TABLE)
-      .update({
-        google_calendar_event_id: googleEventId,
-        google_calendar_synced_at: new Date().toISOString(),
-        google_calendar_last_error: null,
-      })
-      .eq("id", current.id);
-  } catch (e) {
-    await sb
-      .from(EVENTS_TABLE)
-      .update({
-        google_calendar_last_error: e instanceof Error ? e.message : String(e),
-      })
-      .eq("id", current.id);
-    // Don't fail the admin save if Google Calendar is temporarily down.
-  }
 }
 
 export async function deleteAdminEventAction(id: string): Promise<void> {
   await assertEventsAdmin();
   const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Events syncing is not configured on the server.");
+  if (!sb) throw new Error("Events are not configured on the server (Supabase).");
 
-  if (canSyncGoogleCalendar()) {
-    const { data: rows } = await sb
-      .from(EVENTS_TABLE)
-      .select("google_calendar_event_id")
-      .eq("id", id)
-      .limit(1);
-    const googleId = (rows?.[0] as { google_calendar_event_id?: string | null } | undefined)
-      ?.google_calendar_event_id;
-    if (googleId?.trim()) {
-      try {
-        await deleteGoogleCalendarEvent(googleId);
-      } catch {
-        // Best-effort. We still allow deletion from the website DB.
-      }
-    }
-  }
   const { error } = await sb.from(EVENTS_TABLE).delete().eq("id", id);
   if (error) throw new Error(error.message);
-}
-
-export async function syncAllEventsToGoogleCalendarAction(): Promise<{
-  synced: number;
-  updated: number;
-  skipped: number;
-  errors: number;
-}> {
-  await assertEventsAdmin();
-  const sb = getSupabaseServiceRole();
-  if (!sb) throw new Error("Events syncing is not configured on the server.");
-  if (!canSyncGoogleCalendar()) {
-    throw new Error(
-      "Google Calendar sync is not configured (missing env vars). Add GOOGLE_CALENDAR_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.",
-    );
-  }
-
-  const { data, error } = await sb
-    .from(EVENTS_TABLE)
-    .select("id,title,event_date,event_time,summary,google_calendar_event_id")
-    .eq("published", true)
-    .order("event_date", { ascending: false })
-    .limit(200);
-  if (error) throw new Error(error.message);
-
-  let synced = 0;
-  let updated = 0;
-  let skipped = 0;
-  let errors = 0;
-
-  const rows = ((data as EventRow[] | null) ?? []).filter(
-    (r) => r.id && r.title && r.event_date,
-  );
-  for (const r of rows) {
-    try {
-      const had = Boolean(r.google_calendar_event_id?.trim());
-      const { googleEventId } = await upsertGoogleCalendarEvent({
-        input: {
-          id: r.id,
-          title: r.title,
-          dateIso: r.event_date,
-          time: r.event_time,
-          summary: r.summary,
-        },
-        existingGoogleEventId: r.google_calendar_event_id ?? null,
-      });
-      await sb
-        .from(EVENTS_TABLE)
-        .update({
-          google_calendar_event_id: googleEventId,
-          google_calendar_synced_at: new Date().toISOString(),
-          google_calendar_last_error: null,
-        })
-        .eq("id", r.id);
-      if (had) updated += 1;
-      else synced += 1;
-    } catch (e) {
-      errors += 1;
-      await sb
-        .from(EVENTS_TABLE)
-        .update({
-          google_calendar_last_error: e instanceof Error ? e.message : String(e),
-        })
-        .eq("id", r.id);
-    }
-  }
-
-  // Also sync the next occurrences for recurring cards (they are not stored in `public.events`).
-  // These are best-effort, but we persist Google ids in `google_calendar_sync_map` to avoid duplicates.
-  const recurring = [getNextMonthlySatsangEvent(), getNextBhajanSatsangEvent()];
-  for (const ev of recurring) {
-    if (!ev.dateIso) {
-      skipped += 1;
-      continue;
-    }
-    const key = `recurring:${ev.title}:${ev.dateIso}`;
-    let existing: string | null = null;
-    try {
-      const { data: mapRows } = await sb
-        .from(SYNC_MAP_TABLE)
-        .select("google_event_id")
-        .eq("key", key)
-        .limit(1);
-      existing =
-        (mapRows?.[0] as { google_event_id?: string | null } | undefined)?.google_event_id ??
-        null;
-      const { googleEventId } = await upsertGoogleCalendarEvent({
-        input: {
-          id: key,
-          title: ev.title,
-          dateIso: ev.dateIso,
-          time: ev.time ?? null,
-          summary: ev.summary ?? null,
-        },
-        existingGoogleEventId: existing ?? null,
-      });
-      await sb.from(SYNC_MAP_TABLE).upsert({
-        key,
-        google_event_id: googleEventId,
-        synced_at: new Date().toISOString(),
-        last_error: null,
-      });
-      if (existing) updated += 1;
-      else synced += 1;
-    } catch (e) {
-      errors += 1;
-      await sb.from(SYNC_MAP_TABLE).upsert({
-        key,
-        google_event_id: existing ?? null,
-        synced_at: new Date().toISOString(),
-        last_error: e instanceof Error ? e.message : String(e),
-      });
-    }
-  }
-
-  return { synced, updated, skipped, errors };
 }
