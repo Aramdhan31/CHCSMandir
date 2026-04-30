@@ -449,7 +449,7 @@ export const leadershipPageMeta = {
 export const homeLeadership = {
   sectionTitle: "Leadership & spiritual guidance",
   intro:
-    "Our leadership is run by our elected executive committee, and our mandir is served by our elected Pandit. View the current Pandit here, or see previous Pandits on the full page.",
+    "Our mandir is run by Managing Trustees, elected every two years, and served by our elected Pandit. View the current Pandit here, or see previous Pandits on the full page.",
   ctaLabel: "View previous pandits",
   ctaHref: leadershipPageMeta.path,
 } as const;
