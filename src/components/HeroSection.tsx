@@ -1,5 +1,12 @@
 import Image from "next/image";
+import { Noto_Serif_Devanagari } from "next/font/google";
 import { hero, site } from "@/content/site";
+
+const omDisplay = Noto_Serif_Devanagari({
+  subsets: ["devanagari"],
+  weight: ["600"],
+  display: "swap",
+});
 
 export function HeroSection() {
   return (
@@ -17,13 +24,21 @@ export function HeroSection() {
         aria-hidden
       />
       <div className="relative mx-auto max-w-6xl px-4 pt-8 pb-14 sm:px-6 sm:pt-10 sm:pb-20 lg:pt-12 lg:pb-24">
-        <p
-          className="mx-auto mb-6 mt-2 max-w-full select-none text-center font-display text-6xl font-extrabold leading-none tracking-[0.14em] text-gold [text-shadow:0_0_48px_rgba(212,160,23,0.4),0_4px_24px_rgba(0,0,0,0.35)] sm:mb-8 sm:mt-3 sm:text-7xl sm:leading-none md:text-[6.5rem] md:leading-[0.95] lg:mb-10 lg:text-[7.25rem] lg:leading-[0.92] xl:text-[8rem]"
-          role="img"
-          aria-label="CHCS"
-        >
-          CHCS
-        </p>
+        <div className="mx-auto mb-6 mt-2 max-w-full select-none text-center sm:mb-8 sm:mt-3 lg:mb-10">
+          <p
+            className={`${omDisplay.className} mx-auto leading-none tracking-tight text-gold [text-shadow:0_0_48px_rgba(212,160,23,0.4),0_4px_24px_rgba(0,0,0,0.35)] text-7xl sm:text-8xl sm:leading-none md:text-[7.25rem] md:leading-[0.95] lg:text-[8.25rem] lg:leading-[0.92] xl:text-[9.25rem]`}
+            role="img"
+            aria-label="Om"
+          >
+            ॐ
+          </p>
+          <p
+            className="mt-3 font-display text-sm font-semibold tracking-[0.48em] text-gold/95 sm:text-base"
+            aria-label="C.H.C.S"
+          >
+            C.H.C.S
+          </p>
+        </div>
         <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
           <div className="max-w-2xl text-left lg:max-w-3xl">
             <div className="min-w-0 max-w-full text-left">
