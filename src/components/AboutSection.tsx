@@ -28,11 +28,11 @@ function useMediaQuery(query: string) {
   return matches;
 }
 
-type TextBox = { width: number; height: number };
+type TextBox = { width: number };
 
 export function AboutSection() {
   const textRef = useRef<HTMLDivElement>(null);
-  const [textBox, setTextBox] = useState<TextBox>({ width: 0, height: 0 });
+  const [textBox, setTextBox] = useState<TextBox>({ width: 0 });
   const isLg = useMediaQuery(LG);
   const isXl = useMediaQuery(XL);
 
@@ -42,10 +42,7 @@ export function AboutSection() {
 
     const measure = () => {
       const r = el.getBoundingClientRect();
-      setTextBox({
-        width: Math.round(r.width),
-        height: Math.round(r.height),
-      });
+      setTextBox({ width: Math.round(r.width) });
     };
 
     measure();
@@ -58,14 +55,10 @@ export function AboutSection() {
     };
   }, []);
 
-  const desktopReady = isLg && textBox.width > 0 && textBox.height > 0;
+  const desktopReady = isLg && textBox.width > 0;
   const imageWidthCap = isXl ? ABOUT_IMAGE_WIDTH_CAP_XL : ABOUT_IMAGE_WIDTH_CAP_LG;
   const desktopImageWidth = desktopReady
     ? Math.min(Math.max(textBox.width, 420), imageWidthCap)
-    : 1;
-  /** Taller frame than legacy 0.62 so shrine photo fits with object-contain without feeling squashed */
-  const desktopImageHeight = desktopReady
-    ? Math.min(textBox.height, Math.round(desktopImageWidth * 0.92))
     : 1;
 
   return (
@@ -79,7 +72,7 @@ export function AboutSection() {
           {about.sectionTitle}
         </h2>
 
-        <div className="mt-8 flex flex-col gap-8 lg:mt-10 lg:flex-row lg:items-center lg:gap-10 xl:gap-12">
+        <div className="mt-8 flex flex-col gap-8 lg:mt-10 lg:flex-row lg:items-start lg:gap-10 xl:gap-12">
           {/*
             No flex-1 here — otherwise the block stretches to half the row and the photo no longer
             matches the real width of the paragraphs (max-w-prose).
@@ -102,7 +95,7 @@ export function AboutSection() {
           </div>
 
           {!isLg ? (
-            <figure className="mx-auto w-full max-w-xl shrink-0 overflow-hidden rounded-2xl border border-gold/25 bg-parchment-muted/70 shadow-sm ring-1 ring-gold/10">
+            <figure className="mx-auto w-full max-w-xl shrink-0">
               <Image
                 src={about.homeImage.src}
                 alt={about.homeImage.alt}
@@ -114,22 +107,18 @@ export function AboutSection() {
             </figure>
           ) : (
             <figure
-              className="relative mx-0 hidden shrink-0 lg:block"
-              style={{
-                width: desktopImageWidth,
-                height: desktopImageHeight,
-              }}
+              className="mx-0 hidden shrink-0 lg:block"
+              style={{ width: desktopImageWidth }}
             >
               {desktopReady ? (
-                <div className="relative h-full w-full overflow-hidden rounded-2xl border border-gold/25 bg-parchment-muted/70 shadow-sm ring-1 ring-gold/10">
-                  <Image
-                    src={about.homeImage.src}
-                    alt={about.homeImage.alt}
-                    fill
-                    className="object-contain object-center p-2 sm:p-3"
-                    sizes={`${desktopImageWidth}px`}
-                  />
-                </div>
+                <Image
+                  src={about.homeImage.src}
+                  alt={about.homeImage.alt}
+                  width={ABOUT_IMAGE_WIDTH}
+                  height={ABOUT_IMAGE_HEIGHT}
+                  className="h-auto w-full object-contain object-top"
+                  sizes={`${desktopImageWidth}px`}
+                />
               ) : null}
             </figure>
           )}
