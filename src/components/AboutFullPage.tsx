@@ -25,7 +25,6 @@ export function AboutFullPage() {
   const primaryHasSrc = primary && "src" in primary;
   const secondary = galleryPhotos[1];
   const tertiary = galleryPhotos[2];
-  const hasTertiaryImage = Boolean(tertiary && "src" in tertiary);
   const mainHallStack =
     secondary && "mainHallStack" in secondary ? secondary.mainHallStack : null;
   return (
@@ -88,7 +87,7 @@ export function AboutFullPage() {
               {primaryHasSrc ? (
                 <figure className="relative m-0 min-w-0 w-full overflow-hidden">
                   <div
-                    className={`relative w-full overflow-hidden ${hasTertiaryImage ? "border-b border-gold/20" : ""} ${
+                    className={`relative w-full overflow-hidden bg-parchment-muted/40 ${
                       "frameClass" in primary && primary.frameClass ? primary.frameClass : "aspect-[16/10]"
                     }`}
                   >
@@ -104,9 +103,7 @@ export function AboutFullPage() {
                       sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   </div>
-                  <figcaption
-                    className="relative z-[1] border-t border-gold/20 bg-parchment px-4 py-3.5 text-left text-base font-semibold leading-snug text-deep shadow-[inset_0_1px_0_rgba(201,162,39,0.12)] md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:border-0 md:bg-gradient-to-t md:from-deep md:from-40% md:via-deep/75 md:to-transparent md:px-4 md:py-0 md:pb-4 md:pt-16 md:text-sm md:font-semibold md:text-parchment md:shadow-none"
-                  >
+                  <figcaption className="relative z-[1] border-t border-gold/20 bg-parchment px-4 py-3.5 text-left text-base font-semibold leading-snug text-deep shadow-[inset_0_1px_0_rgba(201,162,39,0.12)]">
                     {primary.caption}
                   </figcaption>
                 </figure>
@@ -114,9 +111,9 @@ export function AboutFullPage() {
 
               {tertiary && "src" in tertiary ? (
                 <>
-                  <figure className="relative m-0 w-full overflow-hidden">
+                  <figure className="relative m-0 w-full overflow-hidden border-t border-gold/20">
                     <div
-                      className={`relative w-full overflow-hidden ${
+                      className={`relative w-full overflow-hidden bg-parchment-muted/40 ${
                         "frameClass" in tertiary && tertiary.frameClass ? tertiary.frameClass : "aspect-[16/11]"
                       }`}
                     >
@@ -133,12 +130,10 @@ export function AboutFullPage() {
                         sizes="(max-width: 768px) 100vw, 50vw"
                       />
                     </div>
-                    <figcaption
-                      className="relative z-[1] flex flex-col gap-1 border-t border-gold/20 bg-parchment px-4 py-3.5 text-left text-sm font-semibold leading-snug text-deep md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:border-0 md:bg-gradient-to-t md:from-deep md:from-40% md:via-deep/75 md:to-transparent md:px-4 md:py-0 md:pb-4 md:pt-16 md:text-sm md:text-parchment"
-                    >
+                    <figcaption className="relative z-[1] flex flex-col gap-1 border-t border-gold/20 bg-parchment px-4 py-3 text-left text-sm font-semibold leading-snug text-deep">
                       <span>{tertiary.caption}</span>
                       {"captionSub" in tertiary && tertiary.captionSub ? (
-                        <span className="text-xs font-normal leading-snug text-earth/80 md:text-[0.7rem] md:text-parchment/80">
+                        <span className="text-[0.7rem] font-normal leading-snug text-earth/75 sm:text-xs">
                           {tertiary.captionSub}
                         </span>
                       ) : null}
@@ -155,15 +150,15 @@ export function AboutFullPage() {
 
             {mainHallStack ? (
               <div className="flex flex-col gap-3 rounded-2xl border border-gold/20 bg-white/60 p-2 shadow-sm md:col-span-6 md:h-full">
-                <figure className="relative m-0 aspect-[16/11] overflow-hidden rounded-xl border border-gold/15">
+                <figure className="relative m-0 aspect-[16/11] overflow-hidden rounded-xl border border-gold/15 bg-parchment-muted/40">
                   <Image
                     src={mainHallStack.hero.src}
                     alt={mainHallStack.hero.alt}
                     fill
-                    className="object-cover object-center"
+                    className="object-contain object-center"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
-                  <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/85 to-transparent px-3 pb-3 pt-10 text-left text-xs font-semibold text-parchment sm:text-sm">
+                  <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep/80 via-deep/35 to-transparent px-3 pb-3 pt-8 text-left text-xs font-semibold text-parchment sm:pt-9 sm:text-sm">
                     {mainHallStack.caption}
                   </figcaption>
                 </figure>

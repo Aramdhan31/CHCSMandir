@@ -309,9 +309,9 @@ export const about = {
         src: "/mandir-exterior.jpg",
         alt: "Front of the CHCS mandir — brick building and entrance at 16 Ostade Road, London SW2",
         caption: "Street frontage",
-        /** Landscape frame on md+ matches building photo → less letterboxing with object-contain */
-        frameClass: "aspect-[4/3] sm:aspect-[4/3] md:aspect-[16/9]",
-        imageClass: "object-contain object-center",
+        /** Slightly less wide on md than 16/9 — less vertical squeeze — plus object-top for roofline */
+        frameClass: "aspect-[4/3] sm:aspect-[4/3] md:aspect-[16/11]",
+        imageClass: "object-contain object-top",
       },
       {
         mainHallStack: {
@@ -336,7 +336,7 @@ export const about = {
         alt:
           "Upstairs pooja room at the CHCS mandir — ornate wooden shrine with Ram darbar (Rama, Sita, Lakshmana and Hanuman), Radha-Krishna, Durga with Saraswati, Ganesha, Shiva lingam and other deities",
         /** Wider-than-tall panorama — object-contain (below) avoids cropping edges. */
-        frameClass: "aspect-[5/4] sm:aspect-[3/2] md:aspect-[16/11]",
+        frameClass: "aspect-[5/4] sm:aspect-[3/2] md:aspect-[16/10]",
         imageClass: "object-contain object-center",
         caption: "Upstairs Pooja Room",
         /** Secondary line under the caption — smaller bracketed detail on /about photo. */
