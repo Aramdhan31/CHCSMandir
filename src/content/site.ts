@@ -223,11 +223,60 @@ export const events = {
   /** Shown beside the section title while dated event cards are not on the site yet */
   comingSoonLabel: "Coming soon",
   intro: `All are welcome at ${site.nameFull}, 16 Ostade Road, London SW2.`,
+  /**
+   * Clarifies CHCS event cards (with “add to calendar” links) vs the embedded Mandir Google Calendar
+   * (festival / observance dates that may not match on-the-day CHCS timings).
+   */
+  cardsCalendarHint:
+    "Each card is published by CHCS: use “Add to Google Calendar” or “.ics” on the card to save that event’s date, time, and address. The Mandir Calendar further down is the shared Google calendar—you can subscribe for festival and observance listings; those entries sometimes follow traditional calendar dates rather than the posters above.",
   /** Shown when there are no `items` cards yet */
   comingSoonBody:
-    "A short list of highlighted dates on this page is coming soon. Use Add to calendar on each event when it appears.",
+    "A short list of highlighted dates on this page is coming soon — scroll down for the live Mandir Google Calendar.",
   items: [] as readonly SiteEventItem[],
 } as const;
+
+const MANDIR_CALENDAR_ID =
+  "688493520a99bf5168987b9398726f53c8d3b0ede4b0f60bb4663474e234c76b@group.calendar.google.com";
+
+/** Shared CHCS Mandir calendar (hosted on Google; usable from Google, Apple, Outlook, etc.) */
+export const mandirCalendar = {
+  /** Opens in Google Calendar (browse on web or app) */
+  openUrl:
+    "https://calendar.google.com/calendar/u/0?cid=Njg4NDkzNTIwYTk5YmY1MTY4OTg3YjkzOTg3MjZmNTNjOGQzYjBlZGU0YjBmNjBiYjQ2NjM0NzRlMjM0Yzc2YkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  /** Add this calendar inside Google Calendar (account sign-in may be required). */
+  subscribeUrl:
+    "https://calendar.google.com/calendar/render?cid=688493520a99bf5168987b9398726f53c8d3b0ede4b0f60bb4663474e234c76b%40group.calendar.google.com",
+  embedTitle: "CHCS Mandir — Google Calendar",
+  openLabel: "Open in Google Calendar",
+  subscribeGoogleLabel: "Add with Google Calendar",
+  /** Public iCal feed — same Mandir dates in Apple Calendar, Outlook, Samsung, etc. */
+  icalSubscribeLabel: "Apple, Outlook & other apps (.ics)",
+  /** Same feed; often prompts Apple devices to subscribe in Calendar. */
+  webcalAppleLabel: "Apple Calendar (webcal subscribe)",
+  /** Short intro above the embed (Google’s own controls change month / view) */
+  embedIntro:
+    "Browse below — use the arrows to change month. Subscribe in Google Calendar or use the .ics / webcal links for Apple, Outlook, Samsung, and other apps.\n\n⚠️ This feed includes festival and observance listings (often traditional calendar dates). For a CHCS poster or service above, use Add to Google Calendar on that card when you need our published time and address.",
+} as const;
+
+/** Optional: set `NEXT_PUBLIC_MANDIR_CALENDAR_EMBED_SRC` in `.env.local` to override the iframe `src`. */
+export function getMandirCalendarEmbedSrc(): string {
+  const raw = process.env.NEXT_PUBLIC_MANDIR_CALENDAR_EMBED_SRC?.trim();
+  if (raw?.startsWith("https://")) return raw;
+  const src = encodeURIComponent(MANDIR_CALENDAR_ID);
+  return `https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23faf6ef&ctz=Europe%2FLondon&src=${src}&mode=MONTH&color=%23C62828`;
+}
+
+/** Public iCal (.ics) URL for the same Mandir calendar — paste into Outlook “Internet calendar”, Apple “New calendar subscription”, etc. */
+export function getMandirCalendarIcalUrl(): string {
+  const id = encodeURIComponent(MANDIR_CALENDAR_ID);
+  return `https://calendar.google.com/calendar/ical/${id}/public/basic.ics`;
+}
+
+/** Same feed as `webcal://` — often opens the default calendar app to subscribe (try on iPhone/Mac). */
+export function getMandirCalendarWebcalUrl(): string {
+  const id = encodeURIComponent(MANDIR_CALENDAR_ID);
+  return `webcal://calendar.google.com/calendar/ical/${id}/public/basic.ics`;
+}
 
 export const aboutPageMeta = {
   path: "/about",
