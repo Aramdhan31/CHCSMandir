@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   deleteAdminEventAction,
   listAdminEventsAction,
+  syncAllEventsToGoogleCalendarAction,
   upsertAdminEventAction,
 } from "@/app/admin/events/eventDataActions";
 import type { AdminEventItem } from "@/lib/events/types";
@@ -159,6 +160,7 @@ export function EventsAdminPanel({
   const [pendingImagePreviewUrl, setPendingImagePreviewUrl] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
+  const [calendarSyncStatus, setCalendarSyncStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -519,9 +521,45 @@ export function EventsAdminPanel({
                 </>
               )}
             </p>
+            {useSupabase ? (
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-deep">Google Calendar sync</p>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => {
+                    void (async () => {
+                      setBusy(true);
+                      setError(null);
+                      setCalendarSyncStatus(null);
+                      try {
+                        const res = await syncAllEventsToGoogleCalendarAction();
+                        setCalendarSyncStatus(
+                          `Synced ${res.synced}, updated ${res.updated}, errors ${res.errors}.`,
+                        );
+                      } catch (e) {
+                        setError(
+                          e instanceof Error ? e.message : "Could not sync events to Google Calendar.",
+                        );
+                      } finally {
+                        setBusy(false);
+                      }
+                    })();
+                  }}
+                  className="rounded-full border-2 border-gold/50 bg-white/70 px-4 py-2 text-sm font-semibold text-gold-dim transition hover:border-gold hover:bg-white hover:text-deep disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {busy ? "Syncing…" : "Sync all live events → Google Calendar"}
+                </button>
+              </div>
+            ) : null}
             {copyStatus ? (
               <p className="mt-2 text-sm font-medium text-deep" role="status">
                 {copyStatus}
+              </p>
+            ) : null}
+            {calendarSyncStatus ? (
+              <p className="mt-2 text-sm font-medium text-deep" role="status">
+                {calendarSyncStatus}
               </p>
             ) : null}
           </div>
