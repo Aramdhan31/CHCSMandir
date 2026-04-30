@@ -425,6 +425,7 @@ export const leadership = {
       name: "Pt. H. Tiwari",
       imageSrc: "/Pandit T.png",
       imageAlt: "Pt. H. Tiwari — past pandit at CHCS mandir",
+      imageClass: "origin-center scale-[1.25] object-cover object-[65%_35%]",
     },
     { years: "1962 – 1972", name: "Pt. R. Maharaj" },
     {
@@ -432,6 +433,7 @@ export const leadership = {
       name: "Pt. H. Tiwari",
       imageSrc: "/Pandit T.png",
       imageAlt: "Pt. H. Tiwari — past pandit at CHCS mandir",
+      imageClass: "origin-center scale-[1.25] object-cover object-[65%_35%]",
     },
   ],
 } as const;
