@@ -9,10 +9,7 @@ import {
   recurringEventTitles,
 } from "@/content/site";
 import { fetchPublishedSupabaseEvents } from "@/lib/events/fetchPublished";
-import {
-  buildGoogleCalendarTemplateUrl,
-  buildIcsDownloadUrl,
-} from "@/lib/events/calendarLinks";
+import { buildIcsDownloadUrl } from "@/lib/events/calendarLinks";
 import { EventImageLightbox } from "@/components/EventImageLightbox";
 
 function getLondonNow() {
@@ -200,40 +197,20 @@ export async function EventsSection() {
                         Save to your calendar
                       </p>
                       {(() => {
-                        const googleCalUrl = buildGoogleCalendarTemplateUrl({
-                          title: ev.title,
-                          dateIso: ev.dateIso,
-                          time: ev.time ?? null,
-                          details: ev.summary,
-                        });
                         const icsUrl = buildIcsDownloadUrl({
                           title: ev.title,
                           dateIso: ev.dateIso,
                           time: ev.time,
                           summary: ev.summary,
                         });
-                        return (
-                          <div className="flex flex-col gap-2">
-                            {googleCalUrl ? (
-                              <a
-                                href={googleCalUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center rounded-full bg-deep px-4 py-2.5 text-center text-sm font-semibold text-parchment shadow-sm ring-1 ring-parchment/15 transition hover:bg-deep/90 hover:ring-gold/40"
-                              >
-                                Add to Google Calendar
-                              </a>
-                            ) : null}
-                            {icsUrl ? (
-                              <a
-                                href={icsUrl}
-                                className="text-center text-sm font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
-                              >
-                                Apple / Outlook (.ics download)
-                              </a>
-                            ) : null}
-                          </div>
-                        );
+                        return icsUrl ? (
+                          <a
+                            href={icsUrl}
+                            className="inline-flex items-center justify-center rounded-full bg-deep px-4 py-2.5 text-center text-sm font-semibold text-parchment shadow-sm ring-1 ring-parchment/15 transition hover:bg-deep/90 hover:ring-gold/40"
+                          >
+                            Add to calendar
+                          </a>
+                        ) : null;
                       })()}
                       {ev.href && !ev.href.startsWith("/events/ics") && ev.cta ? (
                         <a

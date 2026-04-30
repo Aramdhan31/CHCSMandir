@@ -228,7 +228,7 @@ export const events = {
    * (festival / observance dates that may not match on-the-day CHCS timings).
    */
   cardsCalendarHint:
-    "Each card is published by CHCS: use “Add to Google Calendar” or “.ics” on the card to save that event’s date, time, and address. The Mandir Calendar further down is the shared Google calendar—you can subscribe for festival and observance listings; those entries sometimes follow traditional calendar dates rather than the posters above.",
+    "Each card is published by CHCS: tap Add to calendar to download an invitation your phone or computer can open in its own calendar app (Apple, Google, Outlook, Samsung, etc.), with date, time, and Mandir address. The Mandir Calendar further down is the shared Google calendar—you can subscribe for festival and observance listings; those entries sometimes follow traditional calendar dates rather than the posters above.",
   /** Shown when there are no `items` cards yet */
   comingSoonBody:
     "A short list of highlighted dates on this page is coming soon — scroll down for the live Mandir Google Calendar.",
@@ -255,7 +255,7 @@ export const mandirCalendar = {
   webcalAppleLabel: "Apple Calendar (webcal subscribe)",
   /** Short intro above the embed (Google’s own controls change month / view) */
   embedIntro:
-    "Browse below — use the arrows to change month. Subscribe in Google Calendar or use the .ics / webcal links for Apple, Outlook, Samsung, and other apps.\n\n⚠️ This feed includes festival and observance listings (often traditional calendar dates). For a CHCS poster or service above, use Add to Google Calendar on that card when you need our published time and address.",
+    "Browse below — use the arrows to change month. Subscribe in Google Calendar or use the .ics / webcal links for Apple, Outlook, Samsung, and other apps.\n\n⚠️ This feed includes festival and observance listings (often traditional calendar dates). For a CHCS poster or service above, use Add to calendar on that card when you need our published time and address.",
 } as const;
 
 /** Optional: set `NEXT_PUBLIC_MANDIR_CALENDAR_EMBED_SRC` in `.env.local` to override the iframe `src`. */
