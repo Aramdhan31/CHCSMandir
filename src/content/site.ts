@@ -10,7 +10,7 @@ export const site = {
   nameShort: "CHCS",
   nameFull: "Caribbean Hindu Cultural Society",
   tagline:
-    "A Hindu temple in Brixton, south London - open to all generations and backgrounds, honoring diverse traditions while nurturing unity, inclusion, and spiritual growth for all.",
+    "A Hindu temple in Brixton, south London - open to all generations and backgrounds, honouring diverse traditions and cultures while nurturing unity, inclusion, and spiritual growth for all.",
 } as const;
 
 /**
@@ -33,7 +33,7 @@ export const hero = {
   titleLines: ["Welcome to Caribbean", "Hindu Cultural Society"] as const,
   quote:
     "To those who are devoted with love, I guide them so they may come to Me.",
-  quoteCitation: "Bhagavad Gita 10.10 – Chapter 10, Verse 10",
+  quoteCitation: "Bhagavad Gita 10.10",
   primaryCtaLabel: "See upcoming events",
   primaryCtaHash: "#events",
   /** Right column of the welcome row (original single hero image) */
