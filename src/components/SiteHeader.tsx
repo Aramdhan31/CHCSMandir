@@ -14,6 +14,7 @@ const nav = [
   { label: "About us", href: "/about" },
   { label: "EC & Pandits", href: leadershipPageMeta.path },
   { label: "Events", href: "/#events" },
+  { label: "Membership", href: "/#membership" },
   { label: "Our people", href: "/#people" },
   { label: "Facebook", href: "/#connect" },
   { label: "Visit", href: "/#visit" },

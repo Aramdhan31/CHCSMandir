@@ -75,6 +75,15 @@ export type SiteEventItem = {
   cta?: string;
 };
 
+/**
+ * Titles reserved for events that are always generated on the site
+ * (not managed in the admin Events UI).
+ */
+export const recurringEventTitles = {
+  monthlySatsang: "Next Monthly Satsang",
+  bhajanSatsang: "Next Bhajan Satsang",
+} as const;
+
 function getLondonYmd(now: Date) {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
@@ -100,6 +109,13 @@ function firstSundayOfMonthUtcNoon(year: number, monthIndex0: number) {
   const first = utcNoonDate(year, monthIndex0, 1);
   const dow = first.getUTCDay(); // 0=Sun
   const offset = (7 - dow) % 7;
+  return utcNoonDate(year, monthIndex0, 1 + offset);
+}
+
+function firstSaturdayOfMonthUtcNoon(year: number, monthIndex0: number) {
+  const first = utcNoonDate(year, monthIndex0, 1);
+  const dow = first.getUTCDay(); // 0=Sun ... 6=Sat
+  const offset = (6 - dow + 7) % 7;
   return utcNoonDate(year, monthIndex0, 1 + offset);
 }
 
@@ -143,12 +159,63 @@ export function getNextMonthlySatsangEvent(now = new Date()): SiteEventItem {
   const dateIso = `${y}-${m}-${d}`;
 
   return {
-    title: "Next Monthly Satsang",
+    title: recurringEventTitles.monthlySatsang,
     dateLabel: formatLondonEventDateLabel(target, "11:00am"),
     summary: "1st Sunday of every month. All are welcome.",
     imageSrc: "/monthly-satsang-sanitized.jpg",
     dateIso,
     time: "11:00",
+    href,
+    cta: "Add to calendar",
+  };
+}
+
+export function getNextBhajanSatsangEvent(now = new Date()): SiteEventItem {
+  const { year, month, day } = getLondonYmd(now);
+  const thisMonthIndex0 = month - 1;
+  const todayUtcNoon = utcNoonDate(year, thisMonthIndex0, day);
+
+  const thisMonthFirstSaturday = firstSaturdayOfMonthUtcNoon(year, thisMonthIndex0);
+  const thisMonthSecondSaturday = new Date(thisMonthFirstSaturday.getTime());
+  thisMonthSecondSaturday.setUTCDate(thisMonthSecondSaturday.getUTCDate() + 7);
+
+  // Only mark ended the day after the event date (same convention as other cards).
+  const mondayAfter = new Date(thisMonthSecondSaturday.getTime());
+  mondayAfter.setUTCDate(mondayAfter.getUTCDate() + 2);
+
+  const target = todayUtcNoon >= mondayAfter
+    ? (() => {
+        const nextMonthIndex0 = (thisMonthIndex0 + 1) % 12;
+        const nextYear = thisMonthIndex0 === 11 ? year + 1 : year;
+        const firstSat = firstSaturdayOfMonthUtcNoon(nextYear, nextMonthIndex0);
+        const secondSat = new Date(firstSat.getTime());
+        secondSat.setUTCDate(secondSat.getUTCDate() + 7);
+        return secondSat;
+      })()
+    : thisMonthSecondSaturday;
+
+  const y = target.getUTCFullYear();
+  const m = String(target.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(target.getUTCDate()).padStart(2, "0");
+  const icsParams = new URLSearchParams({
+    title: "Bhajan Satsang (CHCS)",
+    date: `${y}-${m}-${d}`,
+    summary: "2nd Saturday of every month. All are welcome.",
+  });
+  const href = `/events/ics?${icsParams.toString()}`;
+  const dateIso = `${y}-${m}-${d}`;
+
+  return {
+    title: recurringEventTitles.bhajanSatsang,
+    dateLabel: new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/London",
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }).format(target),
+    summary: "2nd Saturday of every month. All are welcome.",
+    dateIso,
     href,
     cta: "Add to calendar",
   };
@@ -482,6 +549,9 @@ export const visit = {
     "If you’d like to join, donate, or support the mandir in other ways, please email om@chcstemple.org or use the contact form in the Visit us section further down this page.",
     "Thank you for your support!",
   ],
+  membershipPaymentLabel: "Pay membership / donate",
+  membershipPaymentUrl: "https://pay.sumup.com/b2c/QNA3A6QO",
+  membershipPaymentNote: "Secure online payment (SumUp).",
   contactFormHeading: "For any enquiries please contact us",
   formLabels: {
     firstName: "First name",

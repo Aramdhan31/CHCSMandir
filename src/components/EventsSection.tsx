@@ -1,10 +1,12 @@
 import {
   events,
   getNextMonthlySatsangEvent,
+  getNextBhajanSatsangEvent,
   getMandirCalendarEmbedSrc,
   getMandirCalendarIcalUrl,
   getMandirCalendarWebcalUrl,
   mandirCalendar,
+  recurringEventTitles,
 } from "@/content/site";
 import { fetchPublishedSupabaseEvents } from "@/lib/events/fetchPublished";
 import { EventImageLightbox } from "@/components/EventImageLightbox";
@@ -54,9 +56,20 @@ function isEventEnded(input: { dateIso?: string; time?: string }) {
 }
 
 export async function EventsSection() {
-  const remoteItems = await fetchPublishedSupabaseEvents();
+  const remoteItemsRaw = await fetchPublishedSupabaseEvents();
+  const remoteItems = remoteItemsRaw.filter(
+    (ev) =>
+      ev.title !== recurringEventTitles.monthlySatsang &&
+      ev.title !== recurringEventTitles.bhajanSatsang,
+  );
   const recurringMonthly = getNextMonthlySatsangEvent();
-  const cardItemsRaw = [recurringMonthly, ...remoteItems, ...events.items];
+  const recurringBhajan = getNextBhajanSatsangEvent();
+  const cardItemsRaw = [
+    recurringMonthly,
+    recurringBhajan,
+    ...remoteItems,
+    ...events.items,
+  ];
 
   const cardItems = [...cardItemsRaw].sort((a, b) => {
     const ad = a.dateIso?.trim() || "";
