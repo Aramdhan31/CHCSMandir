@@ -200,22 +200,19 @@ export function getNextBhajanSatsangEvent(now = new Date()): SiteEventItem {
   const icsParams = new URLSearchParams({
     title: "Bhajan Satsang (CHCS)",
     date: `${y}-${m}-${d}`,
-    summary: "2nd Saturday of every month. All are welcome.",
+    time: "15:00",
+    summary: "2nd Saturday of every month, 3pm–5pm. All are welcome.",
   });
   const href = `/events/ics?${icsParams.toString()}`;
   const dateIso = `${y}-${m}-${d}`;
 
   return {
     title: recurringEventTitles.bhajanSatsang,
-    dateLabel: new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Europe/London",
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }).format(target),
-    summary: "2nd Saturday of every month. All are welcome.",
+    dateLabel: formatLondonEventDateLabel(target, "3:00pm"),
+    summary: "2nd Saturday of every month, 3pm–5pm. All are welcome.",
+    imageSrc: "/Screenshot%202026-04-30%20at%2013.22.19.png",
     dateIso,
+    time: "15:00",
     href,
     cta: "Add to calendar",
   };
