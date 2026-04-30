@@ -149,7 +149,7 @@ export function AboutFullPage() {
             </div>
 
             {mainHallStack ? (
-              <div className="flex flex-col gap-3 rounded-2xl border border-gold/20 bg-white/60 p-2 shadow-sm md:col-span-6 md:h-full">
+              <div className="flex flex-col gap-2 rounded-2xl border border-gold/20 bg-white/60 p-2 shadow-sm md:col-span-6">
                 <figure className="relative m-0 aspect-[16/11] overflow-hidden rounded-xl border border-gold/15 bg-parchment-muted/40">
                   <Image
                     src={mainHallStack.hero.src}
@@ -162,7 +162,7 @@ export function AboutFullPage() {
                     {mainHallStack.caption}
                   </figcaption>
                 </figure>
-                <div className="grid min-h-0 flex-1 grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
                   <figure className="relative m-0 aspect-[4/5] overflow-hidden rounded-xl border border-gold/15">
                     <Image
                       src={mainHallStack.bottomLeft.src}
@@ -182,7 +182,7 @@ export function AboutFullPage() {
                     />
                   </figure>
                 </div>
-                <p className="mx-2 mb-2 text-xs text-earth/85 md:text-sm">
+                <p className="mx-2 mb-1 mt-0 text-xs text-earth/85 md:mb-2 md:text-sm">
                   These three photos are all from the <strong className="text-deep">main hall</strong>: the wide view shows the central shrine with{" "}
                   <strong className="text-deep">Rama, Sita and Lakshmana</strong> (with <strong className="text-deep">Hanuman</strong> at their feet),
                   flanked by <strong className="text-deep">Om</strong> on the altar; the left panel is <strong className="text-deep">Radha–Krishna</strong>;
