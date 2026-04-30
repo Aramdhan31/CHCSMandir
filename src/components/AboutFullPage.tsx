@@ -139,9 +139,21 @@ export function AboutFullPage() {
                       ) : null}
                     </figcaption>
                   </figure>
-                  {"murtisNote" in tertiary && tertiary.murtisNote ? (
+                  {"showMurtisLegend" in tertiary && tertiary.showMurtisLegend ? (
                     <p className="border-t border-gold/15 px-3 py-3 text-xs leading-relaxed text-earth/85 md:text-sm md:leading-relaxed">
-                      {tertiary.murtisNote}
+                      Along the shrine (left to right): a{" "}
+                      <strong className="text-deep">Shiv ling</strong> with{" "}
+                      <strong className="text-deep">Ganesha</strong> and{" "}
+                      <strong className="text-deep">Shiva</strong> beside it;{" "}
+                      <strong className="text-deep">Ram darbar</strong> in the centre—
+                      <strong className="text-deep">Hanuman</strong> kneeling before{" "}
+                      <strong className="text-deep">Rama</strong>,{" "}
+                      <strong className="text-deep">Sita</strong> and{" "}
+                      <strong className="text-deep">Lakshmana</strong> with bow; then{" "}
+                      <strong className="text-deep">Radha–Krishna</strong> standing together;{" "}
+                      <strong className="text-deep">Durga Mata</strong> on her vahana with{" "}
+                      <strong className="text-deep">Saraswati</strong>; and seated goddesses toward the far
+                      right.
                     </p>
                   ) : null}
                 </>

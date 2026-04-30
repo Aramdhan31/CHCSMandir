@@ -4,6 +4,11 @@ import { cookies } from "next/headers";
 import { canManageEventsAdmin } from "@/lib/admin/eventsAccess";
 import type { AdminEventItem } from "@/lib/events/types";
 import { getSupabaseServiceRole } from "@/lib/supabase/service";
+import {
+  canSyncGoogleCalendar,
+  deleteGoogleCalendarEvent,
+  upsertGoogleCalendarEvent,
+} from "@/lib/events/googleCalendarSync";
 
 const EVENTS_TABLE = "events";
 
@@ -60,6 +65,7 @@ type EventRow = {
   date_label: string;
   summary: string | null;
   image_public_url: string | null;
+  google_calendar_event_id?: string | null;
 };
 
 function rowToAdmin(row: EventRow): AdminEventItem {
@@ -80,7 +86,9 @@ export async function listAdminEventsAction(): Promise<AdminEventItem[]> {
 
   const { data, error } = await sb
     .from(EVENTS_TABLE)
-    .select("id,title,event_date,event_time,date_label,summary,image_public_url")
+    .select(
+      "id,title,event_date,event_time,date_label,summary,image_public_url,google_calendar_event_id",
+    )
     .order("event_date", { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -142,17 +150,80 @@ export async function upsertAdminEventAction(input: UpsertPayload): Promise<void
   if (id) {
     const { error } = await sb.from(EVENTS_TABLE).update(row).eq("id", id);
     if (error) throw new Error(error.message);
-    return;
+  } else {
+    const { error } = await sb.from(EVENTS_TABLE).insert({ id: newRowId, ...row });
+    if (error) throw new Error(error.message);
   }
 
-  const { error } = await sb.from(EVENTS_TABLE).insert({ id: newRowId, ...row });
-  if (error) throw new Error(error.message);
+  // Sync to the shared Mandir Google Calendar so subscribers get updates.
+  // If creds are missing, we keep website events working and just skip calendar sync.
+  if (!canSyncGoogleCalendar()) return;
+
+  const { data: rows, error: selErr } = await sb
+    .from(EVENTS_TABLE)
+    .select("id,title,event_date,event_time,summary,google_calendar_event_id")
+    .eq("id", newRowId)
+    .limit(1);
+  if (selErr) throw new Error(selErr.message);
+  const current = (rows?.[0] ?? null) as
+    | (Pick<
+        EventRow,
+        "id" | "title" | "event_date" | "event_time" | "summary" | "google_calendar_event_id"
+      > & { google_calendar_event_id?: string | null })
+    | null;
+  if (!current) return;
+
+  try {
+    const { googleEventId } = await upsertGoogleCalendarEvent({
+      input: {
+        id: current.id,
+        title: current.title,
+        dateIso: current.event_date,
+        time: current.event_time,
+        summary: current.summary,
+      },
+      existingGoogleEventId: current.google_calendar_event_id ?? null,
+    });
+    await sb
+      .from(EVENTS_TABLE)
+      .update({
+        google_calendar_event_id: googleEventId,
+        google_calendar_synced_at: new Date().toISOString(),
+        google_calendar_last_error: null,
+      })
+      .eq("id", current.id);
+  } catch (e) {
+    await sb
+      .from(EVENTS_TABLE)
+      .update({
+        google_calendar_last_error: e instanceof Error ? e.message : String(e),
+      })
+      .eq("id", current.id);
+    // Don't fail the admin save if Google Calendar is temporarily down.
+  }
 }
 
 export async function deleteAdminEventAction(id: string): Promise<void> {
   await assertEventsAdmin();
   const sb = getSupabaseServiceRole();
   if (!sb) throw new Error("Events syncing is not configured on the server.");
+
+  if (canSyncGoogleCalendar()) {
+    const { data: rows } = await sb
+      .from(EVENTS_TABLE)
+      .select("google_calendar_event_id")
+      .eq("id", id)
+      .limit(1);
+    const googleId = (rows?.[0] as { google_calendar_event_id?: string | null } | undefined)
+      ?.google_calendar_event_id;
+    if (googleId?.trim()) {
+      try {
+        await deleteGoogleCalendarEvent(googleId);
+      } catch {
+        // Best-effort. We still allow deletion from the website DB.
+      }
+    }
+  }
   const { error } = await sb.from(EVENTS_TABLE).delete().eq("id", id);
   if (error) throw new Error(error.message);
 }
