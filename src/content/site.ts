@@ -37,9 +37,9 @@ export const hero = {
   primaryCtaLabel: "See upcoming events",
   primaryCtaHash: "#events",
   /** Right column of the welcome row (original single hero image) */
-  homeImageSrc: "/mandir-exterior.jpg",
+  homeImageSrc: "/11062b_24f786a661694f83a7f9d210fd92c9e7~mv2.avif",
   homeImageAlt:
-    "Front of the CHCS Mandir — 16 Ostade Road, London SW2",
+    "Photograph alongside the welcome message — CHCS community at the Mandir",
   /** Gallery below the welcome row */
   templeGalleryTitle: "Our Temple",
   templeGalleryId: "temple",
@@ -232,6 +232,23 @@ export const events = {
   /** Shown when there are no `items` cards yet */
   comingSoonBody:
     "A short list of highlighted dates on this page is coming soon — scroll down for the live Mandir Google Calendar.",
+  /**
+   * Full London **calendar** days **after** the event `dateIso` (`1` = first day after that date) for
+   * which the card stays on the **main** grid as “Event ended”. From the **next** day it appears only
+   * under **Previous events**. Example with `2`: days 1–2 after the event date on the main list; from
+   * day 3 onward in the tab. Not stored in Supabase.
+   */
+  archiveGraceDaysAfterEventDate: 2,
+  /** Collapsible panel below the main grid for archived past highlights. */
+  previousEventsTitle: "Previous events",
+  previousEventsIntro:
+    "Older CHCS highlights (London dates). Posters are read-only here — use the Mandir calendar below for live dates.",
+  /** Shown on the closed disclosure row for previous event posters. */
+  previousEventsToggleHint:
+    "Click or tap to open or close. Posters move here from the main list after a short “Event ended” grace period.",
+  /** When the disclosure is open but nothing is archived yet (all ended cards still on the main grid). */
+  previousEventsEmptyBody:
+    "Nothing in this list yet. For two calendar days after an event’s London date it stays on the main cards as “Event ended”; from the third day onward it appears here.",
   items: [] as readonly SiteEventItem[],
 } as const;
 
@@ -625,7 +642,6 @@ export const connect = {
     "Day-to-day news, festival photos and event reminders are shared on our Facebook page first.",
   facebook: {
     heading: "CHCS on Facebook",
-    /** Shown beside the main button — explains why we link out instead of embedding the feed. */
     ctaBody:
       "Embedded timelines on websites are only a preview and often show the same few posts. For our full page — everything we have published — use the button below.",
     ctaButton: "Open our Facebook page",
@@ -652,4 +668,29 @@ export function getGoogleMapsEmbedSrc(): string {
     "16 Ostade Road, London SW2 2BB, United Kingdom",
   );
   return `https://www.google.com/maps?q=${q}&hl=en&z=17&output=embed`;
+}
+
+/**
+ * Meta Page Plugin iframe `src` for {@link footer.facebookUrl}.
+ * Width is capped at 500px (Meta’s documented plugin maximum).
+ *
+ * Optional: `NEXT_PUBLIC_FACEBOOK_PAGE_PLUGIN_APP_ID` (digits only) if the embed requires an App ID.
+ */
+export function getFacebookPagePluginSrc(options?: {
+  width?: number;
+  height?: number;
+}): string {
+  const pageUrl = footer.facebookUrl.replace(/\/?$/, "/");
+  const href = encodeURIComponent(pageUrl);
+  const width = Math.min(500, Math.max(180, options?.width ?? 500));
+  const height = Math.min(2000, Math.max(70, options?.height ?? 560));
+  const appId = process.env.NEXT_PUBLIC_FACEBOOK_PAGE_PLUGIN_APP_ID?.trim();
+  let url =
+    `https://www.facebook.com/plugins/page.php?href=${href}` +
+    `&tabs=timeline&width=${width}&height=${height}` +
+    `&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false`;
+  if (appId && /^\d+$/.test(appId)) {
+    url += `&appId=${encodeURIComponent(appId)}`;
+  }
+  return url;
 }

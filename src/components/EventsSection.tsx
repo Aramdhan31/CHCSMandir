@@ -9,8 +9,7 @@ import {
   recurringEventTitles,
 } from "@/content/site";
 import { fetchPublishedSupabaseEvents } from "@/lib/events/fetchPublished";
-import { buildIcsDownloadUrl } from "@/lib/events/calendarLinks";
-import { EventImageLightbox } from "@/components/EventImageLightbox";
+import { EventPosterCard } from "@/components/EventPosterCard";
 
 function getLondonNow() {
   const parts = new Intl.DateTimeFormat("en-GB", {
@@ -56,6 +55,31 @@ function isEventEnded(input: { dateIso?: string; time?: string }) {
   return eventKey < todayKey;
 }
 
+/** Whole calendar days (Europe/London date) since `dateIso`; `1` = first day after the event. */
+function daysAfterEventLondon(dateIso?: string): number | null {
+  if (!dateIso) return null;
+  const eventDate = parseIsoDate(dateIso);
+  if (!eventDate) return null;
+  const now = getLondonNow();
+  const tEv = Date.UTC(eventDate.y, eventDate.m - 1, eventDate.d);
+  const tNow = Date.UTC(now.y, now.m - 1, now.d);
+  return Math.floor((tNow - tEv) / 86400000);
+}
+
+function isArchivedToPrevious(ev: { dateIso?: string }) {
+  if (!isEventEnded(ev)) return false;
+  const d = daysAfterEventLondon(ev.dateIso);
+  if (d === null) return false;
+  return d > events.archiveGraceDaysAfterEventDate;
+}
+
+function isOnMainGrid(ev: { dateIso?: string }) {
+  if (!isEventEnded(ev)) return true;
+  const d = daysAfterEventLondon(ev.dateIso);
+  if (d === null) return true;
+  return d <= events.archiveGraceDaysAfterEventDate;
+}
+
 export async function EventsSection() {
   const remoteItemsRaw = await fetchPublishedSupabaseEvents();
   const remoteItems = remoteItemsRaw.filter(
@@ -86,7 +110,46 @@ export async function EventsSection() {
     if (bd) return 1;
     return a.title.localeCompare(b.title);
   });
-  const hasCards = cardItems.length > 0;
+
+  const mainGridItems = cardItems.filter(isOnMainGrid).sort((a, b) => {
+    const aEnded = isEventEnded(a);
+    const bEnded = isEventEnded(b);
+    if (aEnded !== bEnded) return aEnded ? 1 : -1;
+
+    const ad = a.dateIso?.trim() || "";
+    const bd = b.dateIso?.trim() || "";
+    if (ad && bd) {
+      const c = ad.localeCompare(bd);
+      if (c !== 0) return c;
+      const at = a.time?.trim() || "";
+      const bt = b.time?.trim() || "";
+      return at.localeCompare(bt);
+    }
+    if (ad) return -1;
+    if (bd) return 1;
+    return a.title.localeCompare(b.title);
+  });
+
+  const previousItems = cardItems
+    .filter(isArchivedToPrevious)
+    .sort((a, b) => {
+      const ad = a.dateIso?.trim() || "";
+      const bd = b.dateIso?.trim() || "";
+      if (ad && bd) {
+        const c = bd.localeCompare(ad);
+        if (c !== 0) return c;
+        const at = a.time?.trim() || "";
+        const bt = b.time?.trim() || "";
+        return bt.localeCompare(at);
+      }
+      if (ad) return -1;
+      if (bd) return 1;
+      return b.title.localeCompare(a.title);
+    });
+
+  const hasMainGrid = mainGridItems.length > 0;
+  const hasPrevious = previousItems.length > 0;
+  const hasAnyEvents = hasMainGrid || hasPrevious;
   const embedSrc = getMandirCalendarEmbedSrc();
   const calendarIntroParts = mandirCalendar.embedIntro
     .split(/\n\s*\n/g)
@@ -101,7 +164,7 @@ export async function EventsSection() {
             <h2 className="font-display text-3xl font-semibold text-deep sm:text-4xl">
               {events.sectionTitle}
             </h2>
-            {!hasCards ? (
+            {!hasAnyEvents ? (
               <span className="inline-flex items-center rounded-full border border-gold/35 bg-gold/15 px-3 py-1 font-display text-xs font-semibold uppercase tracking-wide text-gold-dim">
                 {events.comingSoonLabel}
               </span>
@@ -112,134 +175,86 @@ export async function EventsSection() {
             <span className="font-semibold text-deep">Wednesday Lunch Club</span>: Wednesdays, 11:00am
             – 2:00pm (just turn up).
           </p>
-          {hasCards ? (
+          {hasAnyEvents ? (
             <p className="mt-4 max-w-3xl rounded-xl border border-gold/20 bg-parchment-muted/50 px-4 py-3 text-sm leading-relaxed text-earth sm:text-base">
               {events.cardsCalendarHint}
             </p>
           ) : null}
         </header>
 
-        {!hasCards ? (
+        {!hasAnyEvents ? (
           <p className="mb-10 max-w-3xl text-lg leading-relaxed text-earth">{events.comingSoonBody}</p>
         ) : null}
 
-        {hasCards ? (
-          <ul className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {cardItems.map((ev) => (
-              <li key={`${ev.title}-${ev.dateLabel}`}>
-                <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gold/20 bg-white/60 shadow-sm transition hover:border-gold/40 hover:shadow-md">
-                  <div className="relative aspect-[3/4] w-full border-b border-gold/15 bg-parchment-muted/60">
-                    {ev.imageSrc ? (
-                      <EventImageLightbox
-                        src={ev.imageSrc}
-                        alt={ev.title}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-contain object-center p-3"
-                        enable
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
-                        <div
-                          className="pointer-events-none absolute inset-0 opacity-80"
-                          aria-hidden
-                          style={{
-                            backgroundImage:
-                              "radial-gradient(circle at 1px 1px, rgba(201,162,39,0.18) 1px, transparent 0)",
-                            backgroundSize: "18px 18px",
-                          }}
-                        />
-                        <div
-                          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_35%,rgba(201,162,39,0.20),transparent)]"
-                          aria-hidden
-                        />
-                        <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/25 bg-white/70 shadow-sm">
-                          <svg
-                            viewBox="0 0 24 24"
-                            className="h-7 w-7 text-gold-dim"
-                            fill="none"
-                            aria-hidden
-                          >
-                            <path
-                              d="M7 4v2M17 4v2M6 9h12M6.5 6h11A1.5 1.5 0 0 1 19 7.5v11A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-11A1.5 1.5 0 0 1 6.5 6Z"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                            />
-                          </svg>
-                        </div>
-                        <p className="relative font-display text-lg font-semibold text-deep">
-                          Poster coming soon
-                        </p>
-                        <p className="relative text-sm font-semibold text-earth/80">{ev.title}</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex h-full flex-col p-5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-display text-sm font-semibold text-gold-dim">
-                      {ev.dateLabel}
-                    </p>
-                    {isEventEnded(ev) ? (
-                      <span className="inline-flex items-center rounded-full border border-red-900/15 bg-red-50 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-red-950">
-                        Event ended
-                      </span>
-                    ) : null}
-                  </div>
-                  <h3 className="mt-2 font-display text-lg font-semibold text-deep">
-                    {ev.title}
-                  </h3>
-                  {ev.summary ? (
-                    <p className="mt-1 text-sm text-earth/80">{ev.summary}</p>
-                  ) : null}
-                  {!isEventEnded(ev) && ev.dateIso ? (
-                    <div className="mt-auto space-y-2 border-t border-gold/10 pt-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gold-dim/90">
-                        Save to your calendar
-                      </p>
-                      {(() => {
-                        const icsUrl = buildIcsDownloadUrl({
-                          title: ev.title,
-                          dateIso: ev.dateIso,
-                          time: ev.time,
-                          summary: ev.summary,
-                        });
-                        return icsUrl ? (
-                          <a
-                            href={icsUrl}
-                            className="inline-flex items-center justify-center rounded-full bg-deep px-4 py-2.5 text-center text-sm font-semibold text-parchment shadow-sm ring-1 ring-parchment/15 transition hover:bg-deep/90 hover:ring-gold/40"
-                          >
-                            Add to calendar
-                          </a>
-                        ) : null;
-                      })()}
-                      {ev.href && !ev.href.startsWith("/events/ics") && ev.cta ? (
-                        <a
-                          href={ev.href}
-                          target={ev.href.startsWith("http") ? "_blank" : undefined}
-                          rel={ev.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                          className="inline-flex text-sm font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
-                        >
-                          {ev.cta}
-                        </a>
-                      ) : null}
-                    </div>
-                  ) : !isEventEnded(ev) && ev.href && ev.cta ? (
-                    <div className="mt-auto pt-4">
-                      <a
-                        href={ev.href}
-                        target={ev.href.startsWith("http") ? "_blank" : undefined}
-                        rel={ev.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                        className="inline-flex text-sm font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
-                      >
-                        {ev.cta}
-                      </a>
-                    </div>
-                  ) : null}
-                  </div>
-                </article>
-              </li>
+        {hasMainGrid ? (
+          <ul className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {mainGridItems.map((ev) => (
+              <EventPosterCard key={`${ev.title}-${ev.dateLabel}`} ev={ev} ended={isEventEnded(ev)} />
             ))}
           </ul>
+        ) : hasPrevious ? (
+          <p className="mb-8 max-w-3xl text-base leading-relaxed text-earth">
+            No upcoming highlighted events in the cards above just now — see{" "}
+            <a href="#previous-events" className="font-semibold text-gold-dim underline-offset-2 hover:underline">
+              previous events
+            </a>{" "}
+            below, or the Mandir calendar.
+          </p>
+        ) : null}
+
+        {hasAnyEvents ? (
+          <details
+            id="previous-events"
+            className="group mb-12 scroll-mt-28 overflow-hidden rounded-2xl border border-gold/25 bg-parchment-muted/30 shadow-sm open:bg-parchment-muted/45"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 outline-none transition hover:bg-white/40 focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-parchment sm:px-5 sm:py-4 [&::-webkit-details-marker]:hidden">
+              <span className="min-w-0 text-left">
+                <span className="font-display text-lg font-semibold text-deep sm:text-xl">
+                  {events.previousEventsTitle}
+                </span>
+                <span className="ml-2 whitespace-nowrap text-sm font-normal text-earth/80">
+                  ({previousItems.length})
+                </span>
+                <span className="mt-0.5 block text-xs text-earth/70 sm:text-sm">
+                  {events.previousEventsToggleHint}
+                </span>
+              </span>
+              <span
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/35 bg-white/70 text-gold-dim shadow-sm"
+                aria-hidden
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 transition-transform duration-200 group-open:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </span>
+            </summary>
+            <div className="border-t border-gold/15 px-2 pb-6 pt-2 sm:px-4 sm:pt-4">
+              {previousItems.length > 0 ? (
+                <>
+                  <p className="mb-4 max-w-3xl px-2 text-sm leading-relaxed text-earth sm:px-0 sm:text-base">
+                    {events.previousEventsIntro}
+                  </p>
+                  <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {previousItems.map((ev) => (
+                      <EventPosterCard key={`prev-${ev.dateIso ?? "nodate"}-${ev.title}`} ev={ev} ended />
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p className="max-w-3xl px-2 py-3 text-sm leading-relaxed text-earth sm:px-0 sm:text-base">
+                  {events.previousEventsEmptyBody}
+                </p>
+              )}
+            </div>
+          </details>
         ) : null}
 
         <div className="border-t border-gold/15 pt-10">
