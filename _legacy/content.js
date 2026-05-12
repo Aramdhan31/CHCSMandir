@@ -182,7 +182,7 @@ window.CHCS_CONTENT = {
       messagePlaceholder: "Type your message here…",
       submit: "Send message (opens your email)",
     },
-    formThankYou: "Thank you for contacting us, we endevour to answer as soon as we can.",
+    formThankYou: "Thank you for contacting us, we endeavour to answer as soon as we can.",
   },
 
   footer: {

@@ -162,7 +162,7 @@ export function getNextMonthlySatsangEvent(now = new Date()): SiteEventItem {
     title: recurringEventTitles.monthlySatsang,
     dateLabel: formatLondonEventDateLabel(target, "11:00am"),
     summary: "1st Sunday of every month. All are welcome.",
-    imageSrc: "/monthly-satsang-sanitized.jpg",
+    imageSrc: "/monthly-satsang-sanitised.jpg",
     dateIso,
     time: "11:00",
     href,
@@ -604,7 +604,7 @@ export const visit = {
     messagePlaceholder: "Type your message here…",
     submit: "Send message (opens your email)",
   },
-  formThankYou: "Thank you for contacting us, we endevour to answer as soon as we can.",
+  formThankYou: "Thank you for contacting us, we endeavour to answer as soon as we can.",
 } as const;
 
 export const footer = {
