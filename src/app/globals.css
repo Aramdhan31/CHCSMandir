@@ -15,7 +15,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   overflow-x: hidden;
   max-width: 100%;
   /*
@@ -47,12 +47,6 @@ html {
 @media (min-width: 1280px) {
   html {
     scroll-padding-top: max(12.25rem, env(safe-area-inset-top, 0px));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
   }
 }
 

@@ -10,10 +10,7 @@ function headerBlockHeightPx(): number {
 }
 
 export function scrollBehaviorPreference(): ScrollBehavior {
-  if (typeof window === "undefined") return "smooth";
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ? "auto"
-    : "smooth";
+  return "auto";
 }
 
 /**

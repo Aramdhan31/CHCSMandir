@@ -622,9 +622,13 @@ export const footer = {
 export const connect = {
   sectionTitle: "Facebook",
   intro:
-    "Scroll down inside the box for more posts — the feed comes from Facebook, so new public posts appear automatically. Tap a post to view on Facebook. Very old posts may only show on the full Facebook page.",
+    "Day-to-day news, festival photos and event reminders are shared on our Facebook page first.",
   facebook: {
     heading: "CHCS on Facebook",
+    /** Shown beside the main button — explains why we link out instead of embedding the feed. */
+    ctaBody:
+      "Embedded timelines on websites are only a preview and often show the same few posts. For our full page — everything we have published — use the button below.",
+    ctaButton: "Open our Facebook page",
   },
   map: {
     heading: "Visit the Mandir",
@@ -648,20 +652,4 @@ export function getGoogleMapsEmbedSrc(): string {
     "16 Ostade Road, London SW2 2BB, United Kingdom",
   );
   return `https://www.google.com/maps?q=${q}&hl=en&z=17&output=embed`;
-}
-
-/** Facebook Page plugin — vertical timeline; content loads from Facebook (updates when you post). */
-export function getFacebookPluginSrc(): string {
-  const params = new URLSearchParams({
-    href: footer.facebookUrl,
-    tabs: "timeline",
-    width: "500",
-    /** Tall timeline so visitors can scroll far down inside the embed for more posts. */
-    height: "2000",
-    small_header: "false",
-    adapt_container_width: "true",
-    hide_cover: "false",
-    show_facepile: "true",
-  });
-  return `https://www.facebook.com/plugins/page.php?${params.toString()}`;
 }

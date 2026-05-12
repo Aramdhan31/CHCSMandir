@@ -1,11 +1,12 @@
-import { connect, footer, getFacebookPluginSrc } from "@/content/site";
+import { connect, footer } from "@/content/site";
 
-/** Meta max width 500px; tall viewport so the timeline scrolls vertically inside the iframe. */
-const facebookFrameClass =
-  "relative mx-auto mt-4 w-full max-w-[500px] overflow-hidden rounded-xl border border-gold/20 bg-parchment-muted/50 shadow-sm h-[min(88dvh,56rem)] sm:h-[min(90dvh,60rem)]";
-
+/**
+ * We do not embed Meta’s Page Plugin timeline here: it is not the full Facebook page,
+ * shows a limited slice of posts, and is known to repeat the same items when scrolling.
+ * Visitors get the real feed by opening the page on Facebook.
+ */
 export function ConnectSection() {
-  const fbSrc = getFacebookPluginSrc();
+  const fbUrl = footer.facebookUrl;
 
   return (
     <section
@@ -13,36 +14,34 @@ export function ConnectSection() {
       className="border-t border-gold/15 bg-parchment-muted/40 py-12 sm:py-16 md:py-20"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <header className="mb-10 max-w-3xl">
-          <h2 className="font-display text-3xl font-semibold text-deep sm:text-4xl">
-            {connect.sectionTitle}
-          </h2>
-          <p className="mt-4 text-lg text-earth">{connect.intro}</p>
-        </header>
+        <h2 className="font-display text-3xl font-semibold tracking-tight text-deep sm:text-4xl">
+          {connect.sectionTitle}
+        </h2>
 
-        <div className="rounded-2xl border border-gold/20 bg-white/80 p-4 shadow-sm sm:p-5 md:p-6">
-          <h3 className="font-display text-lg font-semibold text-deep sm:text-xl">
-            {connect.facebook.heading}
-          </h3>
-          <div className={facebookFrameClass}>
-            <iframe
-              title="Caribbean Hindu Cultural Society on Facebook — timeline"
-              src={fbSrc}
-              className="absolute inset-0 h-full w-full border-0"
-              loading="lazy"
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-            />
+        <div className="mt-6 rounded-2xl border border-gold/20 bg-white/80 shadow-sm sm:mt-8">
+          <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(17rem,22rem)] lg:items-stretch">
+            <div className="space-y-4 border-b border-gold/15 p-5 sm:p-6 lg:border-b-0 lg:border-r lg:py-8 lg:pl-8 lg:pr-10">
+              <p className="text-base leading-relaxed text-earth sm:text-lg">{connect.intro}</p>
+              <h3 className="font-display text-lg font-semibold text-deep sm:text-xl">
+                {connect.facebook.heading}
+              </h3>
+            </div>
+
+            <div className="flex flex-col justify-center gap-4 bg-parchment-muted/30 px-5 py-8 sm:px-8">
+              <p className="text-sm leading-relaxed text-earth/90">{connect.facebook.ctaBody}</p>
+              <a
+                href={fbUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[3rem] w-full items-center justify-center rounded-full bg-gold px-6 text-sm font-semibold text-deep shadow-sm transition hover:bg-saffron focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-parchment-muted"
+              >
+                {connect.facebook.ctaButton}
+              </a>
+              <p className="text-center text-xs text-earth/70 sm:text-left">
+                {footer.facebookLabel} · opens in a new tab
+              </p>
+            </div>
           </div>
-          <p className="mt-4 text-center text-sm text-earth/90">
-            <a
-              href={footer.facebookUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
-            >
-              {footer.facebookLabel} — open full page for photos, videos, and full history
-            </a>
-          </p>
         </div>
       </div>
     </section>
