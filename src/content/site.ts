@@ -10,7 +10,7 @@ export const site = {
   nameShort: "CHCS",
   nameFull: "Caribbean Hindu Cultural Society",
   tagline:
-    "A Hindu temple in Brixton, south London - open to all generations and backgrounds, honoring diverse traditions while nurturing unity, inclusion, and spiritual growth for all.",
+    "A Hindu temple in Brixton, south London - open to all generations and backgrounds, honouring diverse traditions while nurturing unity, inclusion, and spiritual growth for all.",
 } as const;
 
 /**
@@ -146,7 +146,7 @@ export function getNextMonthlySatsangEvent(now = new Date()): SiteEventItem {
     title: "Next Monthly Satsang",
     dateLabel: formatLondonEventDateLabel(target, "11:00am"),
     summary: "1st Sunday of every month. All are welcome.",
-    imageSrc: "/monthly-satsang-sanitized.jpg",
+    imageSrc: "/monthly-satsang-sanitised.jpg",
     dateIso,
     time: "11:00",
     href,
@@ -492,7 +492,7 @@ export const visit = {
     messagePlaceholder: "Type your message here…",
     submit: "Send message (opens your email)",
   },
-  formThankYou: "Thank you for contacting us, we endevour to answer as soon as we can.",
+  formThankYou: "Thank you for contacting us, we endeavour to answer as soon as we can.",
 } as const;
 
 export const footer = {

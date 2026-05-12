@@ -65,12 +65,12 @@ function formatDateTimeLabel(dateIso: string, time?: string) {
   return tt ? `${base} · ${tt}` : base;
 }
 
-async function readFileAsOptimizedJpegBase64(file: File): Promise<{
+async function readFileAsOptimisedJpegBase64(file: File): Promise<{
   base64: string;
   filename: string;
   contentType: string;
 }> {
-  // Server Actions have payload limits; optimize images client-side for reliability.
+  // Server Actions have payload limits; optimise images client-side for reliability.
   const maxDim = 1600;
   const quality = 0.82;
 
@@ -130,7 +130,7 @@ async function readFileAsUploadBase64(file: File): Promise<{
   // Prefer compressing to JPEG for reliability, but allow ANY image format by falling back.
   // (Some browsers can’t decode HEIC/HEIF via canvas/createImageBitmap.)
   try {
-    return await readFileAsOptimizedJpegBase64(file);
+    return await readFileAsOptimisedJpegBase64(file);
   } catch {
     const base64 = await readFileAsBase64Original(file);
     return {
