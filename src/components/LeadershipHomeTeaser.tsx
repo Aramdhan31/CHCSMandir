@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import { EventImageLightbox } from "@/components/EventImageLightbox";
 import {
   getLeadershipHomeSpotlights,
   homeLeadership,
@@ -65,14 +65,12 @@ export function LeadershipHomeTeaser() {
                 {"imageSrc" in card && card.imageSrc ? (
                   <div className="mb-6 flex justify-center">
                     <div className="relative h-32 w-32 overflow-hidden rounded-2xl border border-gold/35 bg-parchment-muted/60 shadow-sm">
-                      <EventImageLightbox
+                      <Image
                         src={card.imageSrc}
                         alt={"imageAlt" in card && card.imageAlt ? card.imageAlt : card.name}
+                        fill
                         sizes="128px"
                         className="origin-center scale-[1.15] object-cover object-[42%_6%]"
-                        enable
-                        allowImageContext
-                        ariaLabelOpen={`Enlarge portrait — ${card.name}`}
                       />
                     </div>
                   </div>

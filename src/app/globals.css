@@ -62,7 +62,7 @@ img.navbar-logo {
   background: transparent;
 }
 
-/* Image privacy: discourage drag-save on most images. Pandit / leadership portraits opt out via `data-allow-image-context`. */
+/* Image privacy: discourage drag-save on most images. Opt in with `data-allow-image-context` where saving is acceptable. */
 img:not([data-allow-image-context]) {
   -webkit-user-drag: none;
   user-select: none;

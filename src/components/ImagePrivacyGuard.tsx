@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 /**
  * Privacy deterrent: block the usual “save image” / drag gestures on most images.
- * Elements (or ancestors) with `data-allow-image-context` are skipped — used for pandit portraits.
+ * Elements (or ancestors) with `data-allow-image-context` are skipped (e.g. optional lightbox opt-in).
  * Screenshots from the OS are not controllable from the page.
  */
 export function ImagePrivacyGuard() {
