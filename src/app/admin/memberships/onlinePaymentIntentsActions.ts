@@ -15,8 +15,9 @@ export type OnlinePaymentIntent = {
   fullName: string;
   email: string | null;
   phone: string | null;
-  kind: "membership" | "donation";
+  kind: "membership" | "donation" | "membership_donation";
   amountGbp: number | null;
+  donationAmountGbp: number | null;
   membershipYear: number | null;
   message: string | null;
   userAgent: string | null;
@@ -35,8 +36,9 @@ type IntentRow = {
   full_name: string;
   email: string | null;
   phone: string | null;
-  kind: "membership" | "donation" | string;
+  kind: "membership" | "donation" | "membership_donation" | string;
   amount_gbp: number | null;
+  donation_amount_gbp: number | null;
   membership_year: number | null;
   message: string | null;
   user_agent: string | null;
@@ -44,14 +46,22 @@ type IntentRow = {
 };
 
 function rowToIntent(r: IntentRow): OnlinePaymentIntent {
+  const kind: OnlinePaymentIntent["kind"] =
+    r.kind === "donation"
+      ? "donation"
+      : r.kind === "membership_donation"
+        ? "membership_donation"
+        : "membership";
   return {
     id: r.id,
     createdAt: r.created_at,
     fullName: r.full_name,
     email: r.email,
     phone: r.phone,
-    kind: r.kind === "donation" ? "donation" : "membership",
+    kind,
     amountGbp: typeof r.amount_gbp === "number" ? r.amount_gbp : null,
+    donationAmountGbp:
+      typeof r.donation_amount_gbp === "number" ? r.donation_amount_gbp : null,
     membershipYear: typeof r.membership_year === "number" ? r.membership_year : null,
     message: r.message,
     userAgent: r.user_agent,
@@ -67,7 +77,7 @@ export async function listOnlinePaymentIntentsAction(): Promise<OnlinePaymentInt
   const { data, error } = await sb
     .from(TABLE)
     .select(
-      "id,created_at,full_name,email,phone,kind,amount_gbp,membership_year,message,user_agent,sumup_url",
+      "id,created_at,full_name,email,phone,kind,amount_gbp,donation_amount_gbp,membership_year,message,user_agent,sumup_url",
     )
     .order("created_at", { ascending: false })
     .limit(1000);

@@ -591,6 +591,8 @@ export const visit = {
     "If you’d like to join, donate, or support the Mandir in other ways, please email om@chcstemple.org or use the contact form in the Visit us section further down this page.",
     "Thank you for your support!",
   ],
+  /** Yearly membership fee (GBP) — keep in sync with SumUp / treasurer expectations. */
+  membershipFeeGbp: 15,
   membershipPaymentLabel: "Pay membership / donate",
   membershipPaymentUrl: "https://pay.sumup.com/b2c/QNA3A6QO",
   membershipPaymentNote: "Secure online payment (SumUp).",

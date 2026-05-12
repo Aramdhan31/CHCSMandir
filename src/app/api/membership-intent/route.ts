@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseServiceRole } from "@/lib/supabase/service";
+import { londonCalendarYear } from "@/lib/londonCalendar";
 import { visit } from "@/content/site";
 
 const TABLE = "membership_payment_intents";
@@ -8,14 +9,6 @@ function clean(s: unknown, max = 300) {
   const v = typeof s === "string" ? s.trim() : "";
   if (!v) return "";
   return v.length > max ? v.slice(0, max) : v;
-}
-
-function parseYear(raw: unknown) {
-  const t = clean(raw, 12);
-  if (!t) return null;
-  const y = Number(t);
-  if (!Number.isFinite(y) || y < 1959 || y > 2100) return null;
-  return Math.trunc(y);
 }
 
 function parseAmount(raw: unknown) {
@@ -46,13 +39,18 @@ export async function POST(req: Request) {
   const fullName = clean(obj.fullName, 120);
   const email = clean(obj.email, 200);
   const phone = clean(obj.phone, 60) || null;
-  const kindRaw = clean(obj.kind, 20);
-  const kind = kindRaw === "donation" ? "donation" : "membership";
-  const amountGbp = parseAmount(obj.amountGbp);
-  const membershipYear = parseYear(obj.membershipYear);
+  const kindRaw = clean(obj.kind, 32);
+  const kind =
+    kindRaw === "donation"
+      ? "donation"
+      : kindRaw === "membership_donation"
+        ? "membership_donation"
+        : "membership";
   const message = clean(obj.message, 600) || null;
+  const membershipYear = londonCalendarYear();
   const userAgent = clean(req.headers.get("user-agent") ?? "", 240) || null;
   const sumupUrl = clean(visit.membershipPaymentUrl, 500) || null;
+  const membershipFee = visit.membershipFeeGbp;
 
   if (!fullName || !phone) {
     return NextResponse.json(
@@ -60,6 +58,28 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
+
+  let amountGbp: number | null = null;
+  let donationAmountGbp: number | null = null;
+
+  if (kind === "membership") {
+    amountGbp = membershipFee;
+    donationAmountGbp = null;
+  } else if (kind === "donation") {
+    amountGbp = parseAmount(obj.amountGbp);
+    donationAmountGbp = null;
+  } else {
+    const extra = parseAmount(obj.donationAmountGbp);
+    if (extra === null) {
+      return NextResponse.json(
+        { ok: false, error: "Enter your extra donation amount (more than £0)." },
+        { status: 400 },
+      );
+    }
+    donationAmountGbp = extra;
+    amountGbp = Math.round((membershipFee + extra) * 100) / 100;
+  }
+
   if (amountGbp === null) {
     return NextResponse.json({ ok: false, error: "Missing or invalid amount." }, { status: 400 });
   }
@@ -70,6 +90,7 @@ export async function POST(req: Request) {
     phone,
     kind,
     amount_gbp: amountGbp,
+    donation_amount_gbp: donationAmountGbp,
     membership_year: membershipYear,
     message,
     user_agent: userAgent,
@@ -88,4 +109,3 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ ok: true, id: (data as { id: string } | null)?.id ?? null });
 }
-

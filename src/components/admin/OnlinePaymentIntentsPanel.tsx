@@ -27,6 +27,7 @@ function matchesQuery(row: OnlinePaymentIntent, qRaw: string): boolean {
     row.phone ?? "",
     row.kind,
     row.amountGbp !== null ? String(row.amountGbp) : "",
+    row.donationAmountGbp !== null ? String(row.donationAmountGbp) : "",
     row.membershipYear ? String(row.membershipYear) : "",
     row.message ?? "",
   ]
@@ -38,6 +39,25 @@ function matchesQuery(row: OnlinePaymentIntent, qRaw: string): boolean {
   const digits = q.replace(/\D/g, "");
   if (digits.length >= 3 && (row.phone ?? "").replace(/\D/g, "").includes(digits)) return true;
   return false;
+}
+
+function formatKindLabel(kind: OnlinePaymentIntent["kind"]) {
+  if (kind === "donation") return "Donation";
+  if (kind === "membership_donation") return "Membership + donation";
+  return "Membership";
+}
+
+function formatAmountCell(r: OnlinePaymentIntent): string {
+  if (r.amountGbp === null) return "—";
+  if (
+    r.kind === "membership_donation" &&
+    r.donationAmountGbp !== null &&
+    r.donationAmountGbp > 0
+  ) {
+    const membershipPart = Math.round((r.amountGbp - r.donationAmountGbp) * 100) / 100;
+    return `£${membershipPart.toFixed(2)} + £${r.donationAmountGbp.toFixed(2)} = £${r.amountGbp.toFixed(2)}`;
+  }
+  return `£${r.amountGbp.toFixed(2)}`;
 }
 
 export function OnlinePaymentIntentsPanel() {
@@ -143,11 +163,11 @@ export function OnlinePaymentIntentsPanel() {
                     <td className="px-4 py-3 whitespace-nowrap">{r.phone ?? "—"}</td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className="rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-950">
-                        {r.kind === "donation" ? "Donation" : "Membership"}
+                        {formatKindLabel(r.kind)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {r.amountGbp === null ? "—" : `£${r.amountGbp.toFixed(2)}`}
+                    <td className="px-4 py-3 whitespace-nowrap font-medium text-deep">
+                      {formatAmountCell(r)}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">{r.membershipYear ?? "—"}</td>
                     <td className="px-4 py-3 text-earth/90">
