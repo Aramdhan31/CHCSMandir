@@ -3,14 +3,16 @@
 import { useEffect } from "react";
 
 /**
- * Privacy deterrent: prevent the common "save / open image in new tab" gestures.
- * Not a perfect DRM solution (screenshots are always possible).
+ * Privacy deterrent: block the usual “save image” / drag gestures on most images.
+ * Elements (or ancestors) with `data-allow-image-context` are skipped — used for pandit portraits.
+ * Screenshots from the OS are not controllable from the page.
  */
 export function ImagePrivacyGuard() {
   useEffect(() => {
     const onContextMenu = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
       if (!target) return;
+      if (target.closest("[data-allow-image-context]")) return;
 
       const img = target.closest?.("img, picture, svg, video") as HTMLElement | null;
       if (!img) return;
@@ -21,6 +23,8 @@ export function ImagePrivacyGuard() {
     const onDragStart = (e: DragEvent) => {
       const target = e.target as HTMLElement | null;
       if (!target) return;
+      if (target.closest("[data-allow-image-context]")) return;
+
       const img = target.closest?.("img, picture, svg") as HTMLElement | null;
       if (!img) return;
 

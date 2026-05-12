@@ -62,13 +62,29 @@ img.navbar-logo {
   background: transparent;
 }
 
-/* Image privacy: discourage long-press / drag-save on mobile & desktop (not foolproof). */
-img,
-picture,
+/* Image privacy: discourage drag-save on most images. Pandit / leadership portraits opt out via `data-allow-image-context`. */
+img:not([data-allow-image-context]) {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+picture:not(:has([data-allow-image-context])) img {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 svg {
   -webkit-user-drag: none;
   user-select: none;
   -webkit-touch-callout: none;
+}
+
+img[data-allow-image-context] {
+  -webkit-user-drag: auto;
+  user-select: auto;
+  -webkit-touch-callout: default;
 }
 
 ::selection {

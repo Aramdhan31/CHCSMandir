@@ -9,6 +9,9 @@ export function EventImageLightbox({
   sizes,
   className,
   enable,
+  allowImageContext,
+  ariaLabelOpen,
+  priority,
 }: {
   src: string;
   alt: string;
@@ -16,10 +19,17 @@ export function EventImageLightbox({
   className?: string;
   /** If false, renders a normal non-clickable image. */
   enable?: boolean;
+  /** When true, thumbnail and enlarged image allow normal right-click / save (see `ImagePrivacyGuard`). */
+  allowImageContext?: boolean;
+  /** `aria-label` for the zoom button; defaults to “Open event image”. */
+  ariaLabelOpen?: string;
+  /** Forward `priority` to the thumbnail `next/image` (e.g. LCP hero portrait). */
+  priority?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const titleId = useId();
   const clickable = enable !== false;
+  const contextProps = allowImageContext ? { "data-allow-image-context": true as const } : {};
 
   useEffect(() => {
     if (!open) return;
@@ -37,9 +47,18 @@ export function EventImageLightbox({
         onClick={clickable ? () => setOpen(true) : undefined}
         disabled={!clickable}
         className={`relative h-full w-full ${clickable ? "cursor-zoom-in" : ""}`}
-        aria-label={clickable ? "Open event image" : undefined}
+        aria-label={clickable ? ariaLabelOpen ?? "Open event image" : undefined}
+        {...contextProps}
       >
-        <Image src={src} alt={alt} fill sizes={sizes} className={className} />
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes={sizes}
+          className={className}
+          priority={priority}
+          {...contextProps}
+        />
       </button>
 
       {open ? (
@@ -75,6 +94,7 @@ export function EventImageLightbox({
                   sizes="100vw"
                   className="object-contain object-center"
                   priority
+                  {...contextProps}
                 />
               </div>
             </div>

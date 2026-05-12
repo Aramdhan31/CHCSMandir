@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { EventImageLightbox } from "@/components/EventImageLightbox";
 import { leadership, leadershipPageMeta } from "@/content/site";
 
 function PageOrnament({ className }: { className?: string }) {
@@ -260,12 +261,14 @@ export function LeadershipFullPage() {
                   {"imageSrc" in p && p.imageSrc ? (
                     <div className="mb-7 flex justify-center">
                       <div className="relative h-44 w-44 overflow-hidden rounded-3xl border border-gold/35 bg-parchment/10 shadow-[0_18px_55px_-24px_rgba(0,0,0,0.75)] ring-1 ring-parchment/10">
-                        <Image
+                        <EventImageLightbox
                           src={p.imageSrc}
                           alt={"imageAlt" in p && p.imageAlt ? p.imageAlt : p.name}
-                          fill
                           sizes="176px"
                           className="origin-center scale-[1.15] object-cover object-[42%_6%]"
+                          enable
+                          allowImageContext
+                          ariaLabelOpen={`Enlarge portrait — ${p.name}`}
                           priority={isChief}
                         />
                       </div>
@@ -320,13 +323,26 @@ export function LeadershipFullPage() {
                   >
                     <div className="mx-auto mb-4 flex justify-center">
                       <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-parchment/20 bg-parchment/10 ring-1 ring-parchment/10">
-                        <Image
-                          src={imageSrc}
-                          alt={imageAlt}
-                          fill
-                          sizes="112px"
-                          className={imageClass}
-                        />
+                        {isPlaceholder ? (
+                          <Image
+                            src={imageSrc}
+                            alt={imageAlt}
+                            fill
+                            sizes="112px"
+                            data-allow-image-context
+                            className={imageClass}
+                          />
+                        ) : (
+                          <EventImageLightbox
+                            src={imageSrc}
+                            alt={imageAlt}
+                            sizes="112px"
+                            className={imageClass}
+                            enable
+                            allowImageContext
+                            ariaLabelOpen={`Enlarge portrait — ${p.name}`}
+                          />
+                        )}
                       </div>
                     </div>
                     <p className="font-display text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-gold/90">
