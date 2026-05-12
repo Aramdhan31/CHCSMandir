@@ -292,7 +292,7 @@ export function LeadershipFullPage() {
                   >
                     {isChief
                       ? "Leading worship, festivals, and scripture at CHCS."
-                      : "Supporting the mandir’s religious programmes alongside the Pandit."}
+                      : "Supporting the Mandir’s religious programmes alongside the Pandit."}
                   </p>
                 </div>
               );

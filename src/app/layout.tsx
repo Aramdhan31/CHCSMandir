@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     // Leading CHCS survives tab truncation (browsers usually clip the end first).
     template: `${site.nameShort} — %s`,
   },
-  description: `${site.nameFull} — Hindu temple at 16 Ostade Road, London SW2 2BB. ${site.tagline}`,
+  description: `${site.nameFull} — Hindu Temple at 16 Ostade Road, London SW2 2BB. ${site.tagline}`,
   metadataBase: new URL(metadataBaseUrl()),
   applicationName: brand.appName,
   openGraph: {

@@ -1,12 +1,15 @@
 import {
   events,
   getNextMonthlySatsangEvent,
+  getNextBhajanSatsangEvent,
   getMandirCalendarEmbedSrc,
   getMandirCalendarIcalUrl,
   getMandirCalendarWebcalUrl,
   mandirCalendar,
+  recurringEventTitles,
 } from "@/content/site";
 import { fetchPublishedSupabaseEvents } from "@/lib/events/fetchPublished";
+import { buildIcsDownloadUrl } from "@/lib/events/calendarLinks";
 import { EventImageLightbox } from "@/components/EventImageLightbox";
 
 function getLondonNow() {
@@ -54,9 +57,20 @@ function isEventEnded(input: { dateIso?: string; time?: string }) {
 }
 
 export async function EventsSection() {
-  const remoteItems = await fetchPublishedSupabaseEvents();
+  const remoteItemsRaw = await fetchPublishedSupabaseEvents();
+  const remoteItems = remoteItemsRaw.filter(
+    (ev) =>
+      ev.title !== recurringEventTitles.monthlySatsang &&
+      ev.title !== recurringEventTitles.bhajanSatsang,
+  );
   const recurringMonthly = getNextMonthlySatsangEvent();
-  const cardItemsRaw = [recurringMonthly, ...remoteItems, ...events.items];
+  const recurringBhajan = getNextBhajanSatsangEvent();
+  const cardItemsRaw = [
+    recurringMonthly,
+    recurringBhajan,
+    ...remoteItems,
+    ...events.items,
+  ];
 
   const cardItems = [...cardItemsRaw].sort((a, b) => {
     const ad = a.dateIso?.trim() || "";
@@ -98,6 +112,11 @@ export async function EventsSection() {
             <span className="font-semibold text-deep">Wednesday Lunch Club</span>: Wednesdays, 11:00am
             – 2:00pm (just turn up).
           </p>
+          {hasCards ? (
+            <p className="mt-4 max-w-3xl rounded-xl border border-gold/20 bg-parchment-muted/50 px-4 py-3 text-sm leading-relaxed text-earth sm:text-base">
+              {events.cardsCalendarHint}
+            </p>
+          ) : null}
         </header>
 
         {!hasCards ? (
@@ -172,10 +191,44 @@ export async function EventsSection() {
                   {ev.summary ? (
                     <p className="mt-1 text-sm text-earth/80">{ev.summary}</p>
                   ) : null}
-                  {ev.href && ev.cta && !isEventEnded(ev) ? (
+                  {!isEventEnded(ev) && ev.dateIso ? (
+                    <div className="mt-auto space-y-2 border-t border-gold/10 pt-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gold-dim/90">
+                        Save to your calendar
+                      </p>
+                      {(() => {
+                        const icsUrl = buildIcsDownloadUrl({
+                          title: ev.title,
+                          dateIso: ev.dateIso,
+                          time: ev.time,
+                          summary: ev.summary,
+                        });
+                        return icsUrl ? (
+                          <a
+                            href={icsUrl}
+                            className="inline-flex items-center justify-center rounded-full bg-deep px-4 py-2.5 text-center text-sm font-semibold text-parchment shadow-sm ring-1 ring-parchment/15 transition hover:bg-deep/90 hover:ring-gold/40"
+                          >
+                            Add to calendar
+                          </a>
+                        ) : null;
+                      })()}
+                      {ev.href && !ev.href.startsWith("/events/ics") && ev.cta ? (
+                        <a
+                          href={ev.href}
+                          target={ev.href.startsWith("http") ? "_blank" : undefined}
+                          rel={ev.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                          className="inline-flex text-sm font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
+                        >
+                          {ev.cta}
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : !isEventEnded(ev) && ev.href && ev.cta ? (
                     <div className="mt-auto pt-4">
                       <a
                         href={ev.href}
+                        target={ev.href.startsWith("http") ? "_blank" : undefined}
+                        rel={ev.href.startsWith("http") ? "noopener noreferrer" : undefined}
                         className="inline-flex text-sm font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
                       >
                         {ev.cta}
@@ -190,7 +243,7 @@ export async function EventsSection() {
         ) : null}
 
         <div className="border-t border-gold/15 pt-10">
-          <h3 className="font-display text-xl font-semibold text-deep sm:text-2xl">Mandir calendar</h3>
+          <h3 className="font-display text-xl font-semibold text-deep sm:text-2xl">Mandir Calendar</h3>
           <div className="mt-2 max-w-3xl space-y-3 text-base leading-relaxed text-earth sm:text-lg">
             {calendarIntroParts.map((text, idx) => (
               <p

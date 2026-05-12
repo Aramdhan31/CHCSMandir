@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { visit } from "@/content/site";
+import { MembershipPayForm } from "@/components/MembershipPayForm";
 
 function renderParagraphWithEmail(p: string) {
   const email = visit.email;
@@ -38,6 +39,7 @@ export function MembershipSection() {
                   <p key={i}>{renderParagraphWithEmail(p)}</p>
                 ))}
               </div>
+              <MembershipPayForm />
             </div>
 
             <div className="hidden justify-self-end lg:block">

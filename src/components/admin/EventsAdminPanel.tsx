@@ -9,6 +9,7 @@ import {
 } from "@/app/admin/events/eventDataActions";
 import type { AdminEventItem } from "@/lib/events/types";
 import { loadAdminEvents, saveAdminEvents } from "@/lib/events/localStorageStore";
+import { recurringEventTitles } from "@/content/site";
 
 function newId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -187,7 +188,12 @@ export function EventsAdminPanel({
   }, [authed, useSupabase, events]);
 
   const sorted = useMemo(() => {
-    return [...events].sort((a, b) => b.date.localeCompare(a.date));
+    const filtered = events.filter(
+      (ev) =>
+        ev.title.trim() !== recurringEventTitles.monthlySatsang &&
+        ev.title.trim() !== recurringEventTitles.bhajanSatsang,
+    );
+    return [...filtered].sort((a, b) => b.date.localeCompare(a.date));
   }, [events]);
 
   function resetForm() {
