@@ -40,7 +40,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl flex-nowrap items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6">
           <Link
             href="/#home"
-            className="flex min-w-0 max-w-[calc(100%-3.25rem)] flex-1 items-center gap-2.5 rounded-md outline-none ring-gold/50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-deep sm:max-w-none sm:gap-3 md:flex-initial"
+            className="flex min-w-0 max-w-[calc(100%-3.25rem)] flex-1 items-center gap-2.5 rounded-md outline-none ring-gold/50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-deep sm:max-w-none sm:gap-3 xl:flex-initial"
             onClick={(e) => {
               if (pathname !== "/") return;
               if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -59,10 +59,10 @@ export function SiteHeader() {
                 height={320}
                 decoding="async"
                 fetchPriority="high"
-                className="navbar-logo block h-14 w-auto max-h-14 max-w-[min(72vw,15rem)] object-contain object-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)] sm:h-16 sm:max-h-16 sm:max-w-[17rem] md:h-[4.5rem] md:max-h-[4.5rem]"
+                className="navbar-logo block h-14 w-auto max-h-14 max-w-[min(72vw,15rem)] object-contain object-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)] sm:h-16 sm:max-h-16 sm:max-w-[17rem] xl:h-[4.5rem] xl:max-h-[4.5rem]"
               />
             </span>
-            <span className="font-display flex min-w-0 flex-1 flex-col items-start justify-center text-sm font-semibold leading-snug tracking-tight text-gold sm:text-base md:text-lg md:leading-tight">
+            <span className="font-display flex min-w-0 flex-1 flex-col items-start justify-center text-sm font-semibold leading-snug tracking-tight text-gold sm:text-base xl:text-lg xl:leading-tight">
               {navName ? (
                 <span className="inline-flex max-w-full flex-col self-start">
                   <span className="text-left">{navName.line1}</span>
@@ -75,7 +75,7 @@ export function SiteHeader() {
           </Link>
           <button
             type="button"
-          className={`relative z-[60] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1.5 rounded-md border shadow-sm backdrop-blur-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-deep md:hidden ${
+          className={`relative z-[60] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1.5 rounded-md border shadow-sm backdrop-blur-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-deep xl:hidden ${
             open
               ? "border-gold/70 bg-deep/80 text-gold hover:border-gold hover:bg-deep"
               : "border-parchment/35 bg-parchment/10 text-deep hover:border-gold/50 hover:bg-parchment/15"
@@ -105,21 +105,21 @@ export function SiteHeader() {
             <button
               type="button"
               aria-label="Close menu overlay"
-              className="fixed inset-0 z-[54] bg-deep/95 md:hidden"
+              className="fixed inset-0 z-[54] bg-deep/95 xl:hidden"
               onClick={() => setOpen(false)}
             />
           ) : null}
           <nav
             id="primary-nav"
-          className={`absolute left-0 right-0 top-full z-[55] max-h-[min(70dvh,calc(100dvh-5rem))] overflow-y-auto border-b border-gold/20 bg-deep px-4 py-4 shadow-lg md:static md:z-auto md:block md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0 md:shadow-none ${open ? "block" : "hidden"}`}
+          className={`absolute left-0 right-0 top-full z-[55] max-h-[min(70dvh,calc(100dvh-5rem))] overflow-y-auto border-b border-gold/20 bg-deep px-4 py-4 shadow-lg xl:static xl:z-auto xl:block xl:max-h-none xl:overflow-visible xl:border-0 xl:bg-transparent xl:p-0 xl:shadow-none ${open ? "block" : "hidden"}`}
             aria-label="Primary"
           >
-            <ul className="flex flex-col gap-1 md:flex-row md:items-center md:gap-6">
+            <ul className="flex flex-col gap-1 xl:flex-row xl:items-center xl:gap-6">
               {nav.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                  className="block rounded-md px-2 py-3 text-sm font-medium text-parchment/95 transition-colors hover:bg-white/10 hover:text-gold md:py-1 md:text-earth md:hover:bg-transparent md:hover:text-gold-dim"
+                  className="block rounded-md px-2 py-3 text-sm font-medium text-parchment/95 transition-colors hover:bg-white/10 hover:text-gold xl:py-1 xl:text-earth xl:hover:bg-transparent xl:hover:text-gold-dim"
                     onClick={(e) => {
                       if (item.href.startsWith("/#") && pathname === "/") {
                         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
