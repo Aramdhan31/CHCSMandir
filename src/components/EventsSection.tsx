@@ -1,5 +1,8 @@
+import type { SiteEventItem } from "@/content/site";
 import {
   events,
+  buildBhajanSatsangSiteEventForDate,
+  buildMonthlySatsangSiteEventForDate,
   getNextMonthlySatsangEvent,
   getNextBhajanSatsangEvent,
   getMandirCalendarEmbedSrc,
@@ -8,90 +11,65 @@ import {
   mandirCalendar,
   recurringEventTitles,
 } from "@/content/site";
-import { fetchPublishedSupabaseEvents } from "@/lib/events/fetchPublished";
+import { fetchPublishedSupabaseEvents, fetchPublishedRecurringSettings } from "@/lib/events/fetchPublished";
+import { isEventEndedLondon, daysAfterEventLondon } from "@/lib/events/londonEventEnd";
+import type { PublishedRecurringSetting } from "@/lib/events/types";
 import { EventPosterCard } from "@/components/EventPosterCard";
 
-function getLondonNow() {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/London",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).formatToParts(new Date());
-
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
-  return {
-    y: Number(get("year")),
-    m: Number(get("month")),
-    d: Number(get("day")),
-    hh: Number(get("hour")),
-    mm: Number(get("minute")),
-  };
-}
-
-function parseIsoDate(iso: string) {
-  const m = iso.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!m) return null;
-  return { y: Number(m[1]), m: Number(m[2]), d: Number(m[3]) };
-}
-
-function dateKey(y: number, m: number, d: number) {
-  return y * 10000 + m * 100 + d;
-}
-
-function isEventEnded(input: { dateIso?: string; time?: string }) {
-  if (!input.dateIso) return false;
-  const eventDate = parseIsoDate(input.dateIso);
-  if (!eventDate) return false;
-
-  const now = getLondonNow();
-  const todayKey = dateKey(now.y, now.m, now.d);
-  const eventKey = dateKey(eventDate.y, eventDate.m, eventDate.d);
-
-  // Only mark ended the day AFTER the event date.
-  return eventKey < todayKey;
-}
-
-/** Whole calendar days (Europe/London date) since `dateIso`; `1` = first day after the event. */
-function daysAfterEventLondon(dateIso?: string): number | null {
-  if (!dateIso) return null;
-  const eventDate = parseIsoDate(dateIso);
-  if (!eventDate) return null;
-  const now = getLondonNow();
-  const tEv = Date.UTC(eventDate.y, eventDate.m - 1, eventDate.d);
-  const tNow = Date.UTC(now.y, now.m - 1, now.d);
-  return Math.floor((tNow - tEv) / 86400000);
+function resolveRecurringHomeCard(
+  computed: SiteEventItem,
+  settings: PublishedRecurringSetting | undefined,
+  buildManual: (iso: string, time?: string) => SiteEventItem | null,
+): SiteEventItem | null {
+  if (!settings) return computed;
+  if (settings.hidden_from_site) return null;
+  if (settings.use_automatic_next) return computed;
+  const iso = settings.override_event_date?.trim();
+  if (!iso) return computed;
+  const t = settings.override_event_time?.trim() || undefined;
+  const manual = buildManual(iso, t);
+  if (!manual) return computed;
+  if (isEventEndedLondon(manual)) return computed;
+  return manual;
 }
 
 function isArchivedToPrevious(ev: { dateIso?: string }) {
-  if (!isEventEnded(ev)) return false;
+  if (!isEventEndedLondon(ev)) return false;
   const d = daysAfterEventLondon(ev.dateIso);
   if (d === null) return false;
   return d > events.archiveGraceDaysAfterEventDate;
 }
 
 function isOnMainGrid(ev: { dateIso?: string }) {
-  if (!isEventEnded(ev)) return true;
+  if (!isEventEndedLondon(ev)) return true;
   const d = daysAfterEventLondon(ev.dateIso);
   if (d === null) return true;
   return d <= events.archiveGraceDaysAfterEventDate;
 }
 
 export async function EventsSection() {
-  const remoteItemsRaw = await fetchPublishedSupabaseEvents();
+  const [remoteItemsRaw, recurringSettings] = await Promise.all([
+    fetchPublishedSupabaseEvents(),
+    fetchPublishedRecurringSettings(),
+  ]);
   const remoteItems = remoteItemsRaw.filter(
     (ev) =>
       ev.title !== recurringEventTitles.monthlySatsang &&
       ev.title !== recurringEventTitles.bhajanSatsang,
   );
-  const recurringMonthly = getNextMonthlySatsangEvent();
-  const recurringBhajan = getNextBhajanSatsangEvent();
+  const recurringMonthly = resolveRecurringHomeCard(
+    getNextMonthlySatsangEvent(),
+    recurringSettings.monthly_satsang,
+    buildMonthlySatsangSiteEventForDate,
+  );
+  const recurringBhajan = resolveRecurringHomeCard(
+    getNextBhajanSatsangEvent(),
+    recurringSettings.bhajan_satsang,
+    buildBhajanSatsangSiteEventForDate,
+  );
   const cardItemsRaw = [
-    recurringMonthly,
-    recurringBhajan,
+    ...(recurringMonthly ? [recurringMonthly] : []),
+    ...(recurringBhajan ? [recurringBhajan] : []),
     ...remoteItems,
     ...events.items,
   ];
@@ -112,8 +90,8 @@ export async function EventsSection() {
   });
 
   const mainGridItems = cardItems.filter(isOnMainGrid).sort((a, b) => {
-    const aEnded = isEventEnded(a);
-    const bEnded = isEventEnded(b);
+    const aEnded = isEventEndedLondon(a);
+    const bEnded = isEventEndedLondon(b);
     if (aEnded !== bEnded) return aEnded ? 1 : -1;
 
     const ad = a.dateIso?.trim() || "";
@@ -189,7 +167,7 @@ export async function EventsSection() {
         {hasMainGrid ? (
           <ul className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {mainGridItems.map((ev) => (
-              <EventPosterCard key={`${ev.title}-${ev.dateLabel}`} ev={ev} ended={isEventEnded(ev)} />
+              <EventPosterCard key={`${ev.title}-${ev.dateLabel}`} ev={ev} ended={isEventEndedLondon(ev)} />
             ))}
           </ul>
         ) : hasPrevious ? (

@@ -218,6 +218,98 @@ export function getNextBhajanSatsangEvent(now = new Date()): SiteEventItem {
   };
 }
 
+function parseIsoDateForEvent(iso: string) {
+  const m = iso.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  return { y: Number(m[1]), monthIndex0: Number(m[2]) - 1, d: Number(m[3]) };
+}
+
+function normalizeRecurringTimeHHMM(raw: string, fallback: string): string {
+  const t = (raw || "").trim() || fallback;
+  const m = t.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  if (!m) return fallback;
+  return `${String(Number(m[1])).padStart(2, "0")}:${m[2]}`;
+}
+
+function formatTimeAmpmFromHHMM(hhmm: string): string {
+  const m = hhmm.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return hhmm;
+  let h = Number(m[1]);
+  const min = m[2];
+  if (!Number.isFinite(h)) return hhmm;
+  const ampm = h >= 12 ? "pm" : "am";
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${h}:${min}${ampm}`;
+}
+
+/**
+ * Build the Monthly Satsang home card for a specific calendar date (admin override).
+ * Returns null if `dateIso` is not `YYYY-MM-DD`.
+ */
+export function buildMonthlySatsangSiteEventForDate(
+  dateIso: string,
+  eventTime: string | undefined,
+): SiteEventItem | null {
+  const p = parseIsoDateForEvent(dateIso);
+  if (!p) return null;
+  const target = utcNoonDate(p.y, p.monthIndex0, p.d);
+  const timeNorm = normalizeRecurringTimeHHMM(eventTime ?? "", "11:00");
+  const y = target.getUTCFullYear();
+  const mo = String(target.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(target.getUTCDate()).padStart(2, "0");
+  const dateIsoOut = `${y}-${mo}-${d}`;
+  const icsParams = new URLSearchParams({
+    title: "Monthly Satsang (CHCS)",
+    date: dateIsoOut,
+    time: timeNorm,
+    summary: "1st Sunday of every month. All are welcome.",
+  });
+  return {
+    title: recurringEventTitles.monthlySatsang,
+    dateLabel: formatLondonEventDateLabel(target, formatTimeAmpmFromHHMM(timeNorm)),
+    summary: "1st Sunday of every month. All are welcome.",
+    imageSrc: "/monthly-satsang-sanitised.jpg",
+    dateIso: dateIsoOut,
+    time: timeNorm,
+    href: `/events/ics?${icsParams.toString()}`,
+    cta: "Add to calendar",
+  };
+}
+
+/**
+ * Build the Bhajan Satsang home card for a specific calendar date (admin override).
+ */
+export function buildBhajanSatsangSiteEventForDate(
+  dateIso: string,
+  eventTime: string | undefined,
+): SiteEventItem | null {
+  const p = parseIsoDateForEvent(dateIso);
+  if (!p) return null;
+  const target = utcNoonDate(p.y, p.monthIndex0, p.d);
+  const timeNorm = normalizeRecurringTimeHHMM(eventTime ?? "", "15:00");
+  const y = target.getUTCFullYear();
+  const mo = String(target.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(target.getUTCDate()).padStart(2, "0");
+  const dateIsoOut = `${y}-${mo}-${d}`;
+  const icsParams = new URLSearchParams({
+    title: "Bhajan Satsang (CHCS)",
+    date: dateIsoOut,
+    time: timeNorm,
+    summary: "2nd Saturday of every month, 3pm–5pm. All are welcome.",
+  });
+  return {
+    title: recurringEventTitles.bhajanSatsang,
+    dateLabel: formatLondonEventDateLabel(target, formatTimeAmpmFromHHMM(timeNorm)),
+    summary: "2nd Saturday of every month, 3pm–5pm. All are welcome.",
+    imageSrc: "/Screenshot%202026-04-30%20at%2013.22.19.png",
+    dateIso: dateIsoOut,
+    time: timeNorm,
+    href: `/events/ics?${icsParams.toString()}`,
+    cta: "Add to calendar",
+  };
+}
+
 export const events = {
   sectionTitle: "Upcoming events",
   /** Shown beside the section title while dated event cards are not on the site yet */

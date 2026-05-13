@@ -2,10 +2,11 @@
 
 import { cookies } from "next/headers";
 import { canManageEventsAdmin } from "@/lib/admin/eventsAccess";
-import type { AdminEventItem } from "@/lib/events/types";
+import type { AdminEventItem, AdminRecurringSetting, RecurringEventKind } from "@/lib/events/types";
 import { getSupabaseServiceRole } from "@/lib/supabase/service";
 
 const EVENTS_TABLE = "events";
+const RECURRING_TABLE = "recurring_event_settings";
 
 function eventsBucket() {
   return process.env.SUPABASE_EVENTS_STORAGE_BUCKET?.trim() || "event-images";
@@ -154,5 +155,96 @@ export async function deleteAdminEventAction(id: string): Promise<void> {
   if (!sb) throw new Error("Events are not configured on the server (Supabase).");
 
   const { error } = await sb.from(EVENTS_TABLE).delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+type RecurringRow = {
+  kind: string;
+  use_automatic_next: boolean;
+  override_event_date: string | null;
+  override_event_time: string | null;
+  hidden_from_site: boolean;
+};
+
+function timeToAdminInput(t: string | null | undefined): string {
+  if (!t) return "";
+  const m = String(t).trim().match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return "";
+  return `${String(Number(m[1])).padStart(2, "0")}:${m[2]}`;
+}
+
+const defaultRecurringRows = (): AdminRecurringSetting[] => [
+  {
+    kind: "monthly_satsang",
+    use_automatic_next: true,
+    override_event_date: "",
+    override_event_time: "",
+    hidden_from_site: false,
+  },
+  {
+    kind: "bhajan_satsang",
+    use_automatic_next: true,
+    override_event_date: "",
+    override_event_time: "",
+    hidden_from_site: false,
+  },
+];
+
+export async function listAdminRecurringSettingsAction(): Promise<AdminRecurringSetting[]> {
+  await assertEventsAdmin();
+  const sb = getSupabaseServiceRole();
+  const base = defaultRecurringRows();
+  if (!sb) return base;
+
+  const { data, error } = await sb
+    .from(RECURRING_TABLE)
+    .select("kind,use_automatic_next,override_event_date,override_event_time,hidden_from_site");
+
+  if (error) throw new Error(error.message);
+  const map = new Map((data as RecurringRow[] | null)?.map((r) => [r.kind, r]) ?? []);
+  return base.map((def) => {
+    const row = map.get(def.kind);
+    if (!row) return def;
+    return {
+      kind: def.kind,
+      use_automatic_next: row.use_automatic_next,
+      hidden_from_site: row.hidden_from_site,
+      override_event_date: row.override_event_date?.trim() ?? "",
+      override_event_time: timeToAdminInput(row.override_event_time),
+    };
+  });
+}
+
+type RecurringUpsertPayload = {
+  kind: RecurringEventKind;
+  use_automatic_next: boolean;
+  hidden_from_site: boolean;
+  override_event_date?: string;
+  override_event_time?: string;
+};
+
+export async function upsertAdminRecurringSettingAction(input: RecurringUpsertPayload): Promise<void> {
+  await assertEventsAdmin();
+  const sb = getSupabaseServiceRole();
+  if (!sb) throw new Error("Events are not configured on the server (Supabase).");
+
+  const useAuto = input.use_automatic_next;
+  const dateRaw = (input.override_event_date ?? "").trim();
+  const timeNorm = normalizeEventTime(input.override_event_time);
+
+  if (!useAuto && !dateRaw && !input.hidden_from_site) {
+    throw new Error("When manual control is on, choose the next event date (or switch back to automatic).");
+  }
+
+  const row = {
+    kind: input.kind,
+    use_automatic_next: useAuto,
+    hidden_from_site: input.hidden_from_site,
+    override_event_date: useAuto ? null : dateRaw,
+    override_event_time: useAuto ? null : timeNorm,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { error } = await sb.from(RECURRING_TABLE).upsert(row, { onConflict: "kind" });
   if (error) throw new Error(error.message);
 }

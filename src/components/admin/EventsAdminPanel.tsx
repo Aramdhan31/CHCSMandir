@@ -5,11 +5,46 @@ import Link from "next/link";
 import {
   deleteAdminEventAction,
   listAdminEventsAction,
+  listAdminRecurringSettingsAction,
   upsertAdminEventAction,
+  upsertAdminRecurringSettingAction,
 } from "@/app/admin/events/eventDataActions";
-import type { AdminEventItem } from "@/lib/events/types";
+import type { AdminEventItem, AdminRecurringSetting, RecurringEventKind } from "@/lib/events/types";
 import { loadAdminEvents, saveAdminEvents } from "@/lib/events/localStorageStore";
 import { recurringEventTitles } from "@/content/site";
+
+const RECURRING_DEFAULTS: AdminRecurringSetting[] = [
+  {
+    kind: "monthly_satsang",
+    use_automatic_next: true,
+    override_event_date: "",
+    override_event_time: "",
+    hidden_from_site: false,
+  },
+  {
+    kind: "bhajan_satsang",
+    use_automatic_next: true,
+    override_event_date: "",
+    override_event_time: "",
+    hidden_from_site: false,
+  },
+];
+
+const RECURRING_HELP: Record<
+  RecurringEventKind,
+  { title: string; description: string }
+> = {
+  monthly_satsang: {
+    title: "Next Monthly Satsang",
+    description:
+      "Normally the next 1st Sunday at 11:00am (computed automatically). Turn manual control on to set a different next date, or hide the card if this month’s service is cancelled.",
+  },
+  bhajan_satsang: {
+    title: "Next Bhajan Satsang",
+    description:
+      "Normally the next 2nd Saturday at 3:00pm (computed automatically). Override the date or time when it changes, or hide the card temporarily.",
+  },
+};
 
 function newId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -161,10 +196,15 @@ export function EventsAdminPanel({
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recurringRows, setRecurringRows] = useState<AdminRecurringSetting[]>(RECURRING_DEFAULTS);
+  const [recurringLoadError, setRecurringLoadError] = useState<string | null>(null);
+  const [recurringBusyKind, setRecurringBusyKind] = useState<RecurringEventKind | null>(null);
 
   useEffect(() => {
     if (!authed) {
       setEvents([]);
+      setRecurringRows(RECURRING_DEFAULTS);
+      setRecurringLoadError(null);
       return;
     }
     if (!useSupabase) {
@@ -173,11 +213,23 @@ export function EventsAdminPanel({
     }
     void (async () => {
       setError(null);
+      setRecurringLoadError(null);
       try {
         const rows = await listAdminEventsAction();
         setEvents(rows);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Could not load events from Supabase.");
+      }
+      if (!useSupabase) return;
+      try {
+        setRecurringRows(await listAdminRecurringSettingsAction());
+      } catch (e) {
+        setRecurringRows(RECURRING_DEFAULTS);
+        setRecurringLoadError(
+          e instanceof Error
+            ? `${e.message} If this is a new deploy, run the Supabase migration that creates recurring_event_settings.`
+            : "Could not load recurring event settings.",
+        );
       }
     })();
   }, [authed, useSupabase]);
@@ -195,6 +247,34 @@ export function EventsAdminPanel({
     );
     return [...filtered].sort((a, b) => b.date.localeCompare(a.date));
   }, [events]);
+
+  function patchRecurringRow(kind: RecurringEventKind, patch: Partial<AdminRecurringSetting>) {
+    setRecurringRows((prev) =>
+      prev.map((row) => (row.kind === kind ? { ...row, ...patch } : row)),
+    );
+  }
+
+  async function saveRecurringRow(kind: RecurringEventKind) {
+    const r = recurringRows.find((x) => x.kind === kind);
+    if (!r) return;
+    setRecurringBusyKind(kind);
+    setError(null);
+    setRecurringLoadError(null);
+    try {
+      await upsertAdminRecurringSettingAction({
+        kind: r.kind,
+        use_automatic_next: r.use_automatic_next,
+        hidden_from_site: r.hidden_from_site,
+        override_event_date: r.override_event_date,
+        override_event_time: r.override_event_time,
+      });
+      setRecurringRows(await listAdminRecurringSettingsAction());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not save recurring settings.");
+    } finally {
+      setRecurringBusyKind(null);
+    }
+  }
 
   function resetForm() {
     setTitle("");
@@ -323,6 +403,131 @@ export function EventsAdminPanel({
           role="alert"
         >
           {error}
+        </div>
+      ) : null}
+
+      {authed && useSupabase ? (
+        <div className="rounded-2xl border-2 border-gold/20 bg-white/90 p-6 shadow-sm sm:p-10">
+          <h2 className="font-display text-2xl font-bold text-deep">Recurring home-page cards</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-earth/90">
+            <strong className="text-deep">Monthly Satsang</strong> and{" "}
+            <strong className="text-deep">Bhajan Satsang</strong> still use the same titles, images, and
+            descriptions as today — only the <em>next date shown on the site</em> (or visibility) changes
+            from here. One-off events stay in the list below.
+          </p>
+          {recurringLoadError ? (
+            <div
+              className="mt-4 rounded-xl border border-amber-300/80 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+              role="status"
+            >
+              {recurringLoadError}
+            </div>
+          ) : null}
+
+          <div className="mt-8 space-y-10">
+            {recurringRows.map((r) => {
+              const help = RECURRING_HELP[r.kind];
+              const saving = recurringBusyKind === r.kind;
+              return (
+                <div
+                  key={r.kind}
+                  className="rounded-xl border border-earth/15 bg-parchment-muted/35 p-5 sm:p-6"
+                >
+                  <h3 className="font-display text-lg font-semibold text-deep">{help.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-earth/90">{help.description}</p>
+
+                  <div className="mt-5 space-y-4">
+                    <label className="flex cursor-pointer items-start gap-3">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-earth/40 text-gold focus:ring-gold"
+                        checked={r.hidden_from_site}
+                        onChange={(e) =>
+                          patchRecurringRow(r.kind, { hidden_from_site: e.target.checked })
+                        }
+                      />
+                      <span>
+                        <span className="block text-sm font-semibold text-deep">Hide this card</span>
+                        <span className="mt-0.5 block text-xs text-earth/75">
+                          The event disappears from the home page until you turn this off (e.g. cancelled
+                          month).
+                        </span>
+                      </span>
+                    </label>
+
+                    <label className="flex cursor-pointer items-start gap-3">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-earth/40 text-gold focus:ring-gold"
+                        checked={r.use_automatic_next}
+                        onChange={(e) =>
+                          patchRecurringRow(r.kind, { use_automatic_next: e.target.checked })
+                        }
+                      />
+                      <span>
+                        <span className="block text-sm font-semibold text-deep">
+                          Use automatic next date
+                        </span>
+                        <span className="mt-0.5 block text-xs text-earth/75">
+                          Uncheck to set the exact next date visitors should see.
+                        </span>
+                      </span>
+                    </label>
+
+                    {!r.use_automatic_next ? (
+                      <div className="grid gap-4 border-t border-gold/15 pt-4 sm:grid-cols-2">
+                        <label className="block">
+                          <span className="mb-2 block text-sm font-semibold text-deep">Next date</span>
+                          <input
+                            type="date"
+                            value={r.override_event_date}
+                            onChange={(e) =>
+                              patchRecurringRow(r.kind, { override_event_date: e.target.value })
+                            }
+                            className="w-full rounded-xl border-2 border-earth/20 bg-white px-4 py-3 text-base text-ink outline-none ring-gold/40 focus:border-gold focus:ring-2"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="mb-2 block text-sm font-semibold text-deep">
+                            Time (optional)
+                          </span>
+                          <input
+                            type="time"
+                            value={r.override_event_time}
+                            onChange={(e) =>
+                              patchRecurringRow(r.kind, { override_event_time: e.target.value })
+                            }
+                            className="w-full rounded-xl border-2 border-earth/20 bg-white px-4 py-3 text-base text-ink outline-none ring-gold/40 focus:border-gold focus:ring-2"
+                          />
+                          <span className="mt-1 block text-xs text-earth/75">
+                            Leave blank for the usual time (11:00am monthly · 3:00pm bhajan).
+                          </span>
+                        </label>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-6">
+                    <button
+                      type="button"
+                      onClick={() => void saveRecurringRow(r.kind)}
+                      disabled={saving || busy}
+                      className="rounded-full bg-deep px-6 py-2.5 text-sm font-bold text-parchment transition hover:bg-earth disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {saving ? "Saving…" : `Save — ${help.title}`}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : authed && !useSupabase ? (
+        <div className="rounded-2xl border border-gold/20 bg-parchment-muted/40 px-5 py-4 text-sm leading-relaxed text-earth">
+          <strong className="text-deep">Recurring cards:</strong> when this admin uses Supabase, you can
+          override the next Monthly / Bhajan Satsang date or hide a card without editing code. Local-only
+          mode still uses the automatic schedule in{" "}
+          <code className="text-xs">src/content/site.ts</code>.
         </div>
       ) : null}
 
