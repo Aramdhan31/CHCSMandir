@@ -171,9 +171,7 @@ export function ContactForm() {
         <p className="rounded-xl border border-red-800/25 bg-red-50 px-4 py-3 text-sm text-red-950" role="alert">
           {error}
           {" "}
-          <a href={`mailto:${visit.email}`} className="font-semibold underline">
-            {visit.email}
-          </a>
+          You can also email {visit.email}.
         </p>
       ) : null}
 

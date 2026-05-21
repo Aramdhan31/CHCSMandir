@@ -71,7 +71,7 @@ function detailRow(label: string, valueHtml: string) {
 export function buildTempleEnquiryEmail(data: ContactSubmission) {
   const fullName = `${data.firstName} ${data.lastName}`;
   const text = [
-    `${site.nameFull} — new website enquiry`,
+    `${site.nameFull} — new contact form enquiry`,
     "",
     `Name:     ${fullName}`,
     `Email:    ${data.email}`,
@@ -84,10 +84,10 @@ export function buildTempleEnquiryEmail(data: ContactSubmission) {
   ].join("\n");
 
   const bodyHtml = `
-    <p style="margin:0 0 16px;">Someone submitted the contact form on <strong>chcstemple.org</strong>.</p>
+    <p style="margin:0 0 16px;">Someone submitted the <strong>CHCS Temple</strong> contact form.</p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
       ${detailRow("Name", escapeHtml(fullName))}
-      ${detailRow("Email", `<a href="mailto:${escapeHtml(data.email)}" style="color:${COLORS.gold};font-weight:600;">${escapeHtml(data.email)}</a>`)}
+      ${detailRow("Email", escapeHtml(data.email))}
       ${detailRow("Subject", escapeHtml(data.subject))}
     </table>
     <p style="margin:0 0 8px;font-size:14px;font-weight:600;color:${COLORS.deep};">Message</p>
@@ -97,12 +97,12 @@ export function buildTempleEnquiryEmail(data: ContactSubmission) {
   `;
 
   const html = emailShell(
-    "New website enquiry",
+    "New contact form enquiry",
     bodyHtml,
-    `<strong>Tip:</strong> hit <strong>Reply</strong> in Gmail — your reply will go to <a href="mailto:${escapeHtml(data.email)}" style="color:${COLORS.gold};">${escapeHtml(data.email)}</a>, not to the automated sender.`,
+    `<strong>Tip:</strong> hit <strong>Reply</strong> in Gmail — your reply will go to <strong>${escapeHtml(data.email)}</strong>, not to the automated sender.`,
   );
 
-  return { text, html, subject: `Website enquiry: ${data.subject}` };
+  return { text, html, subject: `Contact form: ${data.subject}` };
 }
 
 export function buildVisitorConfirmationEmail(
@@ -141,8 +141,8 @@ export function buildVisitorConfirmationEmail(
   `;
 
   const footer = isNoreply
-    ? `This confirmation was sent from <strong>${escapeHtml(fromDisplayEmail)}</strong>. Please <strong>do not reply</strong> to that address — contact us at <a href="mailto:${escapeHtml(replyToEmail)}" style="color:${COLORS.gold};font-weight:600;">${escapeHtml(replyToEmail)}</a>.<br /><br />${escapeHtml(brand.appName)} · ${escapeHtml(addressLine)} · ${escapeHtml(visit.phoneDisplay)}`
-    : `Questions? Email <a href="mailto:${escapeHtml(replyToEmail)}" style="color:${COLORS.gold};">${escapeHtml(replyToEmail)}</a>.`;
+    ? `This confirmation was sent from <strong>${escapeHtml(fromDisplayEmail)}</strong>. Please <strong>do not reply</strong> to that address — contact us at <strong>${escapeHtml(replyToEmail)}</strong>.<br /><br />${escapeHtml(brand.appName)} · ${escapeHtml(addressLine)} · ${escapeHtml(visit.phoneDisplay)}`
+    : `Questions? Email <strong>${escapeHtml(replyToEmail)}</strong>.`;
 
   const html = emailShell("We received your message", bodyHtml, footer);
 

@@ -69,7 +69,7 @@ async function sendMail(args: {
       html: args.html,
       priority: "normal",
       headers: {
-        "X-Mailer": "CHCS Temple Website",
+        "X-Mailer": "CHCS Temple Contact Form",
       },
     });
     return { ok: true };
