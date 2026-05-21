@@ -702,20 +702,17 @@ export const visit = {
       "Parking on Ostade Road is restricted on weekdays between 12–2pm; weekends are often free. Restrictions change — use the Lambeth map below before you travel and allow extra time.",
     parkingMap: {
       heading: "Parking restrictions near the Mandir",
-      locationMapHeading: "Ostade Road — Mandir location",
       intro:
-        "The map below opens on Ostade Road (Lambeth council parking data). If it looks zoomed out, search Ostade Road in the map search box.",
+        "Official Lambeth Streets map (AppyWay). Search Ostade Road or 16 Ostade Road SW2 2BB in the map to see restrictions on the temple road and nearby streets.",
       mandirLat: 51.461389,
       mandirLng: -0.118028,
       zoom: 18,
-      searchQuery: "Ostade Road, London, SW2 2BB, United Kingdom",
       baseUrl: "https://streets.appyway.com/lambeth",
-      overlayCta: "Click or tap to load the parking map on Ostade Road",
+      overlayCta: "Click or tap to use the parking map",
       openFullMapLabel: "Open parking map in a new tab",
     },
     parkingRestrictionsLabel: "Lambeth parking restrictions map",
-    parkingRestrictionsHint:
-      "Opens on Ostade Road — use the search box if you need to re-centre.",
+    parkingRestrictionsHint: "Council map — search Ostade Road after the map loads.",
   },
   phoneLabel: "Phone number",
   phoneDisplay: "+44 (0)20 8674 0755",
@@ -790,19 +787,6 @@ export function getLambethParkingMapUrl(): string {
   const p = visit.directions.parkingMap;
   const query = new URLSearchParams({ restrictions: "parking" });
   return `${p.baseUrl}?${query}#${p.zoom}/${p.mandirLat}/${p.mandirLng}`;
-}
-
-/** Street map centred on the Mandir (Ostade Road) — always shows the temple road. */
-export function getMandirOsmEmbedSrc(): string {
-  const p = visit.directions.parkingMap;
-  const pad = 0.0028;
-  const bbox = [
-    p.mandirLng - pad,
-    p.mandirLat - pad,
-    p.mandirLng + pad,
-    p.mandirLat + pad,
-  ].join("%2C");
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${p.mandirLat}%2C${p.mandirLng}`;
 }
 
 export function getGoogleMapsEmbedSrc(): string {
