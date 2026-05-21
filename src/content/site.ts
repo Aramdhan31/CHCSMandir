@@ -718,9 +718,7 @@ export const visit = {
   },
   formThankYou: "Thank you — your message has been sent.",
   formSuccessBody:
-    "The Mandir team has been emailed at om@chcstemple.org. You should also receive a confirmation at the address you entered. We endeavour to reply as soon as we can.",
-  formSaveCopyLabel: "Download a copy",
-  formCopyLabel: "Copy to clipboard",
+    "The Mandir team has been notified at om@chcstemple.org. You should receive a confirmation email shortly from our noreply address — check spam if you do not see it. We endeavour to reply from om@chcstemple.org as soon as we can.",
   formSendAnotherLabel: "Send another message",
 } as const;
 

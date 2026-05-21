@@ -2,7 +2,10 @@ import nodemailer from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 import { visit } from "@/content/site";
 import type { ContactSubmission } from "@/lib/contact/validate";
-import { formatSubmissionCopy } from "@/lib/contact/validate";
+import {
+  buildTempleEnquiryEmail,
+  buildVisitorConfirmationEmail,
+} from "@/lib/contact/emailTemplates";
 
 type SendResult = { ok: true } | { ok: false; error: string };
 
@@ -16,13 +19,19 @@ function smtpConfig() {
     process.env.SMTP_PASS?.trim() ||
     ""
   ).replace(/\s/g, "");
-  const to = process.env.CONTACT_TO_EMAIL?.trim() || visit.email;
+  const inbox = process.env.CONTACT_TO_EMAIL?.trim() || visit.email;
+  const fromEmail =
+    process.env.CONTACT_NOREPLY_EMAIL?.trim() ||
+    process.env.CONTACT_FROM_EMAIL?.trim() ||
+    user;
+  const replyTo =
+    process.env.CONTACT_REPLY_TO?.trim() || inbox;
   const fromName = process.env.CONTACT_FROM_NAME?.trim() || "CHCS Mandir";
   const host = process.env.SMTP_HOST?.trim() || "smtp.gmail.com";
   const port = Number(process.env.SMTP_PORT?.trim() || "587");
   const secure = port === 465;
 
-  return { user, pass, to, fromName, host, port, secure };
+  return { user, pass, inbox, fromEmail, replyTo, fromName, host, port, secure };
 }
 
 function getTransport(): nodemailer.Transporter<SMTPTransport.SentMessageInfo> | null {
@@ -41,21 +50,23 @@ async function sendMail(args: {
   to: string;
   subject: string;
   text: string;
+  html: string;
   replyTo?: string;
 }): Promise<SendResult> {
   const transport = getTransport();
-  const { user, fromName } = smtpConfig();
-  if (!transport || !user) {
+  const { fromEmail, fromName } = smtpConfig();
+  if (!transport || !fromEmail) {
     return { ok: false, error: "Email is not configured on the server." };
   }
 
   try {
     await transport.sendMail({
-      from: `"${fromName}" <${user}>`,
+      from: `"${fromName}" <${fromEmail}>`,
       to: args.to,
       replyTo: args.replyTo,
       subject: args.subject,
       text: args.text,
+      html: args.html,
     });
     return { ok: true };
   } catch (e) {
@@ -69,7 +80,7 @@ export function isContactEmailConfigured() {
   return Boolean(user && pass);
 }
 
-/** Notify the Mandir Gmail inbox and send the visitor a confirmation copy. */
+/** Notify the Mandir inbox and send the visitor a confirmation copy. */
 export async function sendContactEmails(
   data: ContactSubmission,
 ): Promise<{ ok: true; warning?: string } | { ok: false; error: string }> {
@@ -81,43 +92,26 @@ export async function sendContactEmails(
     };
   }
 
-  const { to } = smtpConfig();
-  const fullName = `${data.firstName} ${data.lastName}`;
-  const templeBody = [
-    "New message from the CHCS website contact form.",
-    "",
-    `Name: ${fullName}`,
-    `Email: ${data.email}`,
-    `Subject: ${data.subject}`,
-    "",
-    "Message:",
-    data.message,
-  ].join("\n");
+  const { inbox, fromEmail, replyTo } = smtpConfig();
+  const temple = buildTempleEnquiryEmail(data);
 
   const toTemple = await sendMail({
-    to,
-    subject: `Website enquiry: ${data.subject}`,
-    text: templeBody,
+    to: inbox,
+    subject: temple.subject,
+    text: temple.text,
+    html: temple.html,
     replyTo: data.email,
   });
   if (!toTemple.ok) return toTemple;
 
-  const confirmBody = [
-    `Dear ${data.firstName},`,
-    "",
-    "Thank you for contacting the Caribbean Hindu Cultural Society Mandir.",
-    "We have received your message and will reply to this email address when we can.",
-    "",
-    "— Copy of your enquiry —",
-    "",
-    formatSubmissionCopy(data),
-  ].join("\n");
+  const confirm = buildVisitorConfirmationEmail(data, replyTo, fromEmail);
 
   const toVisitor = await sendMail({
     to: data.email,
-    subject: "We received your message — CHCS Mandir",
-    text: confirmBody,
-    replyTo: to,
+    subject: confirm.subject,
+    text: confirm.text,
+    html: confirm.html,
+    replyTo,
   });
   if (!toVisitor.ok) {
     return {

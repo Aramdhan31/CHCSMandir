@@ -2,16 +2,9 @@
 
 import { useCallback, useState } from "react";
 import { visit } from "@/content/site";
-import { formatSubmissionCopy, type ContactSubmission } from "@/lib/contact/validate";
+import type { ContactSubmission } from "@/lib/contact/validate";
 
-const {
-  formLabels,
-  formThankYou,
-  formSuccessBody,
-  formSaveCopyLabel,
-  formCopyLabel,
-  formSendAnotherLabel,
-} = visit;
+const { formLabels, formThankYou, formSuccessBody, formSendAnotherLabel } = visit;
 
 const emptyForm = (): ContactSubmission => ({
   firstName: "",
@@ -28,19 +21,14 @@ export function ContactForm() {
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
   const [submittedAt, setSubmittedAt] = useState<string | null>(null);
-  const [copyStatus, setCopyStatus] = useState<string | null>(null);
 
   const sent = submittedAt !== null;
-  const copyText = sent
-    ? formatSubmissionCopy(form, submittedAt)
-    : "";
 
   const onSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       setError(null);
       setWarning(null);
-      setCopyStatus(null);
       setPending(true);
       try {
         const res = await fetch("/api/contact", {
@@ -69,34 +57,12 @@ export function ContactForm() {
     [form, company],
   );
 
-  const downloadCopy = () => {
-    if (!copyText) return;
-    const blob = new Blob([copyText], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `chcs-enquiry-${form.lastName || "message"}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const copyToClipboard = async () => {
-    if (!copyText) return;
-    try {
-      await navigator.clipboard.writeText(copyText);
-      setCopyStatus("Copied to clipboard.");
-    } catch {
-      setCopyStatus("Could not copy — use Download a copy instead.");
-    }
-  };
-
   const resetForm = () => {
     setForm(emptyForm());
     setCompany("");
     setSubmittedAt(null);
     setError(null);
     setWarning(null);
-    setCopyStatus(null);
   };
 
   if (sent) {
@@ -109,24 +75,6 @@ export function ContactForm() {
             <p className="mt-3 text-sm leading-relaxed text-earth/90">{warning}</p>
           ) : null}
         </div>
-
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          <button
-            type="button"
-            onClick={downloadCopy}
-            className="inline-flex items-center justify-center rounded-full border-2 border-gold/50 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gold-dim transition hover:border-gold hover:bg-white hover:text-deep"
-          >
-            {formSaveCopyLabel}
-          </button>
-          <button
-            type="button"
-            onClick={() => void copyToClipboard()}
-            className="inline-flex items-center justify-center rounded-full border-2 border-gold/35 bg-parchment-muted/80 px-5 py-2.5 text-sm font-semibold text-earth transition hover:border-gold hover:text-deep"
-          >
-            {formCopyLabel}
-          </button>
-        </div>
-        {copyStatus ? <p className="text-sm text-earth">{copyStatus}</p> : null}
 
         <button
           type="button"
