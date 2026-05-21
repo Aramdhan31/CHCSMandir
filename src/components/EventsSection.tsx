@@ -151,7 +151,7 @@ export async function EventsSection() {
           <p className="mt-4 text-lg text-earth">{events.intro}</p>
           <p className="mt-2 text-base text-earth/90">
             <span className="font-semibold text-deep">Wednesday Lunch Club</span>: Wednesdays, 11:00am
-            – 2:00pm (just turn up).
+            – 2:00pm.
           </p>
           {hasAnyEvents ? (
             <p className="mt-4 max-w-3xl rounded-xl border border-gold/20 bg-parchment-muted/50 px-4 py-3 text-sm leading-relaxed text-earth sm:text-base">

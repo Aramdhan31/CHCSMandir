@@ -314,7 +314,7 @@ export const events = {
   sectionTitle: "Upcoming events",
   /** Shown beside the section title while dated event cards are not on the site yet */
   comingSoonLabel: "Coming soon",
-  intro: `All are welcome at ${site.nameFull}, 16 Ostade Road, London SW2.`,
+  intro: `All are welcome to our religious and cultural events at ${site.nameFull}, 16 Ostade Road, London SW2.`,
   /**
    * Clarifies CHCS event cards (with “add to calendar” links) vs the embedded Mandir Google Calendar
    * (festival / observance dates that may not match on-the-day CHCS timings).
@@ -407,7 +407,7 @@ export const about = {
   },
   /** Home page — short version; full narrative lives on /about */
   homeSummaryParagraphs: [
-    "The Caribbean Hindu Cultural Society (CHCS), based in South London, was the UK’s first Hindu organisation for promoting Hinduism and Hindu culture. Today we welcome everyone to Sunday Havan, major festivals with full English translation, and community life at 16 Ostade Road — open to every age and background.",
+    "The Caribbean Hindu Cultural Society (CHCS), based in South London, was the UK’s first Hindu organisation for promoting Hinduism and Hindu culture. Today we welcome everyone to religious and cultural events, including major festivals, delivered with full English translation and meaning — open to every age and background.",
     "From the first meetings in 1959 and decades of fundraising, to buying and restoring our Ostade Road home and consecrating the Mandir, members built a registered Place of Worship and a cohesive society. Membership is open to all, with benefits set out in our constitution.",
   ] as const,
   readMoreCta: "Read the full story",
@@ -613,7 +613,7 @@ export const visit = {
   communityItems: [
     {
       title: "Wednesday Lunch Club",
-      detail: "Wednesdays, 11:00am – 2:00pm (just turn up).",
+      detail: "Wednesdays, 11:00am – 2:00pm.",
     },
     {
       title: "School visits",
