@@ -407,7 +407,7 @@ export const about = {
   },
   /** Home page — short version; full narrative lives on /about */
   homeSummaryParagraphs: [
-    "The Caribbean Hindu Cultural Society (CHCS), based in South London, was the UK’s first Hindu organisation for promoting Hinduism and Hindu culture. Today we welcome everyone to religious and cultural events, including major festivals, delivered with full English translation and meaning — open to every age and background.",
+    "The Caribbean Hindu Cultural Society (CHCS), based in South London, was the UK’s first Hindu organisation for promoting Hinduism and Hindu culture. Today we welcome everyone to religious and cultural events, including major festivals, delivered with full English translation and meaning - open to every age and background.",
     "From the first meetings in 1959 and decades of fundraising, to buying and restoring our Ostade Road home and consecrating the Mandir, members built a registered Place of Worship and a cohesive society. Membership is open to all, with benefits set out in our constitution.",
   ] as const,
   readMoreCta: "Read the full story",
