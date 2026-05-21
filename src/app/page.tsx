@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { HeroSection } from "@/components/HeroSection";
 import { EventsSection } from "@/components/EventsSection";
+import { CommunityProgrammesSection } from "@/components/CommunityProgrammesSection";
 import { AboutSection } from "@/components/AboutSection";
 import { MembershipSection } from "@/components/MembershipSection";
 import { PeopleSection } from "@/components/PeopleSection";
@@ -18,6 +19,7 @@ export default function HomePage() {
       <main id="main">
         <HeroSection />
         <EventsSection />
+        <CommunityProgrammesSection />
         <AboutSection />
         <MembershipSection />
         <PeopleSection />

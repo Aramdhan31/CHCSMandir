@@ -611,11 +611,11 @@ export function getLeadershipHomeSpotlights() {
   return { president, secretary, pandit };
 }
 
-export const visit = {
-  sectionTitle: "Visit us",
-  servicesHeading: "Services",
-  communityHeading: "Community programmes",
-  communityItems: [
+export const communityProgrammes = {
+  sectionTitle: "Community programmes",
+  intro:
+    "Alongside religious and cultural events, the Mandir hosts regular activities open to the wider community.",
+  items: [
     {
       title: "Wednesday Lunch Club",
       detail: "Wednesdays, 11:00am – 2:00pm.",
@@ -629,6 +629,13 @@ export const visit = {
       detail: "Email for more details.",
     },
   ],
+  visitCtaLabel: "Directions, map & contact",
+  visitCtaHash: "#visit",
+} as const;
+
+export const visit = {
+  sectionTitle: "Visit us",
+  servicesHeading: "Services",
   addressLabel: "Address",
   addressLines: ["16 Ostade Road", "London, SW2 2BB"],
   directionsHeading: "Getting here",
@@ -692,7 +699,7 @@ export const visit = {
     liveBusesHref: "https://tfl.gov.uk/modes/buses/",
     drivingLabel: "Driving",
     driving:
-      "Parking is restricted. Weekdays between 12–2pm there are additional restrictions — please allow extra time and be respectful of neighbours. Consider public transport where possible.",
+      "Parking is restricted. Weekdays between 12–2pm and free on weekends.",
   },
   phoneLabel: "Phone number",
   phoneDisplay: "+44 (0)20 8674 0755",
