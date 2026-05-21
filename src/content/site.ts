@@ -407,7 +407,7 @@ export const about = {
   },
   /** Home page — short version; full narrative lives on /about */
   homeSummaryParagraphs: [
-    "The Caribbean Hindu Cultural Society (CHCS) was South London’s first Hindu organisation for promoting Hinduism and Hindu culture. Today we welcome everyone to Sunday Havan, major festivals with full English translation, and community life at 16 Ostade Road — open to every age and background.",
+    "The Caribbean Hindu Cultural Society (CHCS), based in South London, was the UK’s first Hindu organisation for promoting Hinduism and Hindu culture. Today we welcome everyone to Sunday Havan, major festivals with full English translation, and community life at 16 Ostade Road — open to every age and background.",
     "From the first meetings in 1959 and decades of fundraising, to buying and restoring our Ostade Road home and consecrating the Mandir, members built a registered Place of Worship and a cohesive society. Membership is open to all, with benefits set out in our constitution.",
   ] as const,
   readMoreCta: "Read the full story",
@@ -466,7 +466,7 @@ export const about = {
     {
       heading: "Our Temple today",
       paragraphs: [
-        "The Caribbean Hindu Cultural Society was the first Hindu organisation in South London for the promotion of Hinduism and Hindu Culture.",
+        "The Caribbean Hindu Cultural Society, based in South London, was the UK’s first Hindu organisation for the promotion of Hinduism and Hindu Culture.",
         "Over the years it has evolved as a cohesive society reaching out to the wider community, providing a range of cultural programmes and activities which anyone of any age and cultural background may attend.",
         "In 2000, the name of the Society was changed to “Caribbean Hindu Cultural Society”. The Temple was formally registered with Lambeth Council as a Place of Worship and as a place for the Solemnisation of Marriages on 30th January 2001.",
         "In addition to regular Sunday Havan (four Sundays per month) all Hindu festivals are celebrated with full English translation. The audience is encouraged to participate as and when appropriate under the guidance of the officiating Pandit.",
