@@ -697,9 +697,13 @@ export const visit = {
     ],
     liveBusesLabel: "Check live buses",
     liveBusesHref: "https://tfl.gov.uk/modes/buses/",
-    drivingLabel: "Driving",
+    drivingLabel: "Driving & parking",
     driving:
-      "Parking restricted Weekdays between 12–2pm and free on weekends at Ostade Road.",
+      "Parking on Ostade Road is restricted on weekdays between 12–2pm; weekends are often free. Restrictions change — check the council map before you travel and allow extra time.",
+    parkingRestrictionsLabel: "Lambeth parking restrictions map",
+    parkingRestrictionsHref: "https://streets.appyway.com/lambeth",
+    parkingRestrictionsHint:
+      "Official Lambeth Streets map (AppyWay). Opens in a new tab — zoom to Brixton and search for Ostade Road.",
   },
   phoneLabel: "Phone number",
   phoneDisplay: "+44 (0)20 8674 0755",

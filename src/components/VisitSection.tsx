@@ -165,6 +165,24 @@ export function VisitSection() {
                 {d.drivingLabel}
               </p>
               <p className="mt-2 text-sm leading-relaxed text-earth">{d.driving}</p>
+              {"parkingRestrictionsHref" in d && d.parkingRestrictionsHref ? (
+                <p className="mt-3 text-sm">
+                  <a
+                    href={d.parkingRestrictionsHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
+                  >
+                    {("parkingRestrictionsLabel" in d && d.parkingRestrictionsLabel) ||
+                      "Parking restrictions map"}
+                  </a>
+                  {"parkingRestrictionsHint" in d && d.parkingRestrictionsHint ? (
+                    <span className="mt-1.5 block text-xs leading-relaxed text-earth/90">
+                      {d.parkingRestrictionsHint}
+                    </span>
+                  ) : null}
+                </p>
+              ) : null}
               <p className="mt-3">
                 <a
                   href={connect.map.openInMapsUrl}
