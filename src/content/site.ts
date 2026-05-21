@@ -23,7 +23,7 @@ export const brand = {
   /** Ultra-short (e.g. legacy links); header uses site.nameFull */
   wordmark: site.nameShort,
   /** Browser tab, install name, Open Graph short line — `npm run icons` uses public/favicon.png */
-  appName: "CHCS Mandir",
+  appName: "CHCS Temple",
 } as const;
 
 export const hero = {
@@ -718,7 +718,7 @@ export const visit = {
   },
   formThankYou: "Thank you — your message has been sent.",
   formSuccessBody:
-    "The Mandir team has been notified at om@chcstemple.org. You should receive a confirmation email shortly from our noreply address — check spam if you do not see it. We endeavour to reply from om@chcstemple.org as soon as we can.",
+    "We have emailed a confirmation to the address you entered. If it is not in your inbox within a few minutes, check Junk or Spam and mark it as Not spam so future messages from CHCS Temple are not filtered. The Mandir team has also been notified at om@chcstemple.org and will reply when they can.",
   formSendAnotherLabel: "Send another message",
 } as const;
 

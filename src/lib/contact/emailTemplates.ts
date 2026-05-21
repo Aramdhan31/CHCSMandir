@@ -1,6 +1,6 @@
 import type { ContactSubmission } from "@/lib/contact/validate";
 import { formatSubmissionCopy } from "@/lib/contact/validate";
-import { site, visit } from "@/content/site";
+import { brand, site, visit } from "@/content/site";
 
 const COLORS = {
   parchment: "#faf6ef",
@@ -38,7 +38,7 @@ function emailShell(title: string, bodyHtml: string, footerHtml: string) {
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:${COLORS.white};border:1px solid ${COLORS.gold};border-radius:12px;overflow:hidden;">
           <tr>
             <td style="background-color:${COLORS.deep};padding:20px 24px;">
-              <p style="margin:0;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:${COLORS.parchmentMuted};">CHCS Mandir</p>
+              <p style="margin:0;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:${COLORS.parchmentMuted};">${escapeHtml(brand.appName)}</p>
               <h1 style="margin:8px 0 0;font-size:22px;font-weight:600;color:${COLORS.parchment};line-height:1.3;">${escapeHtml(title)}</h1>
             </td>
           </tr>
@@ -111,22 +111,28 @@ export function buildVisitorConfirmationEmail(
   fromDisplayEmail: string,
 ) {
   const isNoreply = /noreply|no-reply|donotreply/i.test(fromDisplayEmail);
+  const addressLine = visit.addressLines.join(", ");
   const text = [
     `Dear ${data.firstName},`,
     "",
-    "Thank you for contacting the Caribbean Hindu Cultural Society Mandir.",
+    `Thank you for contacting ${site.nameFull} (${brand.appName}).`,
     "We have received your message and will reply when we can.",
     "",
     formatSubmissionCopy(data),
     "",
-    isNoreply
-      ? `This email was sent automatically. For a reply, contact ${replyToEmail}.`
-      : `You can reply to ${replyToEmail} if you need to add anything.`,
+    `To reply or follow up, email ${replyToEmail} (not the sender address above).`,
+    "",
+    "If you do not see future mail from us, check your Junk or Spam folder and mark as Not spam.",
+    "",
+    `${brand.appName} · ${addressLine} · ${visit.phoneDisplay}`,
   ].join("\n");
 
   const bodyHtml = `
     <p style="margin:0 0 16px;">Dear <strong>${escapeHtml(data.firstName)}</strong>,</p>
-    <p style="margin:0 0 16px;">Thank you for contacting the <strong>${escapeHtml(site.nameFull)}</strong> Mandir. We have received your message and will get back to you at <strong>${escapeHtml(data.email)}</strong> when we can.</p>
+    <p style="margin:0 0 16px;">Thank you for contacting <strong>${escapeHtml(site.nameFull)}</strong>. We have received your message and will get back to you at <strong>${escapeHtml(data.email)}</strong> when we can.</p>
+    <p style="margin:0 0 16px;padding:12px 14px;background-color:${COLORS.parchment};border-radius:8px;font-size:14px;color:${COLORS.earth};">
+      <strong>Not in your inbox?</strong> Check <strong>Junk</strong> or <strong>Spam</strong>, open the message, and choose <strong>Not spam</strong> / <strong>Report as not junk</strong> so future emails from us arrive normally.
+    </p>
     <p style="margin:0 0 8px;font-size:14px;font-weight:600;color:${COLORS.deep};">Your enquiry</p>
     <div style="background-color:${COLORS.parchment};border:1px solid ${COLORS.parchmentMuted};padding:16px 18px;border-radius:8px;font-size:14px;line-height:1.55;color:${COLORS.earth};">
       <p style="margin:0 0 8px;"><strong>Subject:</strong> ${escapeHtml(data.subject)}</p>
@@ -135,10 +141,14 @@ export function buildVisitorConfirmationEmail(
   `;
 
   const footer = isNoreply
-    ? `This is an automated confirmation from <strong>${escapeHtml(fromDisplayEmail)}</strong>. Please do not reply to this address — email <a href="mailto:${escapeHtml(replyToEmail)}" style="color:${COLORS.gold};">${escapeHtml(replyToEmail)}</a> instead.`
+    ? `This confirmation was sent from <strong>${escapeHtml(fromDisplayEmail)}</strong>. Please <strong>do not reply</strong> to that address — contact us at <a href="mailto:${escapeHtml(replyToEmail)}" style="color:${COLORS.gold};font-weight:600;">${escapeHtml(replyToEmail)}</a>.<br /><br />${escapeHtml(brand.appName)} · ${escapeHtml(addressLine)} · ${escapeHtml(visit.phoneDisplay)}`
     : `Questions? Email <a href="mailto:${escapeHtml(replyToEmail)}" style="color:${COLORS.gold};">${escapeHtml(replyToEmail)}</a>.`;
 
   const html = emailShell("We received your message", bodyHtml, footer);
 
-  return { text, html, subject: "We received your message — CHCS Mandir" };
+  return {
+    text,
+    html,
+    subject: `${brand.appName}: your enquiry was received`,
+  };
 }

@@ -47,7 +47,7 @@ export function parseContactBody(body: unknown): { ok: true; data: ContactSubmis
 export function formatSubmissionCopy(data: ContactSubmission, submittedAt?: string) {
   const when = submittedAt ?? new Date().toISOString();
   return [
-    "CHCS Mandir — enquiry copy",
+    "CHCS Temple — enquiry copy",
     `Saved: ${when}`,
     "",
     `Name: ${data.firstName} ${data.lastName}`,

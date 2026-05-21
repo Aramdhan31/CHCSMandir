@@ -26,7 +26,7 @@ function smtpConfig() {
     user;
   const replyTo =
     process.env.CONTACT_REPLY_TO?.trim() || inbox;
-  const fromName = process.env.CONTACT_FROM_NAME?.trim() || "CHCS Mandir";
+  const fromName = process.env.CONTACT_FROM_NAME?.trim() || "CHCS Temple";
   const host = process.env.SMTP_HOST?.trim() || "smtp.gmail.com";
   const port = Number(process.env.SMTP_PORT?.trim() || "587");
   const secure = port === 465;
@@ -67,6 +67,10 @@ async function sendMail(args: {
       subject: args.subject,
       text: args.text,
       html: args.html,
+      priority: "normal",
+      headers: {
+        "X-Mailer": "CHCS Temple Website",
+      },
     });
     return { ok: true };
   } catch (e) {
