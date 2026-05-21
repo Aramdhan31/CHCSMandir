@@ -1,5 +1,6 @@
 import { connect, getGoogleMapsEmbedSrc, visit } from "@/content/site";
 import { CommunityProgrammesBlock } from "@/components/CommunityProgrammesBlock";
+import { LambethParkingEmbed } from "@/components/LambethParkingEmbed";
 import { MandirMapEmbed } from "@/components/MandirMapEmbed";
 import { ContactForm } from "./ContactForm";
 
@@ -35,8 +36,8 @@ export function VisitSection() {
           {visit.sectionTitle}
         </h2>
         <div className="mt-10 flex flex-col gap-8">
-          <div className="grid gap-8 lg:grid-cols-2 lg:items-stretch">
-          <div className="rounded-2xl border border-gold/30 bg-white/90 p-7 shadow-md ring-1 ring-gold/15 sm:p-8">
+          <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
+          <div className="h-fit self-start rounded-2xl border border-gold/30 bg-white/90 p-7 shadow-md ring-1 ring-gold/15 sm:p-8">
             <h3 className="font-display text-xl font-semibold text-earth sm:text-2xl">
               {visit.servicesHeading}
             </h3>
@@ -165,24 +166,18 @@ export function VisitSection() {
                 {d.drivingLabel}
               </p>
               <p className="mt-2 text-sm leading-relaxed text-earth">{d.driving}</p>
-              {"parkingRestrictionsHref" in d && d.parkingRestrictionsHref ? (
-                <p className="mt-3 text-sm">
-                  <a
-                    href={d.parkingRestrictionsHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
-                  >
-                    {("parkingRestrictionsLabel" in d && d.parkingRestrictionsLabel) ||
-                      "Parking restrictions map"}
-                  </a>
-                  {"parkingRestrictionsHint" in d && d.parkingRestrictionsHint ? (
-                    <span className="mt-1.5 block text-xs leading-relaxed text-earth/90">
-                      {d.parkingRestrictionsHint}
-                    </span>
-                  ) : null}
-                </p>
-              ) : null}
+              <p className="mt-3 text-sm text-earth">
+                <a
+                  href="#visit-parking-map"
+                  className="font-semibold text-gold-dim underline-offset-4 hover:text-deep hover:underline"
+                >
+                  {("parkingRestrictionsLabel" in d && d.parkingRestrictionsLabel) ||
+                    "Parking restrictions map"}
+                </a>
+                {"parkingRestrictionsHint" in d && d.parkingRestrictionsHint ? (
+                  <span className="mt-1 block text-xs text-earth/90">{d.parkingRestrictionsHint}</span>
+                ) : null}
+              </p>
               <p className="mt-3">
                 <a
                   href={connect.map.openInMapsUrl}
@@ -194,6 +189,8 @@ export function VisitSection() {
                 </a>
               </p>
             </div>
+
+            <LambethParkingEmbed />
           </div>
           </div>
 
