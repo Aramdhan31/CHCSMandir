@@ -699,7 +699,7 @@ export const visit = {
     liveBusesHref: "https://tfl.gov.uk/modes/buses/",
     drivingLabel: "Driving",
     driving:
-      "Parking is restricted. Weekdays between 12–2pm and free on weekends.",
+      "Parking restricted Weekdays between 12–2pm and free on weekends at Ostade Road.",
   },
   phoneLabel: "Phone number",
   phoneDisplay: "+44 (0)20 8674 0755",
