@@ -713,9 +713,15 @@ export const visit = {
     subject: "Subject",
     message: "Message",
     messagePlaceholder: "Type your message here…",
-    submit: "Send message (opens your email)",
+    submit: "Send message",
+    submitting: "Sending…",
   },
-  formThankYou: "Thank you for contacting us, we endeavour to answer as soon as we can.",
+  formThankYou: "Thank you — your message has been sent.",
+  formSuccessBody:
+    "The Mandir team has been emailed at om@chcstemple.org. You should also receive a confirmation at the address you entered. We endeavour to reply as soon as we can.",
+  formSaveCopyLabel: "Download a copy",
+  formCopyLabel: "Copy to clipboard",
+  formSendAnotherLabel: "Send another message",
 } as const;
 
 export const footer = {
