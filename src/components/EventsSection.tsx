@@ -176,7 +176,7 @@ export async function EventsSection() {
             <a href="#previous-events" className="font-semibold text-gold-dim underline-offset-2 hover:underline">
               previous events
             </a>{" "}
-            below, or the Mandir calendar.
+            below, or the Temple's calendar.
           </p>
         ) : null}
 
@@ -236,7 +236,7 @@ export async function EventsSection() {
         ) : null}
 
         <div className="border-t border-gold/15 pt-10">
-          <h3 className="font-display text-xl font-semibold text-deep sm:text-2xl">Mandir Calendar</h3>
+          <h3 className="font-display text-xl font-semibold text-deep sm:text-2xl">The Temple's calendar</h3>
           <div className="mt-2 max-w-3xl space-y-3 text-base leading-relaxed text-earth sm:text-lg">
             {calendarIntroParts.map((text, idx) => (
               <p

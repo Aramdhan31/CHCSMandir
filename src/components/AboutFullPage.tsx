@@ -69,11 +69,11 @@ export function AboutFullPage() {
 
       <section
         className="border-t border-gold/20 bg-parchment-muted/50 py-14 sm:py-16"
-        aria-labelledby="about-mandir-photos"
+        aria-labelledby="about-temple-photos"
       >
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <h2
-            id="about-mandir-photos"
+            id="about-temple-photos"
             className="font-display text-2xl font-semibold text-deep sm:text-3xl"
           >
             {about.pageGallery.title}

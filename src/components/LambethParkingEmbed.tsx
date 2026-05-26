@@ -22,7 +22,7 @@ export function LambethParkingEmbed() {
         className={`relative mt-4 w-full overflow-hidden rounded-xl border border-gold/15 bg-parchment-muted/50 ${embedHeightClass}`}
       >
         <iframe
-          title="Lambeth parking restrictions map near CHCS Mandir"
+          title="Lambeth parking restrictions map near CHCS Temple"
           src={mapUrl}
           className="h-full min-h-[inherit] w-full border-0"
           loading="lazy"

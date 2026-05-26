@@ -168,7 +168,7 @@ function parseMemberEntryKind(raw: string): MemberEntryKind {
 
 function parsePaymentMethod(raw: string): PaymentMethod | null {
   const t = raw.trim().toLowerCase().replace(/\s+/g, "_");
-  if (t === "cash" || t.includes("mandir")) return "cash";
+  if (t === "cash" || t.includes("mandir") || t.includes("temple")) return "cash";
   if (t === "bank_transfer" || t === "bank" || t.includes("transfer")) return "bank_transfer";
   if (t === "other") return "other";
   return null;

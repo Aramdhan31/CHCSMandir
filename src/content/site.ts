@@ -39,24 +39,24 @@ export const hero = {
   /** Right column of the welcome row (original single hero image) */
   homeImageSrc: "/11062b_24f786a661694f83a7f9d210fd92c9e7~mv2.avif",
   homeImageAlt:
-    "Photograph alongside the welcome message — CHCS community at the Mandir",
+    "Photograph alongside the welcome message — CHCS community at the Temple",
   /** Gallery below the welcome row */
   templeGalleryTitle: "Our Temple",
   templeGalleryId: "temple",
   templeGalleryIntro:
-    "The face of our Mandir in Brixton and the sanctuary where we gather.",
+    "The face of our Temple in Brixton and the sanctuary where we gather.",
   homeImages: [
     {
       src: "/mandir-exterior.jpg",
-      alt: "Front of the CHCS Mandir — brick building and entrance at 16 Ostade Road, London SW2",
-      label: "Front of the Mandir",
+      alt: "Front of the CHCS Temple — brick building and entrance at 16 Ostade Road, London SW2",
+      label: "Front of the Temple",
       // Use contain so the full building (including bottom) is always visible.
       galleryImageClass: "object-contain object-center",
     },
     {
       src: "/mandir-interior.jpg",
-      alt: "Inside the CHCS Mandir — wooden shrine canopy with Rama, Sita and Lakshmana, flower garlands, framed pictures and golden Om decorations",
-      label: "Inside the Mandir",
+      alt: "Inside the CHCS Temple — wooden shrine canopy with Rama, Sita and Lakshmana, flower garlands, framed pictures and golden Om decorations",
+      label: "Inside the Temple",
     },
   ] as const,
 } as const;
@@ -314,16 +314,16 @@ export const events = {
   sectionTitle: "Upcoming events",
   /** Shown beside the section title while dated event cards are not on the site yet */
   comingSoonLabel: "Coming soon",
-  intro: `All are welcome to our religious and cultural events at ${site.nameFull}, 16 Ostade Road, London SW2.`,
+  intro: `All are welcome to our religious and cultural events at ${site.nameFull}, 16 Ostade Road, London SW2 2BB.`,
   /**
-   * Clarifies CHCS event cards (with “add to calendar” links) vs the embedded Mandir Google Calendar
+   * Clarifies CHCS event cards (with “add to calendar” links) vs the embedded Temple Google Calendar
    * (festival / observance dates that may not match on-the-day CHCS timings).
    */
   cardsCalendarHint:
-    "Each card is published by CHCS: tap Add to calendar to download an invitation your phone or computer can open in its own calendar app (Apple, Google, Outlook, Samsung, etc.), with date, time, and Mandir address. The Mandir Calendar further down is the shared Google calendar—you can subscribe for festival and observance listings; those entries sometimes follow traditional calendar dates rather than the posters above.",
+    "Each card is published by CHCS: tap Add to calendar to download an invitation your phone or computer can open in its own calendar app (Apple, Google, Outlook, Samsung, etc.), with date, time, and the Temple address. The Temple's calendar further down is the shared Google calendar—you can subscribe for festival and observance listings; those entries sometimes follow traditional calendar dates rather than the posters above.",
   /** Shown when there are no `items` cards yet */
   comingSoonBody:
-    "A short list of highlighted dates on this page is coming soon — scroll down for the live Mandir Google Calendar.",
+    "A short list of highlighted dates on this page is coming soon — scroll down for the live Temple Google Calendar.",
   /**
    * Full London **calendar** days **after** the event `dateIso` (`1` = first day after that date) for
    * which the card stays on the **main** grid as “Event ended”. From the **next** day it appears only
@@ -334,7 +334,7 @@ export const events = {
   /** Collapsible panel below the main grid for archived past highlights. */
   previousEventsTitle: "Previous events",
   previousEventsIntro:
-    "Older CHCS highlights (London dates). Posters are read-only here — use the Mandir calendar below for live dates.",
+    "Older CHCS highlights (London dates). Posters are read-only here — use the Temple's calendar below for live dates.",
   /** Shown on the closed disclosure row for previous event posters. */
   previousEventsToggleHint:
     "Click or tap to open or close. Posters move here from the main list after a short “Event ended” grace period.",
@@ -347,7 +347,7 @@ export const events = {
 const MANDIR_CALENDAR_ID =
   "688493520a99bf5168987b9398726f53c8d3b0ede4b0f60bb4663474e234c76b@group.calendar.google.com";
 
-/** Shared CHCS Mandir calendar (hosted on Google; usable from Google, Apple, Outlook, etc.) */
+/** Shared CHCS Temple calendar (hosted on Google; usable from Google, Apple, Outlook, etc.) */
 export const mandirCalendar = {
   /** Opens in Google Calendar (browse on web or app) */
   openUrl:
@@ -355,10 +355,10 @@ export const mandirCalendar = {
   /** Add this calendar inside Google Calendar (account sign-in may be required). */
   subscribeUrl:
     "https://calendar.google.com/calendar/render?cid=688493520a99bf5168987b9398726f53c8d3b0ede4b0f60bb4663474e234c76b%40group.calendar.google.com",
-  embedTitle: "CHCS Mandir — Google Calendar",
+  embedTitle: "CHCS — the Temple's Google calendar",
   openLabel: "Open in Google Calendar",
   subscribeGoogleLabel: "Add with Google Calendar",
-  /** Public iCal feed — same Mandir dates in Apple Calendar, Outlook, Samsung, etc. */
+  /** Public iCal feed — same Temple dates in Apple Calendar, Outlook, Samsung, etc. */
   icalSubscribeLabel: "Apple, Outlook & other apps (.ics)",
   /** Same feed; often prompts Apple devices to subscribe in Calendar. */
   webcalAppleLabel: "Apple Calendar (webcal subscribe)",
@@ -375,7 +375,7 @@ export function getMandirCalendarEmbedSrc(): string {
   return `https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23faf6ef&ctz=Europe%2FLondon&src=${src}&mode=MONTH&color=%23C62828`;
 }
 
-/** Public iCal (.ics) URL for the same Mandir calendar — paste into Outlook “Internet calendar”, Apple “New calendar subscription”, etc. */
+/** Public iCal (.ics) URL for the same Temple calendar — paste into Outlook “Internet calendar”, Apple “New calendar subscription”, etc. */
 export function getMandirCalendarIcalUrl(): string {
   const id = encodeURIComponent(MANDIR_CALENDAR_ID);
   return `https://calendar.google.com/calendar/ical/${id}/public/basic.ics`;
@@ -391,9 +391,9 @@ export const aboutPageMeta = {
   path: "/about",
   documentTitle: "About us",
   breadcrumbHome: "Home",
-  heroEyebrow: "Our Mandir",
+  heroEyebrow: "Our Temple",
   description:
-    "History and life of the Caribbean Hindu Cultural Society Mandir — from 1959 to today at 16 Ostade Road, Brixton, London.",
+    "History and life of the Caribbean Hindu Cultural Society Temple — from 1959 to today at 16 Ostade Road, Brixton, London.",
 } as const;
 
 export const about = {
@@ -403,12 +403,12 @@ export const about = {
   /** Home #about — photo beside summary (file in /public) */
   homeImage: {
     src: "/mandir-main-hall-2.jpg",
-    alt: "CHCS Mandir main hall — ornate wooden shrine with Rama, Sita, Lakshmana, flower garlands, framed pictures and golden Om decorations",
+    alt: "CHCS Temple main hall — ornate wooden shrine with Rama, Sita, Lakshmana, flower garlands, framed pictures and golden Om decorations",
   },
   /** Home page — short version; full narrative lives on /about */
   homeSummaryParagraphs: [
     "The Caribbean Hindu Cultural Society (CHCS), based in South London, was the UK’s first Hindu organisation for promoting Hinduism and Hindu culture. Today we welcome everyone (open to every age and background) to religious and cultural events, including major festivals, delivered with full English translation and meaning ",
-    "From the first meetings in 1959 and decades of fundraising, to buying and restoring our Ostade Road home and consecrating the Mandir, members built a registered Place of Worship and a cohesive society. Membership is open to all, with benefits set out in our constitution.",
+    "From the first meetings in 1959 and decades of fundraising, to buying and restoring our Ostade Road home and consecrating the Temple, members built a registered Place of Worship and a cohesive society. Membership is open to all, with benefits set out in our constitution.",
   ] as const,
   readMoreCta: "Read the full story",
   /**
@@ -416,14 +416,14 @@ export const about = {
    * from the home “Our Temple” gallery strip (bento + captions, includes the community photo).
    */
   pageGallery: {
-    title: "The Mandir at Ostade Road",
+    title: "The Temple at Ostade Road",
     intro:
-      "Photographs from our registered Place of Worship in Brixton — outside the Mandir, main hall shrine, and the upstairs pooja room.",
+      "Photographs from our registered Place of Worship in Brixton — outside the Temple, main hall shrine, and the upstairs pooja room.",
     photos: [
       {
         src: "/mandir-exterior.jpg",
-        alt: "Front of the CHCS Mandir — brick building and entrance at 16 Ostade Road, London SW2",
-        caption: "Outside the Mandir",
+        alt: "Front of the CHCS Temple — brick building and entrance at 16 Ostade Road, London SW2",
+        caption: "Outside the Temple",
         /** Slightly less wide on md than 16/9 — less vertical squeeze — plus object-top for roofline */
         frameClass: "aspect-[4/3] sm:aspect-[4/3] md:aspect-[16/11]",
         imageClass: "object-contain object-top",
@@ -433,15 +433,15 @@ export const about = {
           hero: {
             src: "/mandir-interior.jpg",
             alt:
-              "CHCS Mandir main hall — central shrine with maroon canopy, Rama, Sita and Lakshmana, flower garlands, framed deities and golden Om decorations",
+              "CHCS Temple main hall — central shrine with maroon canopy, Rama, Sita and Lakshmana, flower garlands, framed deities and golden Om decorations",
           },
           bottomLeft: {
             src: "/mandir-main-hall-1.jpg",
-            alt: "CHCS Mandir main hall — Radha and Krishna shrine",
+            alt: "CHCS Temple main hall — Radha and Krishna shrine",
           },
           bottomRight: {
             src: "/mandir-main-hall-3.jpg",
-            alt: "CHCS Mandir main hall — Shiva and Parvati shrine",
+            alt: "CHCS Temple main hall — Shiva and Parvati shrine",
           },
           caption: "Main hall shrine",
         },
@@ -449,7 +449,7 @@ export const about = {
       {
         src: "/Upstairs Pooja room.JPEG",
         alt:
-          "Upstairs pooja room at the CHCS Mandir — ornate wooden shrine with Ram darbar (Rama, Sita, Lakshmana and Hanuman), Radha-Krishna, Durga with Saraswati, Ganesha, Shiva lingam and other deities",
+          "Upstairs pooja room at the CHCS Temple — ornate wooden shrine with Ram darbar (Rama, Sita, Lakshmana and Hanuman), Radha-Krishna, Durga with Saraswati, Ganesha, Shiva lingam and other deities",
         /** Wider-than-tall panorama — object-contain (below) avoids cropping edges. */
         frameClass: "aspect-[5/4] sm:aspect-[3/2] md:aspect-[16/10]",
         imageClass: "object-contain object-center",
@@ -538,7 +538,7 @@ export const leadership = {
       role: "Current Pandit",
       name: "Pt. Bhisham Dindyal",
       imageSrc: "/Pt Bisham.jpeg",
-      imageAlt: "Pt. Bhisham Dindyal — current pandit at CHCS Mandir",
+      imageAlt: "Pt. Bhisham Dindyal — current pandit at CHCS Temple",
     },
   ],
   pastHeading: "Past pandits",
@@ -547,26 +547,26 @@ export const leadership = {
       years: "2019 – 2021",
       name: "Pt. Bish Persaud",
       imageSrc: "/Pandit Bish.webp",
-      imageAlt: "Pt. Bish Persaud — past pandit at CHCS Mandir",
+      imageAlt: "Pt. Bish Persaud — past pandit at CHCS Temple",
     },
     {
       years: "2014 – 2019",
       name: "Pt. Jai Ramrattan",
       imageSrc: "/Pt Jai Ramrattan.png",
-      imageAlt: "Pt. Jai Ramrattan — past pandit at CHCS Mandir",
+      imageAlt: "Pt. Jai Ramrattan — past pandit at CHCS Temple",
     },
     {
       years: "2003 – 2014",
       name: "Pt. R. Sankar",
       imageSrc: "/Pt R Sankar.png",
-      imageAlt: "Pt. R. Sankar — past pandit at CHCS Mandir",
+      imageAlt: "Pt. R. Sankar — past pandit at CHCS Temple",
       imageClass: "origin-center scale-[1.65] object-cover object-[50%_12%]",
     },
     {
       years: "1972 – 2003",
       name: "Pt. H. Tiwari",
       imageSrc: "/Pandit T.png",
-      imageAlt: "Pt. H. Tiwari — past pandit at CHCS Mandir",
+      imageAlt: "Pt. H. Tiwari — past pandit at CHCS Temple",
       imageClass: "origin-center scale-[1.25] object-cover object-[65%_35%]",
     },
     { years: "1962 – 1972", name: "Pt. R. Maharaj" },
@@ -574,13 +574,13 @@ export const leadership = {
       years: "1959 – 1962",
       name: "Pt. H. Tiwari",
       imageSrc: "/Pandit T.png",
-      imageAlt: "Pt. H. Tiwari — past pandit at CHCS Mandir",
+      imageAlt: "Pt. H. Tiwari — past pandit at CHCS Temple",
       imageClass: "origin-center scale-[1.25] object-cover object-[65%_35%]",
     },
     {
       years: "—",
       name: "Pt. Baburam",
-      imageAlt: "Pt. Baburam — past pandit at CHCS Mandir",
+      imageAlt: "Pt. Baburam — past pandit at CHCS Temple",
     },
   ],
 } as const;
@@ -596,7 +596,7 @@ export const leadershipPageMeta = {
 export const homeLeadership = {
   sectionTitle: "Leadership & spiritual guidance",
   intro:
-    "Our Mandir is run by Managing Trustees, elected every two years, and served by our elected Pandit. View the current Pandit here, or see previous Pandits on the full page.",
+    "Our Temple is run by Managing Trustees, elected every two years, and served by our elected Pandit. View the current Pandit here, or see previous Pandits on the full page.",
   ctaLabel: "View previous pandits",
   ctaHref: leadershipPageMeta.path,
 } as const;
@@ -614,7 +614,7 @@ export function getLeadershipHomeSpotlights() {
 export const communityProgrammes = {
   sectionTitle: "Community programmes",
   intro:
-    "Alongside religious and cultural events, the Mandir hosts regular activities open to the wider community.",
+    "Alongside religious and cultural events, the Temple hosts regular activities open to the wider community.",
   items: [
     {
       title: "Wednesday Lunch Club",
@@ -701,7 +701,7 @@ export const visit = {
     driving:
       "Parking on Ostade Road is restricted on weekdays between 12–2pm; weekends are often free. Restrictions change — use the Lambeth map below before you travel and allow extra time.",
     parkingMap: {
-      heading: "Parking restrictions near the Mandir",
+      heading: "Parking restrictions near the Temple",
       intro:
         "Official Lambeth Streets map (AppyWay). Search Ostade Road or 16 Ostade Road SW2 2BB in the map to see restrictions on the temple road and nearby streets.",
       mandirLat: 51.461389,
@@ -722,7 +722,7 @@ export const visit = {
   membershipHeading: "CHCS membership",
   membershipParagraphs: [
     "Join us in supporting the Temple with a yearly membership of just £15. Your contribution will help us maintain our community and continue our important work. Together, we can make a difference and ensure the Temple remains a welcoming space for all.",
-    "If you’d like to join, donate, or support the Mandir in other ways, please email om@chcstemple.org or use the contact form in the Visit us section further down this page.",
+    "If you’d like to join, donate, or support the community in other ways, please email om@chcstemple.org or use the contact form in the Visit us section further down this page.",
     "Thank you for your support!",
   ],
   /** Yearly membership fee (GBP) — keep in sync with SumUp / treasurer expectations. */
@@ -743,7 +743,7 @@ export const visit = {
   },
   formThankYou: "Thank you — your message has been sent.",
   formSuccessBody:
-    "We have emailed a confirmation to the address you entered. If it is not in your inbox within a few minutes, check Junk or Spam and mark it as Not spam so future messages from CHCS Temple are not filtered. The Mandir team has also been notified at om@chcstemple.org and will reply when they can.",
+    "We have emailed a confirmation to the address you entered. If it is not in your inbox within a few minutes, check Junk or Spam and mark it as Not spam so future messages from CHCS Temple are not filtered. The Temple team has also been notified at om@chcstemple.org and will reply when they can.",
   formSendAnotherLabel: "Send another message",
 } as const;
 
@@ -768,7 +768,7 @@ export const connect = {
     ctaButton: "Open our Facebook page",
   },
   map: {
-    heading: "Visit the Mandir",
+    heading: "Visit the Temple",
     /** One line before the first interaction so the page can scroll past the embed */
     mapOverlayCta: "Click or tap to use the map",
     openInMapsLabel: "Open in Google Maps",

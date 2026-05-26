@@ -58,6 +58,6 @@ export function formatSubmissionCopy(data: ContactSubmission, submittedAt?: stri
     data.message,
     "",
     "---",
-    "This is a copy of what you sent on our contact form. The Mandir team will reply to your email when they can.",
+    "This is a copy of what you sent on our contact form. The Temple team will reply to your email when they can.",
   ].join("\n");
 }

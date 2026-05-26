@@ -76,7 +76,7 @@ export const MEMBER_ENTRY_LABELS: Record<MemberEntryKind, string> = {
 };
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
-  cash: "Cash at Mandir",
+  cash: "Cash at the Temple",
   bank_transfer: "Bank transfer",
   other: "Other",
 };

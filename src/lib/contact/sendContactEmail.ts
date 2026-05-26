@@ -84,7 +84,7 @@ export function isContactEmailConfigured() {
   return Boolean(user && pass);
 }
 
-/** Notify the Mandir inbox and send the visitor a confirmation copy. */
+/** Notify the Temple inbox and send the visitor a confirmation copy. */
 export async function sendContactEmails(
   data: ContactSubmission,
 ): Promise<{ ok: true; warning?: string } | { ok: false; error: string }> {
@@ -120,7 +120,7 @@ export async function sendContactEmails(
   if (!toVisitor.ok) {
     return {
       ok: true,
-      warning: `Your message reached the Mandir, but we could not send a confirmation email (${toVisitor.error}).`,
+      warning: `Your message reached the Temple, but we could not send a confirmation email (${toVisitor.error}).`,
     };
   }
 

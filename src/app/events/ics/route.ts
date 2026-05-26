@@ -44,7 +44,7 @@ export async function GET(req: Request) {
   const d = ymdCompact(dateIso);
   if (!d) return new NextResponse("Missing/invalid date", { status: 400 });
 
-  const location = `CHCS Mandir, ${visit.addressLines.join(", ")}`;
+  const location = `CHCS Temple, ${visit.addressLines.join(", ")}`;
   const detailsBits: string[] = [];
   if (summary) detailsBits.push(summary);
   detailsBits.push(`Address: ${visit.addressLines.join(", ")}`);
@@ -62,7 +62,7 @@ export async function GET(req: Request) {
   const lines: string[] = [];
   lines.push("BEGIN:VCALENDAR");
   lines.push("VERSION:2.0");
-  lines.push("PRODID:-//CHCS Mandir//Events//EN");
+  lines.push("PRODID:-//CHCS Temple//Events//EN");
   lines.push("CALSCALE:GREGORIAN");
   lines.push("METHOD:PUBLISH");
   lines.push("BEGIN:VEVENT");
