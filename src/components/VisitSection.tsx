@@ -1,7 +1,7 @@
 import { connect, getGoogleMapsEmbedSrc, visit } from "@/content/site";
 import { CommunityProgrammesBlock } from "@/components/CommunityProgrammesBlock";
 import { LambethParkingEmbed } from "@/components/LambethParkingEmbed";
-import { MandirMapEmbed } from "@/components/MandirMapEmbed";
+import { TempleMapEmbed } from "@/components/TempleMapEmbed";
 import { ContactForm } from "./ContactForm";
 
 /** Visit section map: full width below the two-column intro row. */
@@ -205,7 +205,7 @@ export function VisitSection() {
               {visit.addressLines.join(" · ")}
             </p>
             <div className={`mt-4 w-full ${visitMapHeightClass}`}>
-              <MandirMapEmbed mapSrc={mapSrc} layout="fill" />
+              <TempleMapEmbed mapSrc={mapSrc} layout="fill" />
             </div>
             <p className="mt-3 text-center text-sm">
               <a

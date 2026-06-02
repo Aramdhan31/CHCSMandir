@@ -5,10 +5,10 @@ import {
   buildMonthlySatsangSiteEventForDate,
   getNextMonthlySatsangEvent,
   getNextBhajanSatsangEvent,
-  getMandirCalendarEmbedSrc,
-  getMandirCalendarIcalUrl,
-  getMandirCalendarWebcalUrl,
-  mandirCalendar,
+  getTempleCalendarEmbedSrc,
+  getTempleCalendarIcalUrl,
+  getTempleCalendarWebcalUrl,
+  templeCalendar,
   recurringEventTitles,
 } from "@/content/site";
 import { fetchPublishedSupabaseEvents, fetchPublishedRecurringSettings } from "@/lib/events/fetchPublished";
@@ -128,8 +128,8 @@ export async function EventsSection() {
   const hasMainGrid = mainGridItems.length > 0;
   const hasPrevious = previousItems.length > 0;
   const hasAnyEvents = hasMainGrid || hasPrevious;
-  const embedSrc = getMandirCalendarEmbedSrc();
-  const calendarIntroParts = mandirCalendar.embedIntro
+  const embedSrc = getTempleCalendarEmbedSrc();
+  const calendarIntroParts = templeCalendar.embedIntro
     .split(/\n\s*\n/g)
     .map((s) => s.trim())
     .filter(Boolean);
@@ -254,42 +254,42 @@ export async function EventsSection() {
 
           <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <a
-              href={mandirCalendar.openUrl}
+              href={templeCalendar.openUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex w-full items-center justify-center rounded-full bg-gold px-5 py-3 text-sm font-semibold text-deep shadow-sm transition hover:bg-saffron sm:w-auto sm:py-2.5"
             >
-              {mandirCalendar.openLabel}
+              {templeCalendar.openLabel}
             </a>
             <a
-              href={mandirCalendar.subscribeUrl}
+              href={templeCalendar.subscribeUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex w-full items-center justify-center rounded-full border-2 border-gold/50 bg-white/80 px-5 py-3 text-sm font-semibold text-gold-dim transition hover:border-gold hover:bg-white hover:text-deep sm:w-auto sm:py-2.5"
             >
-              {mandirCalendar.subscribeGoogleLabel}
+              {templeCalendar.subscribeGoogleLabel}
             </a>
             <a
-              href={getMandirCalendarIcalUrl()}
+              href={getTempleCalendarIcalUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex w-full items-center justify-center rounded-full border-2 border-gold/50 bg-white/80 px-5 py-3 text-sm font-semibold text-gold-dim transition hover:border-gold hover:bg-white hover:text-deep sm:w-auto sm:py-2.5"
             >
-              {mandirCalendar.icalSubscribeLabel}
+              {templeCalendar.icalSubscribeLabel}
             </a>
             <a
-              href={getMandirCalendarWebcalUrl()}
+              href={getTempleCalendarWebcalUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex w-full items-center justify-center rounded-full border-2 border-gold/35 bg-parchment-muted/80 px-5 py-3 text-sm font-semibold text-earth transition hover:border-gold hover:text-deep sm:w-auto sm:py-2.5"
             >
-              {mandirCalendar.webcalAppleLabel}
+              {templeCalendar.webcalAppleLabel}
             </a>
           </div>
 
           <div className="mt-6 overflow-hidden rounded-xl border border-gold/20 bg-white/60 shadow-sm">
             <iframe
-              title={mandirCalendar.embedTitle}
+              title={templeCalendar.embedTitle}
               src={embedSrc}
               className="h-[min(36rem,70vh)] w-full min-h-[20rem] border-0 sm:h-[32rem] lg:h-[36rem]"
               loading="lazy"

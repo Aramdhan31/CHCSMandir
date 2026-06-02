@@ -47,14 +47,14 @@ export const hero = {
     "The face of our Temple in Brixton and the sanctuary where we gather.",
   homeImages: [
     {
-      src: "/mandir-exterior.jpg",
+      src: "/temple-exterior.jpg",
       alt: "Front of the CHCS Temple — brick building and entrance at 16 Ostade Road, London SW2",
       label: "Front of the Temple",
       // Use contain so the full building (including bottom) is always visible.
       galleryImageClass: "object-contain object-center",
     },
     {
-      src: "/mandir-interior.jpg",
+      src: "/temple-interior.jpg",
       alt: "Inside the CHCS Temple — wooden shrine canopy with Rama, Sita and Lakshmana, flower garlands, framed pictures and golden Om decorations",
       label: "Inside the Temple",
     },
@@ -344,11 +344,11 @@ export const events = {
   items: [] as readonly SiteEventItem[],
 } as const;
 
-const MANDIR_CALENDAR_ID =
+const TEMPLE_CALENDAR_ID =
   "688493520a99bf5168987b9398726f53c8d3b0ede4b0f60bb4663474e234c76b@group.calendar.google.com";
 
 /** Shared CHCS Temple calendar (hosted on Google; usable from Google, Apple, Outlook, etc.) */
-export const mandirCalendar = {
+export const templeCalendar = {
   /** Opens in Google Calendar (browse on web or app) */
   openUrl:
     "https://calendar.google.com/calendar/u/0?cid=Njg4NDkzNTIwYTk5YmY1MTY4OTg3YjkzOTg3MjZmNTNjOGQzYjBlZGU0YjBmNjBiYjQ2NjM0NzRlMjM0Yzc2YkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
@@ -367,23 +367,25 @@ export const mandirCalendar = {
     "Browse below — use the arrows to change month. Subscribe in Google Calendar or use the .ics / webcal links for Apple, Outlook, Samsung, and other apps.\n\n⚠️ This feed includes festival and observance listings (often traditional calendar dates). For a CHCS poster or service above, use Add to calendar on that card when you need our published time and address.",
 } as const;
 
-/** Optional: set `NEXT_PUBLIC_MANDIR_CALENDAR_EMBED_SRC` in `.env.local` to override the iframe `src`. */
-export function getMandirCalendarEmbedSrc(): string {
-  const raw = process.env.NEXT_PUBLIC_MANDIR_CALENDAR_EMBED_SRC?.trim();
+/** Optional: set `NEXT_PUBLIC_TEMPLE_CALENDAR_EMBED_SRC` in `.env.local` to override the iframe `src`. */
+export function getTempleCalendarEmbedSrc(): string {
+  const raw =
+    process.env.NEXT_PUBLIC_TEMPLE_CALENDAR_EMBED_SRC?.trim() ??
+    process.env.NEXT_PUBLIC_MANDIR_CALENDAR_EMBED_SRC?.trim();
   if (raw?.startsWith("https://")) return raw;
-  const src = encodeURIComponent(MANDIR_CALENDAR_ID);
+  const src = encodeURIComponent(TEMPLE_CALENDAR_ID);
   return `https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23faf6ef&ctz=Europe%2FLondon&src=${src}&mode=MONTH&color=%23C62828`;
 }
 
 /** Public iCal (.ics) URL for the same Temple calendar — paste into Outlook “Internet calendar”, Apple “New calendar subscription”, etc. */
-export function getMandirCalendarIcalUrl(): string {
-  const id = encodeURIComponent(MANDIR_CALENDAR_ID);
+export function getTempleCalendarIcalUrl(): string {
+  const id = encodeURIComponent(TEMPLE_CALENDAR_ID);
   return `https://calendar.google.com/calendar/ical/${id}/public/basic.ics`;
 }
 
 /** Same feed as `webcal://` — often opens the default calendar app to subscribe (try on iPhone/Mac). */
-export function getMandirCalendarWebcalUrl(): string {
-  const id = encodeURIComponent(MANDIR_CALENDAR_ID);
+export function getTempleCalendarWebcalUrl(): string {
+  const id = encodeURIComponent(TEMPLE_CALENDAR_ID);
   return `webcal://calendar.google.com/calendar/ical/${id}/public/basic.ics`;
 }
 
@@ -402,7 +404,7 @@ export const about = {
     "Our Temple today and the journey from 1959 to a registered Place of Worship in Brixton.",
   /** Home #about — photo beside summary (file in /public) */
   homeImage: {
-    src: "/mandir-main-hall-2.jpg",
+    src: "/temple-main-hall-2.jpg",
     alt: "CHCS Temple main hall — ornate wooden shrine with Rama, Sita, Lakshmana, flower garlands, framed pictures and golden Om decorations",
   },
   /** Home page — short version; full narrative lives on /about */
@@ -421,7 +423,7 @@ export const about = {
       "Photographs from our registered Place of Worship in Brixton — outside the Temple, main hall shrine, and the upstairs pooja room.",
     photos: [
       {
-        src: "/mandir-exterior.jpg",
+        src: "/temple-exterior.jpg",
         alt: "Front of the CHCS Temple — brick building and entrance at 16 Ostade Road, London SW2",
         caption: "Outside the Temple",
         /** Slightly less wide on md than 16/9 — less vertical squeeze — plus object-top for roofline */
@@ -431,16 +433,16 @@ export const about = {
       {
         mainHallStack: {
           hero: {
-            src: "/mandir-interior.jpg",
+            src: "/temple-interior.jpg",
             alt:
               "CHCS Temple main hall — central shrine with maroon canopy, Rama, Sita and Lakshmana, flower garlands, framed deities and golden Om decorations",
           },
           bottomLeft: {
-            src: "/mandir-main-hall-1.jpg",
+            src: "/temple-main-hall-1.jpg",
             alt: "CHCS Temple main hall — Radha and Krishna shrine",
           },
           bottomRight: {
-            src: "/mandir-main-hall-3.jpg",
+            src: "/temple-main-hall-3.jpg",
             alt: "CHCS Temple main hall — Shiva and Parvati shrine",
           },
           caption: "Main hall shrine",
@@ -704,8 +706,8 @@ export const visit = {
       heading: "Parking restrictions near the Temple",
       intro:
         "Official Lambeth Streets map (AppyWay). Search Ostade Road or 16 Ostade Road SW2 2BB in the map to see restrictions on the temple road and nearby streets.",
-      mandirLat: 51.461389,
-      mandirLng: -0.118028,
+      templeLat: 51.461389,
+      templeLng: -0.118028,
       zoom: 18,
       baseUrl: "https://streets.appyway.com/lambeth",
       overlayCta: "Click or tap to use the parking map",
@@ -786,7 +788,7 @@ export const connect = {
 export function getLambethParkingMapUrl(): string {
   const p = visit.directions.parkingMap;
   const query = new URLSearchParams({ restrictions: "parking" });
-  return `${p.baseUrl}?${query}#${p.zoom}/${p.mandirLat}/${p.mandirLng}`;
+  return `${p.baseUrl}?${query}#${p.zoom}/${p.templeLat}/${p.templeLng}`;
 }
 
 export function getGoogleMapsEmbedSrc(): string {

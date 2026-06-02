@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { connect } from "@/content/site";
 
-type MandirMapEmbedProps = {
+type TempleMapEmbedProps = {
   mapSrc: string;
   /** `fill` = parent supplies height (e.g. connect section); no default min-heights. */
   layout?: "default" | "fill";
 };
 
-export function MandirMapEmbed({ mapSrc, layout = "default" }: MandirMapEmbedProps) {
+export function TempleMapEmbed({ mapSrc, layout = "default" }: TempleMapEmbedProps) {
   const sizeClass =
     layout === "fill"
       ? "h-full min-h-0"
